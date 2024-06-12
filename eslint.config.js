@@ -11,7 +11,10 @@ export default [
     rules:{
       semi: ["error", "always"],
       "linebreak-style": ["error", "unix"],
-      "no-trailing-spaces": "warn",
+      "no-trailing-spaces": [
+        "warn",
+        { ignoreComments: true },
+      ],
       "no-console": "warn",
     },
   },
