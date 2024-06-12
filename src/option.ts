@@ -22,11 +22,11 @@ export class Option<T> {
   }
 
   is_some(): boolean {
-    return this.type == EType.Some;
+    return this.type === EType.Some;
   }
 
   is_none(): boolean {
-    return this.type == EType.None;
+    return this.type === EType.None;
   }
 
   inspect(func: (value: T) => unknown): this {
@@ -158,6 +158,16 @@ export class Option<T> {
       return `Some(${this.value})`;
     }
     return "None";
+  }
+
+  is_equal_to(other: Option<T>): boolean {
+    if(this.type !== other.type){
+      return false;
+    }
+    if(this.type === EType.None){
+      return true;
+    }
+    return this.value === other.value;
   }
 }
 

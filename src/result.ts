@@ -26,11 +26,11 @@ export class Result<T, E> {
   }
 
   is_ok(): boolean {
-    return this.type == EType.Ok;
+    return this.type === EType.Ok;
   }
 
   is_err(): boolean {
-    return this.type == EType.Err;
+    return this.type === EType.Err;
   }
 
   inspect(func: (ok: T) => unknown): this {
@@ -177,6 +177,13 @@ export class Result<T, E> {
       return `Ok(${this.value})`;
     }
     return `Err(${this.value})`;
+  }
+
+  is_equal_to(other: Result<T, E>): boolean {
+    if(this.type !== other.type){
+      return false;
+    }
+    return this.value === other.value;
   }
 }
 
