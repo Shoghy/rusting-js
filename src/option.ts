@@ -53,16 +53,13 @@ export class Option<T> {
   }
 
   xor(optb: Option<T>): Option<T> {
+    if (this.is_some() && optb.is_some()) {
+      return Option.None();
+    }
     if (this.is_some()) {
-      if (optb.is_some()) {
-        return Option.None();
-      }
       return this;
     }
-    if (optb.is_some()) {
-      return optb;
-    }
-    return Option.None();
+    return optb;
   }
 
   and<U>(optb: Option<U>): Option<U> {
@@ -120,7 +117,7 @@ export class Option<T> {
       return Option.None();
     }
     const value = this.value;
-    this.value = null as any;
+    delete (this as any).value;
     this.type = EType.None;
     return Option.Some(value);
   }
@@ -161,10 +158,10 @@ export class Option<T> {
   }
 
   is_equal_to(other: Option<T>): boolean {
-    if(this.type !== other.type){
+    if (this.type !== other.type) {
       return false;
     }
-    if(this.type === EType.None){
+    if (this.type === EType.None) {
       return true;
     }
     return this.value === other.value;
