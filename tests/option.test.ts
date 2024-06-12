@@ -139,3 +139,33 @@ test('testing `and` method', () => {
   val2 = None();
   expect(val1.and(val2)).toEqual(None());
 });
+
+test('`and_then` should not execute ', () => {
+  const none = None<number>();
+  const result = none.and_then((value) => {
+    return Some(value * value);
+  });
+  expect(result).toEqual(None());
+});
+
+test('`and_then` should execute ', () => {
+  const some = Some(5);
+  const result = some.and_then((value) => {
+    return Some(value * value);
+  });
+  expect(result).toEqual(Some(25));
+});
+
+test('`get_or_insert` should change the value of `None`', () => {
+  const option = None<number>();
+  const result = option.get_or_insert(3.1415);
+  expect(result).toBe(3.1415);
+  expect(option).toEqual(Some(3.1415));
+});
+
+test('`get_or_insert` should not change the value of `Some`', () => {
+  const option = Some(42);
+  const result = option.get_or_insert(9+10); //21
+  expect(result).toBe(42);
+  expect(option).toEqual(Some(42));
+});

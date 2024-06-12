@@ -153,6 +153,25 @@ export class Option<T> {
     return Option.None();
   }
 
+  /**
+   * Returns `optb` parameter if both `this` and `optb` are `Some`, otherwise returns `None`
+   * @example
+   * let val1 = Some("Español");
+   * let val2 = None<string>();
+   * expect(val1.and(val2)).toEqual(None());
+   * 
+   * val1 = None();
+   * val2 = Some("Português");
+   * expect(val1.and(val2)).toEqual(None());
+   * 
+   * val1 = Some("English");
+   * val2 = Some("日本語");
+   * expect(val1.and(val2)).toEqual(Some("日本語"));
+   * 
+   * val1 = None();
+   * val2 = None();
+   * expect(val1.and(val2)).toEqual(None());
+   */
   and<U>(optb: Option<U>): Option<U> {
     if (this.is_some() && optb.is_some()) {
       return optb;
@@ -160,6 +179,21 @@ export class Option<T> {
     return Option.None();
   }
 
+  /**
+   * If `Option` is `Some`, execute the `func` parameter and return its returned value, otherwise return `None`
+   * @example
+   * const none = None<number>();
+   * const result1 = none.and_then((value) => {
+   *   return Some(value * value);
+   * });
+   * expect(result1).toEqual(None());
+   * 
+   * const some = Some(5);
+   * const result = some.and_then((value) => {
+   *   return Some(value * value);
+   * });
+   * expect(result).toEqual(Some(25));
+   */
   and_then<U>(func: (value: T) => Option<U>): Option<U> {
     if (this.is_some()) {
       return func(this.value);
@@ -187,6 +221,19 @@ export class Option<T> {
     throw new Error(msg);
   }
 
+  /**
+   * If `Option` is `None` insert the `value` parameter in `Option`, then return the value. If `Option` is `Some` it just return its value.
+   * @example
+   * const option1 = None<number>();
+   * const result1 = option1.get_or_insert(3.1415);
+   * expect(result1).toBe(3.1415);
+   * expect(option1).toEqual(Some(3.1415));
+   * 
+   * const option2 = Some(42);
+   * const result2 = option2.get_or_insert(19);
+   * expect(result2).toBe(42);
+   * expect(option2).toEqual(Some(42));
+   */
   get_or_insert(value: T): T {
     if (this.is_none()) {
       this.value = value;
