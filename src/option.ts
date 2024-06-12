@@ -23,10 +23,10 @@ export class Option<T> {
 
   /**
    * It returns true if `Option` is `Some`
-   * @example 
+   * @example
    * const some = Some(0);
    * expect(some.is_some()).toBe(true);
-   * 
+   *
    * const none = None();
    * expect(none.is_some()).toBe(false);
    */
@@ -36,10 +36,10 @@ export class Option<T> {
 
   /**
    * It returns true if `Option` is `None`
-   * @example 
+   * @example
    * const some = Some(0);
    * expect(some.is_none()).toBe(false);
-   * 
+   *
    * const none = None();
    * expect(none.is_none()).toBe(true);
    */
@@ -56,7 +56,7 @@ export class Option<T> {
    *     console.log(v);
    *   });
    * }); // This will print `1, 2, 3, 4` in the console
-   * 
+   *
    * const none = None<number[]>();
    * none.inspect((value) => {
    *   value.forEach((v) => {
@@ -76,15 +76,15 @@ export class Option<T> {
    * let val1 = Some("lorem");
    * let val2 = None<string>();
    * expect(val1.or(val2)).toEqual(Some("lorem"));
-   * 
+   *
    * val1 = None();
    * val2 = Some("6.02214076 * 10^23");
    * expect(val1.or(val2)).toEqual(Some("6.02214076 * 10^23"));
-   * 
+   *
    * val1 = Some("あなた");
    * val2 = Some("かわいい");
    * expect(val1.or(val2)).toEqual(Some("あなた"));
-   * 
+   *
    * val1 = None();
    * val2 = None();
    * expect(val1.or(val2)).toEqual(None());
@@ -107,7 +107,7 @@ export class Option<T> {
    *   return Some([4, 20]);
    * });
    * expect(result1).toEqual(Some([4, 20]));
-   * 
+   *
    * const some = Some(69);
    * const result2 = val.or_else(() => {
    *   return Some(13);
@@ -127,15 +127,15 @@ export class Option<T> {
    * let val1 = Some(1);
    * let val2 = None<number>();
    * expect(val1.xor(val2)).toEqual(Some(1));
-   * 
+   *
    * val1 = None();
    * val2 = Some(2);
    * expect(val1.xor(val2)).toEqual(Some(2));
-   * 
+   *
    * val1 = Some(3);
    * val2 = Some(4);
    * expect(val1.xor(val2)).toEqual(None());
-   * 
+   *
    * val1 = None();
    * val2 = None();
    * expect(val1.xor(val2)).toEqual(None());
@@ -175,7 +175,7 @@ export class Option<T> {
    * const none = None();
    * const msg = "This should throw an exception";
    * expect(() => none.expect(msg)).toThrow(new Error(msg));
-   * 
+   *
    * const some = Some(1);
    * const val = some.expect("This should not throw an error");
    * expect(val).toBe(1);
@@ -221,6 +221,7 @@ export class Option<T> {
       return Option.None();
     }
     const value = this.value;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (this as any).value;
     this.type = EType.None;
     return Option.Some(value);
@@ -233,7 +234,7 @@ export class Option<T> {
    * @example
    * const none = None();
    * expect(() => none.unwrap()).toThrow(new Error("`Option` is None"));
-   * 
+   *
    * const some = Some(1);
    * const val = some.unwrap();
    * expect(val).toBe(1);

@@ -116,7 +116,7 @@ test('testing `xor` method', () => {
   val1 = Some(3);
   val2 = Some(4);
   expect(val1.xor(val2)).toEqual(None());
-  
+
   val1 = None();
   val2 = None();
   expect(val1.xor(val2)).toEqual(None());
@@ -126,11 +126,11 @@ test('testing `and` method', () => {
   let val1 = Some("Español");
   let val2 = None<string>();
   expect(val1.and(val2)).toEqual(None());
-  
+
   val1 = None();
   val2 = Some("Português");
   expect(val1.and(val2)).toEqual(None());
-  
+
   val1 = Some("English");
   val2 = Some("日本語");
   expect(val1.and(val2)).toEqual(Some("日本語"));

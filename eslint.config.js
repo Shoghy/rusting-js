@@ -9,7 +9,10 @@ export default [
   ...tseslint.configs.recommended,
   {
     rules:{
-      semi: ["error", "always"]
+      semi: ["error", "always"],
+      "linebreak-style": ["error", "unix"],
+      "no-trailing-spaces": "warn",
+      "no-console": "warn",
     },
   },
 ];
