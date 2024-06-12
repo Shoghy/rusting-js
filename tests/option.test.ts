@@ -93,17 +93,15 @@ test('`or_else` should execute', () => {
   const result = val.or_else(() => {
     return Some([4, 20]);
   });
-  expect(result).not.toEqual(None());
   expect(result).toEqual(Some([4, 20]));
 });
 
 test('`or_else` should not execute', () => {
-  const val = Some(12);
+  const val = Some(69);
   const result = val.or_else(() => {
-    return Some(69);
+    return Some(13);
   });
-  expect(result).not.toEqual(Some(69));
-  expect(result).toEqual(Some(12));
+  expect(result).toEqual(Some(69));
 });
 
 test('testing `xor` method', () => {
@@ -122,4 +120,22 @@ test('testing `xor` method', () => {
   val1 = None();
   val2 = None();
   expect(val1.xor(val2)).toEqual(None());
-})
+});
+
+test('testing `and` method', () => {
+  let val1 = Some("Español");
+  let val2 = None<string>();
+  expect(val1.and(val2)).toEqual(None());
+  
+  val1 = None();
+  val2 = Some("Português");
+  expect(val1.and(val2)).toEqual(None());
+  
+  val1 = Some("English");
+  val2 = Some("日本語");
+  expect(val1.and(val2)).toEqual(Some("日本語"));
+
+  val1 = None();
+  val2 = None();
+  expect(val1.and(val2)).toEqual(None());
+});
