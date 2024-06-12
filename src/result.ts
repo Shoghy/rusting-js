@@ -13,14 +13,14 @@ export class Result<T, E> {
     this.type = type;
   }
 
-  static Ok<T>(value: T): Result<T, unknown> {
-    const self = new Result<T, unknown>(EType.Ok);
+  static Ok<T, E = unknown>(value: T): Result<T, E> {
+    const self = new Result<T, E>(EType.Ok);
     self.value = value;
     return self;
   }
 
-  static Err<E>(value: E): Result<unknown, E> {
-    const self = new Result<unknown, E>(EType.Err);
+  static Err<E, T = unknown>(value: E): Result<T, E> {
+    const self = new Result<T, E>(EType.Err);
     self.value = value;
     return self;
   }

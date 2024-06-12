@@ -1,3 +1,5 @@
+import { Err, Ok, type Result } from "./result";
+
 enum EType {
   Some,
   None,
@@ -434,6 +436,45 @@ export class Option<T> {
       return true;
     }
     return this.value === other.value;
+  }
+
+  map<U>(func: (value: T) => U): Option<U>{
+    if(this.is_none()){
+      return None();
+    }
+    return Some(func(this.value));
+  }
+
+  map_or<U>(def: U, func: (value: T) => U): U{
+    if(this.is_none()){
+      return def;
+    }
+    return func(this.value);
+  }
+
+  map_or_else<U>(none_func: () => U, some_func: (value: T) => U): U{
+    if(this.is_none()){
+      return none_func();
+    }
+    return some_func(this.value);
+  }
+
+  ok_or<E>(err: E): Result<T, E>{
+    if(this.is_none()){
+      return Err(err);
+    }
+    return Ok(this.value);
+  }
+
+  ok_or_else<E>(func: () => E): Result<T, E>{
+    if(this.is_some()){
+      return Ok(this.value);
+    }
+    return Err(func());
+  }
+
+  unwrap_unchecked(): T | undefined{
+    return this.value;
   }
 }
 
