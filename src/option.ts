@@ -242,6 +242,23 @@ export class Option<T> {
     return this.value;
   }
 
+  /**
+   * If `Option` is `None` execute the `func` parameter and insert its returned value in `Option` then return the inserted value. If `Option` is `Some` it just return its value.
+   * @example
+   * const option1 = None<string[]>();
+   * const result1 = option1.get_or_insert_with(
+   *   () => Array.from("Hello World!")
+   * );
+   * expect(result1).toEqual(Array.from("Hello World!"));
+   * expect(option1).toEqual(Some(Array.from("Hello World!")));
+   * 
+   * const option2 = Some("Cards Against Humanity");
+   * const result2 = option2.get_or_insert_with(
+   *   () => "Humanity"
+   * );
+   * expect(result2).toEqual("Cards Against Humanity");
+   * expect(option2).toEqual(Some("Cards Against Humanity"));
+   */
   get_or_insert_with(func: () => T): T {
     if (this.is_none()) {
       this.value = func();
@@ -250,12 +267,45 @@ export class Option<T> {
     return this.value;
   }
 
+  /**
+   * Insert the `value` parameter in `Option` and return it.
+   * @example
+   * const cool_song = "https://open.spotify.com/track/4S3dFI8Sx3UsKOUnoYFCg2";
+   * 
+   * const option1 = None<string>();
+   * const result1 = option1.insert(cool_song);
+   * expect(result1).toBe(cool_song);
+   * expect(option1).not.toEqual(None());
+   * expect(option1).toEqual(Some(cool_song));
+   * 
+   * const option2 = Some(1);
+   * const result2 = option2.insert(2);
+   * expect(result2).toBe(2);
+   * expect(option2).not.toEqual(Some(1));
+   * expect(option2).toEqual(Some(2));
+   */
   insert(value: T): T {
     this.value = value;
     this.type = EType.Some;
     return this.value;
   }
 
+  /**
+   * If `Option` is `None` returns `false`, if it is `Some` execute the `func` parameter and return its returned value.
+   * @example
+   * const r_true = () => true;
+   * const r_false = () => false;
+   * 
+   * const none = None();
+   * expect(none.is_some_and(r_true)).toBe(false);
+   * expect(none.is_some_and(r_false)).toBe(false);
+   * 
+   * const some = Some(1);
+   * expect(some.is_some_and(r_true)).toBe(true);
+   * expect(some.is_some_and(r_false)).toBe(false);
+   * expect(some.is_some_and((value) => value == 1)).toBe(true);
+   * expect(some.is_some_and((value) => value == 2)).toBe(false);
+   */
   is_some_and(func: (value: T) => boolean): boolean {
     if (this.is_none()) {
       return false;
@@ -263,6 +313,20 @@ export class Option<T> {
     return func(this.value);
   }
 
+  /**
+   * If `Option` is `Some`, remove its value and return it wrapped in an `Option`. If `Option` is `None` return `None`.
+   * @example
+   * let option1 = Some(142857);
+   * let option2 = option1.take();
+   * 
+   * expect(option1).toEqual(None());
+   * expect(option2).toEqual(Some(142857));
+   * 
+   * option1 = None();
+   * option2 = option1.take();
+   * expect(option1).toEqual(None());
+   * expect(option2).toEqual(None());
+   */
   take(): Option<T> {
     if (this.is_none()) {
       return Option.None();
@@ -293,6 +357,17 @@ export class Option<T> {
     throw new Error("`Option` is None");
   }
 
+  /**
+   * If `Option` is `Some` return its value. If `Option` is `None` return the parameter `value`.
+   * @example
+   * const none = None<string>();
+   * const result1 = none.unwrap_or("31 minutos");
+   * expect(result1).toBe("31 minutos");
+   * 
+   * const some = Some("Mr. Trance");
+   * const result2 = some.unwrap_or("Esteman");
+   * expect(result2).toBe("Mr. Trance");
+   */
   unwrap_or(value: T): T {
     if (this.is_some()) {
       return this.value;
@@ -300,6 +375,17 @@ export class Option<T> {
     return value;
   }
 
+  /**
+   * If `Option` is `Some` return its value. If `Option` is `None` execute the parameter `func` and return its returned value
+   * @example
+   * const none = None<number>();
+   * const result1 = none.unwrap_or_else(() => 0xe0218a);
+   * expect(result1).toBe(0xe0218a);
+   * 
+   * const some = Some(0);
+   * const result2 = some.unwrap_or_else(() => 1);
+   * expect(result2).toBe(0);
+   */
   unwrap_or_else(func: () => T): T {
     if (this.is_some()) {
       return this.value;
@@ -307,6 +393,25 @@ export class Option<T> {
     return func();
   }
 
+  /**
+   * If `this` and `other` are `Some` return a `Some` that holds both parameters, otherwise returns `None`
+   * @example
+   * let val1 = Some(1);
+   * let val2 = None<string>();
+   * expect(val1.zip(val2)).toEqual(None());
+   * 
+   * val1 = None();
+   * val2 = Some("thing");
+   * expect(val1.zip(val2)).toEqual(None());
+   * 
+   * val1 = Some(0+0+7);
+   * val2 = Some("Agente");
+   * expect(val1.zip(val2)).toEqual(Some([7, "Agente"]));
+   * 
+   * val1 = None();
+   * val2 = None();
+   * expect(val1.zip(val2)).toEqual(None());
+   */
   zip<U>(other: Option<U>): Option<[T, U]> {
     if (this.is_none() || other.is_none()) {
       return Option.None();
