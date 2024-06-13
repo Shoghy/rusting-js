@@ -185,6 +185,17 @@ export class Result<T, E> {
     }
     return this.value === other.value;
   }
+
+  match(arms: {
+    ok: (value: T) => unknown,
+    err: (err: E) => unknown,
+  }): void{
+    if(this.is_err()){
+      arms.err(this.value as E);
+      return;
+    }
+    arms.ok(this.value as T);
+  }
 }
 
 export const Ok = Result.Ok;

@@ -493,7 +493,7 @@ export class Option<T> {
 
   match(arms: {
     some: (value: T) => unknown,
-    none: () => unknown;
+    none: () => unknown,
   }): void {
     if (this.is_none()) {
       arms.none();
