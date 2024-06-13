@@ -16,6 +16,7 @@ export default [
         { ignoreComments: true },
       ],
       "no-console": "warn",
+      quotes: ["warn", "double"],
     },
   },
 ];
