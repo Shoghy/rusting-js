@@ -20,7 +20,27 @@ interface IEnum {
 export function Enum<E extends IEnum>(enum_values: E) {
   type ET = keyof E;
   // Cloning the values so the object cannot be modified
-  const evalues: E = {... enum_values};
+  const evalues: E = { ...enum_values };
+
+  type Type2Value = {
+    [key in ET]: E[key] extends "void"
+    ? undefined
+    : E[key] extends StrJSTypes
+    ? JSTypes[E[key]]
+    : E[key] extends ClassConstructor
+    ? InstanceType<E[key]>
+    : undefined
+  }
+
+  type Type2Func = {
+    [key in ET]: E[key] extends "void"
+    ? () => unknown
+    : E[key] extends StrJSTypes
+    ? (value: JSTypes[E[key]]) => unknown
+    : E[key] extends ClassConstructor
+    ? (value: InstanceType<E[key]>) => unknown
+    : () => unknown
+  }
 
   return class EnumClass {
     private type: ET;
@@ -39,32 +59,14 @@ export function Enum<E extends IEnum>(enum_values: E) {
       return this.type;
     }
 
-    protected set_type<T extends ET>(
-      type: T,
-      value: E[T] extends "void"
-        ? undefined
-        : E[T] extends StrJSTypes
-        ? JSTypes[E[T]]
-        : E[T] extends ClassConstructor
-        ? InstanceType<E[T]>
-        : undefined
-    ) {
+    protected set_type<T extends ET>(type: T, value: Type2Value[T]) {
       this.type = type;
       this.value = value;
     }
 
-    static create<T extends ET>(
-      type: T,
-      value: E[T] extends "void"
-        ? undefined
-        : E[T] extends StrJSTypes
-        ? JSTypes[E[T]]
-        : E[T] extends ClassConstructor
-        ? InstanceType<E[T]>
-        : undefined
-    ): EnumClass {
+    static create<T extends ET>(type: T, value: Type2Value[T]): EnumClass {
       const self = new EnumClass(type, value);
-      if(evalues[type] === "void"){
+      if (evalues[type] === "void") {
         delete self.value;
       }
       return self;
@@ -74,16 +76,7 @@ export function Enum<E extends IEnum>(enum_values: E) {
       return this.type === type;
     }
 
-    if_is<T extends ET>(
-      type: T,
-      func: E[T] extends "void"
-        ? () => unknown
-        : E[T] extends StrJSTypes
-        ? (value: JSTypes[E[T]]) => unknown
-        : E[T] extends ClassConstructor
-        ? (value: InstanceType<E[T]>) => unknown
-        : () => unknown
-    ): void {
+    if_is<T extends ET>(type: T, func: Type2Func[T]): void {
       if (type !== this.type) {
         return;
       }
@@ -96,25 +89,14 @@ export function Enum<E extends IEnum>(enum_values: E) {
       func(this.value);
     }
 
-    match(arms: {
-      [key in ET]: E[key] extends "void"
-      ? () => unknown
-      : E[key] extends StrJSTypes
-      ? (value: JSTypes[E[key]]) => unknown
-      : E[key] extends ClassConstructor
-      ? (value: InstanceType<E[key]>) => unknown
-      : () => unknown
-    }): void;
+    match(arms: { [key in ET]: Type2Func[key] }): void;
 
-    match(arms: {
-      [key in ET]?: E[key] extends "void"
-      ? () => unknown
-      : E[key] extends StrJSTypes
-      ? (value: JSTypes[E[key]]) => unknown
-      : E[key] extends ClassConstructor
-      ? (value: InstanceType<E[key]>) => unknown
-      : () => unknown
-    }, def: () => unknown): void;
+    match(
+      arms: {
+        [key in ET]?: Type2Func[key]
+      },
+      def: () => unknown
+    ): void;
 
     match(
       arms: {
@@ -125,16 +107,16 @@ export function Enum<E extends IEnum>(enum_values: E) {
     ): void {
       const arm = arms[this.type];
 
-      if(arm !== undefined){
-        if(evalues[this.type] === "void"){
+      if (arm !== undefined) {
+        if (evalues[this.type] === "void") {
           arm();
-        }else{
+        } else {
           arm(this.value);
         }
         return;
       }
 
-      if(def !== undefined){
+      if (def !== undefined) {
         def();
         return;
       }
@@ -152,11 +134,7 @@ export function Enum<E extends IEnum>(enum_values: E) {
       }
 
       return (
-        this.value as E[T] extends StrJSTypes
-        ? JSTypes[E[T]]
-        : E[T] extends ClassConstructor
-        ? InstanceType<E[T]>
-        : undefined
+        this.value as Type2Value[T]
       );
     }
 
@@ -170,11 +148,7 @@ export function Enum<E extends IEnum>(enum_values: E) {
       }
 
       return (
-        this.value as E[T] extends StrJSTypes
-        ? JSTypes[E[T]]
-        : E[T] extends ClassConstructor
-        ? InstanceType<E[T]>
-        : undefined
+        this.value as Type2Value[T]
       );
     }
   };
