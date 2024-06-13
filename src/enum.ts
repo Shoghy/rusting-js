@@ -122,10 +122,6 @@ export function Enum<E extends IEnum>(enum_values: E) {
     ): void {
       const arm = arms[this.type];
 
-      if(arm === undefined && def === undefined){
-        throw new Error("All arms should be filled or `def` should be a function");
-      }
-
       if(arm !== undefined){
         if(evalues[this.type] === "void"){
           arm();
@@ -135,7 +131,12 @@ export function Enum<E extends IEnum>(enum_values: E) {
         return;
       }
 
-      (def as () => unknown)();
+      if(def !== undefined){
+        def();
+        return;
+      }
+
+      throw new Error("All arms should be filled or `def` should be a function");
     }
 
     unwrap<T extends ET>(type: T) {
