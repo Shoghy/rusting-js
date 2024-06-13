@@ -491,15 +491,15 @@ export class Option<T> {
     func();
   }
 
-  match(
-    some_func: (value: T) => unknown,
-    none_func: () => unknown,
-  ): void {
+  match(arms: {
+    some: (value: T) => unknown,
+    none: () => unknown;
+  }): void {
     if (this.is_none()) {
-      none_func();
+      arms.none();
       return;
     }
-    some_func(this.value);
+    arms.some(this.value);
   }
 }
 
