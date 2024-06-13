@@ -17,8 +17,10 @@ interface IEnum {
   [key: string]: StrJSTypes | ClassConstructor | "void"
 }
 
-export function Enum<E extends IEnum>(venum: E) {
+export function Enum<E extends IEnum>(enum_values: E) {
   type ET = keyof E;
+  // Cloning the values so the object cannot be modified
+  const evalues: E = {... enum_values};
 
   return class EnumClass {
     private type: ET;
@@ -79,11 +81,11 @@ export function Enum<E extends IEnum>(venum: E) {
         ? (value: InstanceType<E[T]>) => unknown
         : () => unknown
     ): void {
-      if (venum[type] !== this.type) {
+      if (evalues[type] !== this.type) {
         return;
       }
 
-      if (venum[type] === "void") {
+      if (evalues[type] === "void") {
         (func as () => unknown)();
         return;
       }
@@ -125,7 +127,7 @@ export function Enum<E extends IEnum>(venum: E) {
       }
 
       if(arm !== undefined){
-        if(venum[this.type] === "void"){
+        if(evalues[this.type] === "void"){
           arm();
         }else{
           arm(this.value);
@@ -137,7 +139,7 @@ export function Enum<E extends IEnum>(venum: E) {
     }
 
     unwrap<T extends ET>(type: T) {
-      if (venum[type] === "void") {
+      if (evalues[type] === "void") {
         throw new Error(`The value ${new String(type)} of this enum, doesn't contain a value.`);
       }
 
@@ -155,7 +157,7 @@ export function Enum<E extends IEnum>(venum: E) {
     }
 
     expect<T extends ET>(type: T, msg: string) {
-      if (venum[type] === "void") {
+      if (evalues[type] === "void") {
         throw new Error(`The value ${new String(type)} of this enum, doesn't contain a value.`);
       }
 
