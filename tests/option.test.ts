@@ -1,143 +1,227 @@
-import { expect, test } from "bun:test";
+import { expect, test, describe } from "bun:test";
 import { None, Some } from "../src/option";
 
-test("`is_none` should be true", () => {
-  const val = None();
-  expect(val.is_none()).toBe(true);
+describe("Testing `is_none` method", () => {
+  test("`None` should return true", () => {
+    const val = None();
+    expect(val.is_none()).toBe(true);
+  });
+
+  test("`Some` should return false", () => {
+    const val = Some(0);
+    expect(val.is_none()).toBe(false);
+  });
 });
 
-test("`is_some` should be false", () => {
-  const val = None();
-  expect(val.is_some()).toBe(false);
+describe("Testing `is_some` method", () => {
+  test("`None` should return false", () => {
+    const val = None();
+    expect(val.is_some()).toBe(false);
+  });
+
+  test("`Some` should return true", () => {
+    const val = Some(0);
+    expect(val.is_some()).toBe(true);
+  });
 });
 
-test("`is_none` should be false", () => {
-  const val = Some(0);
-  expect(val.is_none()).toBe(false);
+describe("Testing `unwrap` method", () => {
+  test("`None` should throw an exception", () => {
+    const none = None<string>();
+    let val = "Dr. House";
+
+    expect(() =>{
+      val = none.unwrap();
+    }).toThrow(new Error("`Option` is None"));
+
+    expect(val).toBe("Dr. House");
+  });
+
+  test("`Some` should not throw an exception and should return its wrapped value", () => {
+    const some = Some(1);
+    let val = 0;
+
+    expect(() => {
+      val = some.unwrap();
+    }).not.toThrow();
+
+    expect(val).toBe(1);
+  });
 });
 
-test("`is_some` should be true", () => {
-  const val = Some(0);
-  expect(val.is_some()).toBe(true);
-});
-
-test("`unwrap` should throw exception", () => {
-  const val = None();
-  expect(() => val.unwrap()).toThrow(new Error("`Option` is None"));
-});
-
-test("successfully `unwrap`", () => {
-  const option = Some(1);
-  const val = option.unwrap();
-  expect(val).toBe(1);
-});
-
-test("`expect` should throw exception", () => {
-  const val = None();
+describe("test `expect` method", () => {
   const msg = "This should throw an exception";
-  expect(() => val.expect(msg)).toThrow(new Error(msg));
+
+  test("`None` should throw an exception with the same message", () => {
+    const none = None<number[]>();
+    let val = [1, 2, 3];
+
+    expect(() => {
+      val = none.expect(msg);
+    }).toThrow(new Error(msg));
+
+    expect(val).toEqual([1, 2, 3]);
+  });
+
+  test("`Some` should not thow an exception and should return its wrapped value", () => {
+    const some = Some(2);
+    let val = 3;
+
+    expect(() => {
+      val = some.expect(msg);
+    }).not.toThrow();
+
+    expect(val).toBe(2);
+  });
 });
 
-test("successfully `expect`", () => {
-  const option = Some(1);
-  const val = option.expect("This should not throw an error");
-  expect(val).toBe(1);
-});
-
-test("testing `None` and `Some` equality", () => {
+describe("Testing `None` and `Some` equality", () => {
   const some = Some(1);
   const none = None();
 
-  expect(none).toEqual(None());
-  expect(none).not.toEqual(some);
-  expect(some).toEqual(Some(1));
-  expect(some).not.toEqual(Some(2));
-  expect(some).not.toEqual(Some("1"));
-});
-
-test("`inspect` should not execute", () => {
-  const val = None();
-  expect(() => val.inspect(() => {
-    throw Error("This code should not be reached");
-  })).not.toThrow();
-});
-
-test("`inspect` should execute", () => {
-  const val = Some([1, 2, 3]);
-  expect(() => val.inspect((v) => {
-    expect(v).toEqual([1, 2, 3]);
-    throw Error("Exception should be throwed");
-  })).toThrow();
-});
-
-test("testing `or` method", () => {
-  let val1 = Some("lorem");
-  let val2 = None<string>();
-  expect(val1.or(val2)).toEqual(Some("lorem"));
-
-  val1 = None();
-  val2 = Some("6.02214076 * 10^23");
-  expect(val1.or(val2)).toEqual(Some("6.02214076 * 10^23"));
-
-  val1 = Some("あなた");
-  val2 = Some("かわいい");
-  expect(val1.or(val2)).toEqual(Some("あなた"));
-
-  val1 = None();
-  val2 = None();
-  expect(val1.or(val2)).toEqual(None());
-});
-
-test("`or_else` should execute", () => {
-  const val = None<number[]>();
-  const result = val.or_else(() => {
-    return Some([4, 20]);
+  test("`None` and `Some` should not be equal", () => {
+    expect(none).not.toEqual(some);
+    expect(none).not.toEqual(Some(undefined));
+    expect(None()).not.toEqual(Some(undefined));
   });
-  expect(result).toEqual(Some([4, 20]));
-});
 
-test("`or_else` should not execute", () => {
-  const val = Some(69);
-  const result = val.or_else(() => {
-    return Some(13);
+  test("`None` should equal `None`",  () => {
+    expect(none).toEqual(None());
+    expect(None()).toEqual(None());
   });
-  expect(result).toEqual(Some(69));
+
+  test("`Some` should be equal to `Some` if they hold the same value", () => {
+    expect(some).toEqual(Some(1));
+    expect(Some("Piña")).toEqual(Some("Piña"));
+  });
+
+  test("`Some` should not be equal to `Some` if they don't hold the same value", () => {
+    expect(some).not.toEqual(Some(32));
+    expect(some).not.toEqual(Some("Piña"));
+    expect(Some("Bob")).not.toEqual(Some("Piña"));
+  });
 });
 
-test("testing `xor` method", () => {
-  let val1 = Some(1);
-  let val2 = None<number>();
-  expect(val1.xor(val2)).toEqual(Some(1));
+describe("Testing `inspect` method", () => {
+  test("`None` should not execute `inspect`", () => {
+    const none = None<number>();
+    let val = 275;
 
-  val1 = None();
-  val2 = Some(2);
-  expect(val1.xor(val2)).toEqual(Some(2));
+    expect(() => none.inspect((value) => {
+      val = value;
+      throw Error("This should not be throwed");
+    })).not.toThrow();
 
-  val1 = Some(3);
-  val2 = Some(4);
-  expect(val1.xor(val2)).toEqual(None());
+    expect(val).toBe(275);
+  });
 
-  val1 = None();
-  val2 = None();
-  expect(val1.xor(val2)).toEqual(None());
+  test("`Some` should execute `inspect`", () => {
+    const some = Some([1, 2, 3]);
+    let val = [32, 15, 26];
+
+    expect(() => some.inspect((value) => {
+      val = value;
+      throw Error("This should be throwed");
+    })).toThrow();
+
+    expect(val).toEqual([1, 2, 3]);
+  });
 });
 
-test("testing `and` method", () => {
-  let val1 = Some("Español");
-  let val2 = None<string>();
-  expect(val1.and(val2)).toEqual(None());
+describe("Testing `or` method", () => {
+  test("`Some` and `None` should return `Some`", () => {
+    const some = Some("lorem");
+    const none = None<string>();
+    expect(some.or(none)).toEqual(Some("lorem"));
+  });
 
-  val1 = None();
-  val2 = Some("Português");
-  expect(val1.and(val2)).toEqual(None());
+  test("`None` and `Some` should return `Some`", () => {
+    const none = None<string>();
+    const some = Some("6.02214076 * 10^23");
+    expect(none.or(some)).toEqual(Some("6.02214076 * 10^23"));
+  });
 
-  val1 = Some("English");
-  val2 = Some("日本語");
-  expect(val1.and(val2)).toEqual(Some("日本語"));
+  test("`Some` and `Some` should return the first `Some`", () => {
+    const some1 = Some("あなた");
+    const some2 = Some("かわいい");
+    expect(some1.or(some2)).toEqual(Some("あなた"));
+  });
 
-  val1 = None();
-  val2 = None();
-  expect(val1.and(val2)).toEqual(None());
+  test("`None` and `None` should return `None`", () => {
+    const none1 = None();
+    const none2 = None();
+    expect(none1.or(none2)).toEqual(None());
+  });
+});
+
+describe("Testing `or_else` method", () => {
+  test("`None` should execute `or_else`", () => {
+    const none = None<number[]>();
+    const result = none.or_else(() => {
+      return Some([4, 20]);
+    });
+    expect(result).toEqual(Some([4, 20]));
+  });
+
+  test("`Some` should not execute `or_else`", () => {
+    const some = Some(69);
+    const result = some.or_else(() => {
+      return Some(13);
+    });
+    expect(result).toEqual(Some(69));
+  });
+});
+
+describe("Testing `xor` method", () => {
+  test("`Some` and `None` should return `Some`", () => {
+    const some = Some(1);
+    const none = None<number>();
+    expect(some.xor(none)).toEqual(Some(1));
+  });
+
+  test("`None` and `Some` should return `Some`", () => {
+    const none = None<string>();
+    const some = Some("Severlá");
+    expect(none.xor(some)).toEqual(Some("Severlá"));
+  });
+
+  test("`Some` and `Some` should return `None`", () => {
+    const some1 = Some(18);
+    const some2 = Some(13);
+    expect(some1.xor(some2)).toEqual(None());
+  });
+
+  test("`None` and `None` should return `None`", () => {
+    const none1 = None();
+    const none2 = None();
+    expect(none1.xor(none2)).toEqual(None());
+  });
+});
+
+describe("Testing `and` method", () => {
+  test("`Some` and `None` should return `None`", () => {
+    const some = Some("Español");
+    const none = None<string>();
+    expect(some.and(none)).toEqual(None());
+  });
+
+  test("`None` and `Some` should return `None`", () => {
+    const none = None<string>();
+    const some = Some("Português");
+    expect(none.and(some)).toEqual(None());
+  });
+
+  test("`Some` and `Some` should return last `Some`", () => {
+    const some1 = Some("English");
+    const some2 = Some("日本語");
+    expect(some1.and(some2)).toEqual(Some("日本語"));
+  });
+
+  test("`None` and `None` should return `None`", () => {
+    const none1 = None();
+    const none2 = None();
+    expect(none1.and(none2)).toEqual(None());
+  });
 });
 
 test("`and_then` should not execute ", () => {
