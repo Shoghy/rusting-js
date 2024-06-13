@@ -99,13 +99,41 @@ export function Enum<E extends IEnum>(venum: E) {
       : E[key] extends ClassConstructor
       ? (value: InstanceType<E[key]>) => unknown
       : () => unknown
-    }): void {
+    }): void;
+
+    match(arms: {
+      [key in ET]?: E[key] extends "void"
+      ? () => unknown
+      : E[key] extends StrJSTypes
+      ? (value: JSTypes[E[key]]) => unknown
+      : E[key] extends ClassConstructor
+      ? (value: InstanceType<E[key]>) => unknown
+      : () => unknown
+    }, def: () => unknown): void;
+
+    match(
+      arms: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        [key in ET]?: (value?: any) => unknown
+      },
+      def?: () => unknown
+    ): void {
       const arm = arms[this.type];
-      if (venum[this.type] === "void") {
-        (arm as () => unknown)();
+
+      if(arm === undefined && def === undefined){
+        throw new Error("All arms should be filled or `def` should be a function");
+      }
+
+      if(arm !== undefined){
+        if(venum[this.type] === "void"){
+          arm();
+        }else{
+          arm(this.value);
+        }
         return;
       }
-      arm(this.value);
+
+      (def as () => unknown)();
     }
 
     unwrap<T extends ET>(type: T) {
