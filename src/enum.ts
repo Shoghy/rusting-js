@@ -64,6 +64,9 @@ export function Enum<E extends IEnum>(enum_values: E) {
         : undefined
     ): EnumClass {
       const self = new EnumClass(type, value);
+      if(evalues[type] === "void"){
+        delete self.value;
+      }
       return self;
     }
 
