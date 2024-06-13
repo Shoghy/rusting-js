@@ -84,7 +84,7 @@ export function Enum<E extends IEnum>(enum_values: E) {
         ? (value: InstanceType<E[T]>) => unknown
         : () => unknown
     ): void {
-      if (evalues[type] !== this.type) {
+      if (type !== this.type) {
         return;
       }
 
