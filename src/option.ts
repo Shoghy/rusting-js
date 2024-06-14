@@ -449,11 +449,14 @@ export class Option<T> {
     return func(this.value);
   }
 
-  map_or_else<U>(none_func: () => U, some_func: (value: T) => U): U {
+  map_or_else<U>(arms: {
+    some: (value: T) => U,
+    none: () => U,
+  }): U {
     if (this.is_none()) {
-      return none_func();
+      return arms.none();
     }
-    return some_func(this.value);
+    return arms.some(this.value);
   }
 
   ok_or<E>(err: E): Result<T, E> {
