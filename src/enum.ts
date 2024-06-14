@@ -65,7 +65,7 @@ export function Enum<E extends IEnum>(enum_values: E) {
     }
 
     static create<T extends ET>(type: T, value: Type2Value[T]): EnumClass {
-      const self = new EnumClass(type, value);
+      const self = new this(type, value);
       if (evalues[type] === "void") {
         delete self.value;
       }
