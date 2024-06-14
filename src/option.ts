@@ -54,17 +54,13 @@ export class Option<T> {
    * @example
    * const some = Some([1, 2, 3, 4]);
    * some.inspect((value) => {
-   *   value.forEach((v) => {
-   *     console.log(v);
-   *   });
-   * }); // This will print `1, 2, 3, 4` in the console
+   *   expect(value).toEqual([1, 2, 3, 4]);
+   * });
    *
    * const none = None<number[]>();
-   * none.inspect((value) => {
-   *   value.forEach((v) => {
-   *     console.log(v);
-   *   });
-   * }); // This will print nothing
+   * none.inspect(() => {
+   *   throw new Error("This will never be executed");
+   * });
    */
   inspect(func: (value: T) => unknown): this {
     if (!this.is_some()) return this;
@@ -108,7 +104,7 @@ export class Option<T> {
    * expect(result1).toEqual(Some([4, 20]));
    *
    * const some = Some(69);
-   * const result2 = val.or_else(() => {
+   * const result2 = some.or_else(() => {
    *   return Some(13);
    * });
    * expect(result2).toEqual(Some(69));
@@ -244,12 +240,12 @@ export class Option<T> {
   /**
    * If `Option` is `None` execute the `func` parameter and insert its returned value in `Option` then return the inserted value. If `Option` is `Some` it just return its value.
    * @example
-   * const option1 = None<string[]>();
+   * const option1 = None<string>();
    * const result1 = option1.get_or_insert_with(
-   *   () => Array.from("Hello World!")
+   *   () => "Hello World!"
    * );
-   * expect(result1).toEqual(Array.from("Hello World!"));
-   * expect(option1).toEqual(Some(Array.from("Hello World!")));
+   * expect(result1).toEqual("Hello World!");
+   * expect(option1).toEqual(Some("Hello World!"));
    * 
    * const option2 = Some("Cards Against Humanity");
    * const result2 = option2.get_or_insert_with(
