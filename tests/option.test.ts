@@ -31,7 +31,7 @@ describe("Testing `unwrap` method", () => {
     const none = None<string>();
     let val = "Dr. House";
 
-    expect(() =>{
+    expect(() => {
       val = none.unwrap();
     }).toThrow(new Error("`Option` is None"));
 
@@ -86,7 +86,7 @@ describe("Testing `None` and `Some` equality", () => {
     expect(None()).not.toEqual(Some(undefined));
   });
 
-  test("`None` should equal `None`",  () => {
+  test("`None` should equal `None`", () => {
     expect(none).toEqual(None());
     expect(None()).toEqual(None());
   });
@@ -253,7 +253,7 @@ describe("Testing `get_or_insert` method", () => {
 
   test("`Some` should not insert the value", () => {
     const option = Some(42);
-    const result = option.get_or_insert(9+10); //21
+    const result = option.get_or_insert(9 + 10); //21
     expect(result).toBe(42);
     expect(option).toEqual(Some(42));
   });
@@ -414,7 +414,7 @@ describe("Testing `map` method", () => {
     expect(result).toEqual(None());
   });
 
-  test("`Some` should execute the `func` parameter and return its return value wrapped in a `Some`", () =>{
+  test("`Some` should execute the `func` parameter and return its return value wrapped in a `Some`", () => {
     const boo = "Hipopomonstruoesquipedalofobia";
     const some = Some(boo);
     let val = 1;
