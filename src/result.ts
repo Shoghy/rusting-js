@@ -45,16 +45,16 @@ export class Result<T, E> {
     return this;
   }
 
-  and<U>(res: Result<U, E>) {
+  and<U>(res: Result<U, E>): Result<U, E> {
     if (this.is_err()) {
-      return this;
+      return Err(this.value as E);
     }
     return res;
   }
 
-  and_then<U>(func: (value: T) => Result<U, E>) {
+  and_then<U>(func: (value: T) => Result<U, E>): Result<U, E> {
     if (this.is_err()) {
-      return this;
+      return Err(this.value as E);
     }
     return func(this.value as T);
   }
@@ -94,16 +94,16 @@ export class Result<T, E> {
     return func(this.value as T);
   }
 
-  map<U>(func: (ok: T) => Result<U, E>) {
+  map<U>(func: (ok: T) => Result<U, E>): Result<U, E> {
     if (this.is_err()) {
-      return this;
+      return Err(this.value as E);
     }
     return func(this.value as T);
   }
 
-  map_err<F>(func: (err: E) => Result<T, F>) {
+  map_err<F>(func: (err: E) => Result<T, F>): Result<T, F> {
     if (this.is_ok()) {
-      return this;
+      return Ok(this.value as T);
     }
     return func(this.value as E);
   }
@@ -129,16 +129,16 @@ export class Result<T, E> {
     return Some(this.value as T);
   }
 
-  or<F>(res: Result<T, F>) {
+  or<F>(res: Result<T, F>): Result<T, F> {
     if (this.is_ok()) {
-      return this;
+      return Ok(this.value as T);
     }
     return res;
   }
 
-  or_else<F>(op: (err: E) => Result<T, F>) {
+  or_else<F>(op: (err: E) => Result<T, F>): Result<T, F> {
     if (this.is_ok()) {
-      return this;
+      return Ok(this.value as T);
     }
     return op(this.value as E);
   }
