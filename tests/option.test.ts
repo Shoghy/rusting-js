@@ -1,5 +1,6 @@
 import { expect, test, describe } from "bun:test";
 import { None, Some } from "../src/option";
+import { Err, Ok } from "../src/result";
 
 describe("Testing `is_none` method", () => {
   test("`None` should return true", () => {
@@ -49,7 +50,7 @@ describe("Testing `unwrap` method", () => {
   });
 });
 
-describe("test `expect` method", () => {
+describe("Testing `expect` method", () => {
   const msg = "This should throw an exception";
 
   test("`None` should throw an exception with the same message", () => {
@@ -396,5 +397,246 @@ describe("Testing `zip` method", () => {
     const none1 = None();
     const none2 = None();
     expect(none1.zip(none2)).toEqual(None());
+  });
+});
+
+describe("Testing `map` method", () => {
+  test("`None` should return `None` without executing the `func` parameter", () => {
+    const none = None<string>();
+    let val = 1;
+
+    const result = none.map((value) => {
+      val = 2;
+      return value.length;
+    });
+
+    expect(val).toBe(1);
+    expect(result).toEqual(None());
+  });
+
+  test("`Some` should execute the `func` parameter and return its return value wrapped in a `Some`", () =>{
+    const boo = "Hipopomonstruoesquipedalofobia";
+    const some = Some(boo);
+    let val = 1;
+
+    const result = some.map((value) => {
+      val = 2;
+      return value.length;
+    });
+
+    expect(val).toBe(2);
+    expect(result).toEqual(Some(boo.length));
+  });
+});
+
+describe("Testing `map_or` method", () => {
+  test("`None` should not execute the `func` parameter and should return the `def` parameter", () => {
+    const none = None();
+    let val = 1;
+
+    const result = none.map_or("La Guia Del Autoestopista Galáctico", () => {
+      val = 2;
+      return "No se asuste";
+    });
+
+    expect(val).toBe(1);
+    expect(result).toBe("La Guia Del Autoestopista Galáctico");
+  });
+
+  test("`Some` should execute the `func` parameter and return its value", () => {
+    const some = Some(0xff);
+    let val = 1;
+
+    const result = some.map_or("THE GREAT PAPYRUS", (value) => {
+      val = 2;
+      return value.toString(16);
+    });
+
+    expect(val).toBe(2);
+    expect(result).toBe("ff");
+  });
+});
+
+describe("Testing `map_or_else` method", () => {
+  test("`None` should call the function in the `none` property and return its returned value", () => {
+    const none = None();
+    let val = 1;
+
+    const result = none.map_or_else({
+      none: () => {
+        val = 2;
+        return "What should I put here?";
+      },
+      some: () => {
+        throw new Error("This should not execute");
+      },
+    });
+
+    expect(val).toBe(2);
+    expect(result).toBe("What should I put here?");
+  });
+
+  test("`Some` should call the function in the `some` property and return its returned value", () => {
+    const some = Some([1, 9, 8, 4]);
+    let val = 1;
+
+    const result = some.map_or_else({
+      some: (value) => {
+        val = 2;
+        return value[2];
+      },
+      none: () => {
+        throw new Error("This should not execute");
+      },
+    });
+
+    expect(val).toBe(2);
+    expect(result).toBe(8);
+  });
+});
+
+describe("Testing `ok_or` method", () => {
+  test("`None` should return `Err`", () => {
+    const none = None();
+    const result = none.ok_or("Brainfuck");
+    expect(result).toEqual(Err("Brainfuck"));
+  });
+
+  test("`Some` should return `Ok`", () => {
+    const some = Some("Rust lang get its name from a fungus");
+    const result = some.ok_or("The cake it's a lie");
+    expect(result).toEqual(Ok("Rust lang get its name from a fungus"));
+  });
+});
+
+describe("Testing `ok_or_else` method", () => {
+  test("`None` should call the `func` parameter and return its return value wrapped in a `Err`", () => {
+    const none = None();
+    let val = 1;
+
+    const result = none.ok_or_else(() => {
+      val = 2;
+      return 78;
+    });
+
+    expect(val).toBe(2);
+    expect(result).toEqual(Err(78));
+  });
+
+  test("`Some` should return its value wrapped in an `Ok` and should not call the `func` parameter", () => {
+    const some = Some("Silksong still doesn't have a release date");
+    let val = 1;
+
+    const result = some.ok_or_else(() => {
+      val = 2;
+      return 123456789;
+    });
+
+    expect(val).toBe(1);
+    expect(result).toEqual(Ok("Silksong still doesn't have a release date"));
+  });
+});
+
+describe("Testing `unwrap_unchecked` method", () => {
+  test("`None` should return `undefined`", () => {
+    const none = None();
+    const result = none.unwrap_unchecked();
+    expect(result).toBe(undefined);
+  });
+
+  test("`Some` should return its value", () => {
+    const some = Some(53);
+    const result = some.unwrap_unchecked();
+    expect(result).toBe(53);
+  });
+
+  test("`Some` with its value taked should also return `undefined`", () => {
+    const option = Some("Hello reader");
+    option.take();
+    const result = option.unwrap_unchecked();
+    expect<unknown>(result).toBe(undefined);
+    expect(result).not.toBe("Hello reader");
+  });
+});
+
+describe("Testing `if_some` method", () => {
+  test("`None` should not call the `func` parameter", () => {
+    const none = None();
+    let val = 1;
+
+    none.if_some(() => {
+      val = 2;
+    });
+
+    expect(val).toBe(1);
+  });
+
+  test("`Some` should call the `func` parameter", () => {
+    const some = Some(56);
+    let val = 1;
+
+    some.if_some((value) => {
+      val = value;
+    });
+
+    expect(val).toBe(56);
+  });
+});
+
+describe("Testing `if_none` method", () => {
+  test("`None` should call the `func` parameter", () => {
+    const none = None();
+    let val = 1;
+
+    none.if_none(() => {
+      val = 2;
+    });
+
+    expect(val).toBe(2);
+  });
+
+  test("`Some` should not call the `func` parameter", () => {
+    const some = Some(-1);
+    let val = 1;
+
+    some.if_none(() => {
+      val = 2;
+    });
+
+    expect(val).toBe(1);
+  });
+});
+
+describe("Testing `match` method", () => {
+  test("`None` should call the function in the `none` property", () => {
+    const none = None();
+    let val = 1;
+
+    none.match({
+      none: () => {
+        val = 2;
+      },
+      some: () => {
+        throw new Error("This should not execute");
+      },
+    });
+
+    expect(val).toBe(2);
+  });
+
+  test("`Some` should call the function in the `some` property", () => {
+    const some = Some(-5);
+    let val = 1;
+
+    some.match({
+      some: (value) => {
+        val = value;
+      },
+      none: () => {
+        throw new Error("This should not execute");
+      },
+    });
+
+    expect(val).toBe(-5);
   });
 });
