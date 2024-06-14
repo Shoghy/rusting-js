@@ -73,7 +73,7 @@ export class Option<T> {
   }
 
   /**
-   * Returns `this` if is `Some` or return `optb` if is `Some`, returns `None` if both are `None`
+   * Returns `this` if is `Some`, otherwise returns optb
    * @example
    * let val1 = Some("lorem");
    * let val2 = None<string>();
@@ -95,10 +95,7 @@ export class Option<T> {
     if (this.is_some()) {
       return this;
     }
-    if (optb.is_some()) {
-      return optb;
-    }
-    return Option.None();
+    return optb;
   }
 
   /**
