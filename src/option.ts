@@ -141,7 +141,7 @@ export class Option<T> {
    */
   xor(optb: Option<T>): Option<T> {
     if (this.is_some() && optb.is_some()) {
-      return Option.None();
+      return None();
     }
     if (this.is_some()) {
       return this;
@@ -149,7 +149,7 @@ export class Option<T> {
     if (optb.is_some()) {
       return optb;
     }
-    return Option.None();
+    return None();
   }
 
   /**
@@ -175,7 +175,7 @@ export class Option<T> {
     if (this.is_some() && optb.is_some()) {
       return optb;
     }
-    return Option.None();
+    return None();
   }
 
   /**
@@ -197,7 +197,7 @@ export class Option<T> {
     if (this.is_some()) {
       return func(this.value);
     }
-    return Option.None();
+    return None();
   }
 
   /**
@@ -328,13 +328,13 @@ export class Option<T> {
    */
   take(): Option<T> {
     if (this.is_none()) {
-      return Option.None();
+      return None();
     }
     const value = this.value;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (this as any).value;
     this.type = EType.None;
-    return Option.Some(value);
+    return Some(value);
   }
 
   /**
@@ -413,9 +413,9 @@ export class Option<T> {
    */
   zip<U>(other: Option<U>): Option<[T, U]> {
     if (this.is_none() || other.is_none()) {
-      return Option.None();
+      return None();
     }
-    return Option.Some([this.value, other.value]);
+    return Some([this.value, other.value]);
   }
 
   to_string(): string {
