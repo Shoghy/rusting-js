@@ -13,7 +13,7 @@ test("`get_type` method should return the created type", () => {
   const str = ExampleEnum.create("Str", "Hola mundo");
   expect(str.get_type()).toBe("Str");
 
-  const nothing = ExampleEnum.create("Nothing", undefined);
+  const nothing = ExampleEnum.create("Nothing");
   expect(nothing.get_type()).not.toBe("Str");
 });
 
@@ -40,10 +40,8 @@ describe("Testing `Enum` equality", () => {
   });
 
   test("If an arm don't hold a value it should always be equal",  () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const nothing1 = ExampleEnum.create("Nothing", "Hello World" as any);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const nothing2 = ExampleEnum.create("Nothing", 13 as any);
+    const nothing1 = ExampleEnum.create("Nothing" as never, "Hello World" as never);
+    const nothing2 = ExampleEnum.create("Nothing" as never, 13 as never);
     expect(nothing1).toEqual(nothing2);
   });
 });

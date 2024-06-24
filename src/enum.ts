@@ -29,7 +29,7 @@ export function Enum<E extends IEnum>(enum_values: E) {
     ? JSTypes[E[key]]
     : E[key] extends ClassConstructor
     ? InstanceType<E[key]>
-    : undefined
+    : never
   }
 
   type Type2Func = {
@@ -39,7 +39,7 @@ export function Enum<E extends IEnum>(enum_values: E) {
     ? (value: JSTypes[E[key]]) => unknown
     : E[key] extends ClassConstructor
     ? (value: InstanceType<E[key]>) => unknown
-    : () => unknown
+    : never
   }
 
   return class EnumClass {
@@ -64,7 +64,9 @@ export function Enum<E extends IEnum>(enum_values: E) {
       this.value = value;
     }
 
-    static create<T extends ET>(type: T, value: Type2Value[T]): EnumClass {
+    static create<T extends ET>(type: E[T] extends "void" ? T : never): EnumClass;
+    static create<T extends ET>(type: E[T] extends "void" ? never : T, value: Type2Value[T]): EnumClass;
+    static create<T extends ET>(type: T, value?: Type2Value[T]): EnumClass {
       const self = new this(type, value);
       if (evalues[type] === "void") {
         delete self.value;
