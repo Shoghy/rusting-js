@@ -45,7 +45,7 @@ export function Enum<E extends IEnum>(enum_values: E) {
   return class EnumClass {
     private type: ET;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private value!: any;
+    private value: any;
 
     protected constructor(
       type: ET,
@@ -59,7 +59,7 @@ export function Enum<E extends IEnum>(enum_values: E) {
       return this.type;
     }
 
-    protected set_type<T extends ET>(type: T, value: Type2Value[T]) {
+    protected set_type<T extends ET>(type: T, value: Type2Value[T]): void {
       this.type = type;
       this.value = value;
     }
@@ -124,32 +124,28 @@ export function Enum<E extends IEnum>(enum_values: E) {
       throw new Error("All arms should be filled or `def` should be a function");
     }
 
-    unwrap<T extends ET>(type: T) {
+    unwrap<T extends ET>(type: T): Type2Value[T] {
       if (evalues[type] === "void") {
-        throw new Error(`The value ${new String(type)} of this enum, doesn't contain a value.`);
+        throw new Error(`The value ${type as string} of this enum, doesn't contain a value.`);
       }
 
       if (this.type !== type) {
-        throw new Error(`Enum is not ${new String(type)}`);
+        throw new Error(`Enum is not ${type as string}`);
       }
 
-      return (
-        this.value as Type2Value[T]
-      );
+      return this.value;
     }
 
-    expect<T extends ET>(type: T, msg: string) {
+    expect<T extends ET>(type: T, msg: string): Type2Value[T] {
       if (evalues[type] === "void") {
-        throw new Error(`The value ${new String(type)} of this enum, doesn't contain a value.`);
+        throw new Error(`The value ${type as string} of this enum, doesn't contain a value.`);
       }
 
       if (this.type !== type) {
         throw new Error(msg);
       }
 
-      return (
-        this.value as Type2Value[T]
-      );
+      return this.value;
     }
   };
 }
