@@ -13,6 +13,8 @@ type StrJSTypes = keyof JSTypes;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ClassConstructor = abstract new (...args: any) => any;
 
+type ZeroParamFunc = () => unknown;
+
 interface IEnum {
   [key: string]: StrJSTypes | ClassConstructor | "void"
 }
@@ -34,7 +36,7 @@ export function Enum<E extends IEnum>(enum_values: E) {
 
   type Type2Func = {
     [key in ET]: E[key] extends "void"
-    ? () => unknown
+    ? ZeroParamFunc
     : E[key] extends StrJSTypes
     ? (value: JSTypes[E[key]]) => unknown
     : E[key] extends ClassConstructor
@@ -90,7 +92,7 @@ export function Enum<E extends IEnum>(enum_values: E) {
       }
 
       if (evalues[type] === "void") {
-        (func as () => unknown)();
+        (func as ZeroParamFunc)();
         return;
       }
 
@@ -103,21 +105,20 @@ export function Enum<E extends IEnum>(enum_values: E) {
       arms: {
         [key in ET]?: Type2Func[key]
       },
-      def: () => unknown
+      def: ZeroParamFunc
     ): void;
 
     match(
       arms: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        [key in ET]?: (value?: any) => unknown
+        [key in ET]?: Type2Func[key]
       },
-      def?: () => unknown
+      def?: ZeroParamFunc
     ): void {
       const arm = arms[this.type];
 
       if (arm !== undefined) {
         if (evalues[this.type] === "void") {
-          arm();
+          (arm as ZeroParamFunc)();
         } else {
           arm(this.value);
         }
