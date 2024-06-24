@@ -59,9 +59,15 @@ export function Enum<E extends IEnum>(enum_values: E) {
       return this.type;
     }
 
-    protected set_type<T extends ET>(type: T, value: Type2Value[T]): void {
+    protected set_type<T extends ET>(type: E[T] extends "void" ? T : never): void;
+    protected set_type<T extends ET>(type: E[T] extends "void" ? never : T, value: Type2Value[T]): void;
+    protected set_type<T extends ET>(type: T, value?: Type2Value[T]): void {
       this.type = type;
-      this.value = value;
+      if (evalues[type] === "void") {
+        delete this.value;
+      }else{
+        this.value = value;
+      }
     }
 
     static create<T extends ET>(type: E[T] extends "void" ? T : never): EnumClass;
