@@ -1,3 +1,5 @@
+import { panic } from "./panic_functions";
+
 interface JSTypes {
   string: string
   number: number
@@ -150,16 +152,16 @@ export function Enum<E extends IEnum>(enum_values: E) {
         return;
       }
 
-      throw new Error("All arms should be filled or `def` should be a function");
+      panic("All arms should be filled or `def` should be a function");
     }
 
     unwrap<T extends ET>(type: T): Type2Value[T] {
       if (evalues[type] === "void") {
-        throw new Error(`The value ${type as string} of this enum, doesn't contain a value.`);
+        panic(`The value ${type as string} of this enum, doesn't contain a value.`);
       }
 
       if (this.__type !== type) {
-        throw new Error(`Enum is not ${type as string}`);
+        panic(`Enum is not ${type as string}`);
       }
 
       return this.__value;
@@ -167,11 +169,11 @@ export function Enum<E extends IEnum>(enum_values: E) {
 
     expect<T extends ET>(type: T, msg: string): Type2Value[T] {
       if (evalues[type] === "void") {
-        throw new Error(`The value ${type as string} of this enum, doesn't contain a value.`);
+        panic(`The value ${type as string} of this enum, doesn't contain a value.`);
       }
 
       if (this.__type !== type) {
-        throw new Error(msg);
+        panic(msg);
       }
 
       return this.__value;

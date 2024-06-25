@@ -1,4 +1,5 @@
 import { None, type Option, Some } from "./option";
+import { panic } from "./panic_functions";
 
 enum EType {
   Ok,
@@ -70,14 +71,14 @@ export class Result<T, E> {
     if (this.is_ok()) {
       return this.__value as T;
     }
-    throw new Error(value);
+    panic(value);
   }
 
   expect_err(value: string): E {
     if (this.is_err()) {
       return this.__value as E;
     }
-    throw new Error(value);
+    panic(value);
   }
 
   is_err_and(func: (err: E) => boolean): boolean {
@@ -147,7 +148,7 @@ export class Result<T, E> {
     if (this.is_ok()) {
       return this.__value as T;
     }
-    throw new Error("`Result` is Err");
+    panic("`Result` is Err");
   }
 
   unwrap_err(): E {
@@ -155,7 +156,7 @@ export class Result<T, E> {
       return this.__value as E;
     }
 
-    throw new Error("`Result` is Ok");
+    panic("`Result` is Ok");
   }
 
   unwrap_or(def: T): T {

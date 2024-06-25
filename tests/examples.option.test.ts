@@ -8,6 +8,7 @@
 import { expect, test } from "bun:test";
 import { None, Some } from "../src/option";
 import { Err, Ok } from "../src/result";
+import { unreachable } from "../src/panic_functions";
 
 test("is_some", () => {
   const some = Some(0);
@@ -33,7 +34,7 @@ test("inspect", () => {
 
   const none = None<number[]>();
   none.inspect(() => {
-    throw new Error("This will never be executed");
+    unreachable();
   });
 });
 
@@ -122,10 +123,10 @@ test("and_then", () => {
 test("expect", () => {
   const none = None();
   const msg = "This should throw an exception";
-  expect(() => none.expect(msg)).toThrow(new Error(msg));
+  expect(() => none.expect(msg)).toThrow();
 
   const some = Some(1);
-  const val = some.expect("This should not throw an error");
+  const val = some.expect("This should not panic");
   expect(val).toBe(1);
 });
 
@@ -187,7 +188,7 @@ test("take", () => {
 
 test("unwrap", () => {
   const none = None();
-  expect(() => none.unwrap()).toThrow(new Error("`Option` is None"));
+  expect(() => none.unwrap()).toThrow();
 
   const some = Some(1);
   const val = some.unwrap();

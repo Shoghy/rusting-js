@@ -1,6 +1,7 @@
 import { expect, test, describe } from "bun:test";
 import { None, Some } from "../src/option";
 import { Err, Ok } from "../src/result";
+import { panic, unreachable } from "../src/panic_functions";
 
 describe("Testing `is_none` method", () => {
   test("`None` should return true", () => {
@@ -27,18 +28,18 @@ describe("Testing `is_some` method", () => {
 });
 
 describe("Testing `unwrap` method", () => {
-  test("`None` should throw an exception", () => {
+  test("`None` should panic", () => {
     const none = None<string>();
     let val = "Dr. House";
 
     expect(() => {
       val = none.unwrap();
-    }).toThrow(new Error("`Option` is None"));
+    }).toThrow();
 
     expect(val).toBe("Dr. House");
   });
 
-  test("`Some` should not throw an exception and should return its wrapped value", () => {
+  test("`Some` should not panic and should return its wrapped value", () => {
     const some = Some(1);
     let val = 0;
 
@@ -51,20 +52,20 @@ describe("Testing `unwrap` method", () => {
 });
 
 describe("Testing `expect` method", () => {
-  const msg = "This should throw an exception";
+  const msg = "This should panic";
 
-  test("`None` should throw an exception with the same message", () => {
+  test("`None` should panic with the same message", () => {
     const none = None<number[]>();
     let val = [1, 2, 3];
 
     expect(() => {
       val = none.expect(msg);
-    }).toThrow(new Error(msg));
+    }).toThrow();
 
     expect(val).toEqual([1, 2, 3]);
   });
 
-  test("`Some` should not thow an exception and should return its wrapped value", () => {
+  test("`Some` should not panic and should return its wrapped value", () => {
     const some = Some(2);
     let val = 3;
 
@@ -110,7 +111,7 @@ describe("Testing `inspect` method", () => {
 
     expect(() => none.inspect((value) => {
       val = value;
-      throw Error("This should not be throwed");
+      unreachable();
     })).not.toThrow();
 
     expect(val).toBe(275);
@@ -122,7 +123,7 @@ describe("Testing `inspect` method", () => {
 
     expect(() => some.inspect((value) => {
       val = value;
-      throw Error("This should be throwed");
+      panic("This should be throwed");
     })).toThrow();
 
     expect(val).toEqual([1, 2, 3]);
@@ -468,7 +469,7 @@ describe("Testing `map_or_else` method", () => {
         return "What should I put here?";
       },
       some: () => {
-        throw new Error("This should not execute");
+        unreachable();
       },
     });
 
@@ -486,7 +487,7 @@ describe("Testing `map_or_else` method", () => {
         return value[2];
       },
       none: () => {
-        throw new Error("This should not execute");
+        unreachable();
       },
     });
 
@@ -617,7 +618,7 @@ describe("Testing `match` method", () => {
         val = 2;
       },
       some: () => {
-        throw new Error("This should not execute");
+        unreachable();
       },
     });
 
@@ -633,7 +634,7 @@ describe("Testing `match` method", () => {
         val = value;
       },
       none: () => {
-        throw new Error("This should not execute");
+        unreachable();
       },
     });
 

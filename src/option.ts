@@ -1,3 +1,4 @@
+import { panic } from "./panic_functions";
 import { Err, Ok, type Result } from "./result";
 
 enum EType {
@@ -65,7 +66,7 @@ export class Option<T> {
    *
    * const none = None<number[]>();
    * none.inspect(() => {
-   *   throw new Error("This will never be executed");
+   *   unreachable();
    * });
    */
   inspect(func: (value: T) => unknown): this {
@@ -205,21 +206,21 @@ export class Option<T> {
   /**
    * Returns the `value` contained in `Some`.
    * @throws {Error}
-   * If `Option` is `None` throws an error with the message specified.
+   * If `Option` is `None` panics.
    * @example
    * const none = None();
    * const msg = "This should throw an exception";
-   * expect(() => none.expect(msg)).toThrow(new Error(msg));
+   * expect(() => none.expect(msg)).toThrow(new Panic(msg));
    *
    * const some = Some(1);
-   * const val = some.expect("This should not throw an error");
+   * const val = some.expect("This should not panic");
    * expect(val).toBe(1);
    */
   expect(msg: string): T {
     if (this.is_some()) {
       return this.__value;
     }
-    throw new Error(msg);
+    panic(msg);
   }
 
   /**
@@ -342,10 +343,10 @@ export class Option<T> {
   /**
    * Returns the `value` contained in `Some`.
    * @throws {Error}
-   * If `Option` is `None` throws an error.
+   * If `Option` is `None` panics.
    * @example
    * const none = None();
-   * expect(() => none.unwrap()).toThrow(new Error("`Option` is None"));
+   * expect(() => none.unwrap()).toThrow();
    *
    * const some = Some(1);
    * const val = some.unwrap();
@@ -355,7 +356,7 @@ export class Option<T> {
     if (this.is_some()) {
       return this.__value;
     }
-    throw new Error("`Option` is None");
+    panic("`Option` is None");
   }
 
   /**
