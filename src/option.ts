@@ -6,16 +6,16 @@ enum EType {
 }
 
 export class Option<T> {
-  private value!: T;
-  private type: EType;
+  private __value!: T;
+  private __type: EType;
 
   private constructor(type: EType) {
-    this.type = type;
+    this.__type = type;
   }
 
   static Some<T>(value: T): Option<T> {
     const self = new Option<T>(EType.Some);
-    self.value = value;
+    self.__value = value;
     return self;
   }
 
@@ -33,7 +33,7 @@ export class Option<T> {
    * expect(none.is_some()).toBe(false);
    */
   is_some(): boolean {
-    return this.type === EType.Some;
+    return this.__type === EType.Some;
   }
 
   /**
@@ -46,7 +46,7 @@ export class Option<T> {
    * expect(none.is_none()).toBe(true);
    */
   is_none(): boolean {
-    return this.type === EType.None;
+    return this.__type === EType.None;
   }
 
   /**
@@ -64,7 +64,7 @@ export class Option<T> {
    */
   inspect(func: (value: T) => unknown): this {
     if (!this.is_some()) return this;
-    func(this.value);
+    func(this.__value);
     return this;
   }
 
@@ -191,7 +191,7 @@ export class Option<T> {
    */
   and_then<U>(func: (value: T) => Option<U>): Option<U> {
     if (this.is_some()) {
-      return func(this.value);
+      return func(this.__value);
     }
     return None();
   }
@@ -211,7 +211,7 @@ export class Option<T> {
    */
   expect(msg: string): T {
     if (this.is_some()) {
-      return this.value;
+      return this.__value;
     }
     throw new Error(msg);
   }
@@ -231,10 +231,10 @@ export class Option<T> {
    */
   get_or_insert(value: T): T {
     if (this.is_none()) {
-      this.value = value;
-      this.type = EType.Some;
+      this.__value = value;
+      this.__type = EType.Some;
     }
-    return this.value;
+    return this.__value;
   }
 
   /**
@@ -256,10 +256,10 @@ export class Option<T> {
    */
   get_or_insert_with(func: () => T): T {
     if (this.is_none()) {
-      this.value = func();
-      this.type = EType.Some;
+      this.__value = func();
+      this.__type = EType.Some;
     }
-    return this.value;
+    return this.__value;
   }
 
   /**
@@ -280,9 +280,9 @@ export class Option<T> {
    * expect(option2).toEqual(Some(2));
    */
   insert(value: T): T {
-    this.value = value;
-    this.type = EType.Some;
-    return this.value;
+    this.__value = value;
+    this.__type = EType.Some;
+    return this.__value;
   }
 
   /**
@@ -305,7 +305,7 @@ export class Option<T> {
     if (this.is_none()) {
       return false;
     }
-    return func(this.value);
+    return func(this.__value);
   }
 
   /**
@@ -326,10 +326,10 @@ export class Option<T> {
     if (this.is_none()) {
       return None();
     }
-    const value = this.value;
+    const value = this.__value;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    delete (this as any).value;
-    this.type = EType.None;
+    delete (this as any).__value;
+    this.__type = EType.None;
     return Some(value);
   }
 
@@ -347,7 +347,7 @@ export class Option<T> {
    */
   unwrap(): T {
     if (this.is_some()) {
-      return this.value;
+      return this.__value;
     }
     throw new Error("`Option` is None");
   }
@@ -365,7 +365,7 @@ export class Option<T> {
    */
   unwrap_or(value: T): T {
     if (this.is_some()) {
-      return this.value;
+      return this.__value;
     }
     return value;
   }
@@ -383,7 +383,7 @@ export class Option<T> {
    */
   unwrap_or_else(func: () => T): T {
     if (this.is_some()) {
-      return this.value;
+      return this.__value;
     }
     return func();
   }
@@ -411,24 +411,24 @@ export class Option<T> {
     if (this.is_none() || other.is_none()) {
       return None();
     }
-    return Some([this.value, other.value]);
+    return Some([this.__value, other.__value]);
   }
 
   to_string(): string {
     if (this.is_some()) {
-      return `Some(${this.value})`;
+      return `Some(${this.__value})`;
     }
     return "None";
   }
 
   is_equal_to(other: Option<T>): boolean {
-    if (this.type !== other.type) {
+    if (this.__type !== other.__type) {
       return false;
     }
-    if (this.type === EType.None) {
+    if (this.__type === EType.None) {
       return true;
     }
-    return this.value === other.value;
+    return this.__value === other.__value;
   }
 
   /**
@@ -452,7 +452,7 @@ export class Option<T> {
     if (this.is_none()) {
       return None();
     }
-    return Some(func(this.value));
+    return Some(func(this.__value));
   }
 
   /**
@@ -476,7 +476,7 @@ export class Option<T> {
     if (this.is_none()) {
       return def;
     }
-    return func(this.value);
+    return func(this.__value);
   }
 
   /**
@@ -513,7 +513,7 @@ export class Option<T> {
     if (this.is_none()) {
       return arms.none();
     }
-    return arms.some(this.value);
+    return arms.some(this.__value);
   }
 
   /**
@@ -533,7 +533,7 @@ export class Option<T> {
     if (this.is_none()) {
       return Err(err);
     }
-    return Ok(this.value);
+    return Ok(this.__value);
   }
 
   /**
@@ -551,7 +551,7 @@ export class Option<T> {
    */
   ok_or_else<E>(func: () => E): Result<T, E> {
     if (this.is_some()) {
-      return Ok(this.value);
+      return Ok(this.__value);
     }
     return Err(func());
   }
@@ -569,7 +569,7 @@ export class Option<T> {
    * expect(result2).toBe("Some");
    */
   unwrap_unchecked(): T | undefined {
-    return this.value;
+    return this.__value;
   }
 
   /**
@@ -593,7 +593,7 @@ export class Option<T> {
     if (this.is_none()) {
       return;
     }
-    func(this.value);
+    func(this.__value);
   }
 
   /**
@@ -656,7 +656,7 @@ export class Option<T> {
       arms.none();
       return;
     }
-    arms.some(this.value);
+    arms.some(this.__value);
   }
 }
 

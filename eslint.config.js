@@ -8,6 +8,7 @@ export default [
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    ignores: ["./dist/**/*"],
     rules:{
       semi: ["error", "always"],
       "linebreak-style": ["error", "unix"],

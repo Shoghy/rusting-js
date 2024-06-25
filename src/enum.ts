@@ -45,30 +45,30 @@ export function Enum<E extends IEnum>(enum_values: E) {
   }
 
   return class EnumClass {
-    private type: ET;
+    __type: ET;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private value: any;
+    __value: any;
 
-    protected constructor(
+    constructor(
       type: ET,
       value: unknown,
     ) {
-      this.type = type;
-      this.value = value;
+      this.__type = type;
+      this.__value = value;
     }
 
     get_type(): ET {
-      return this.type;
+      return this.__type;
     }
 
-    protected set_type<T extends ET>(type: E[T] extends "void" ? T : never): void;
-    protected set_type<T extends ET>(type: E[T] extends "void" ? never : T, value: Type2Value[T]): void;
-    protected set_type<T extends ET>(type: T, value?: Type2Value[T]): void {
-      this.type = type;
+    _set_type<T extends ET>(type: E[T] extends "void" ? T : never): void;
+    _set_type<T extends ET>(type: E[T] extends "void" ? never : T, value: Type2Value[T]): void;
+    _set_type<T extends ET>(type: T, value?: Type2Value[T]): void {
+      this.__type = type;
       if (evalues[type] === "void") {
-        delete this.value;
+        delete this.__value;
       }else{
-        this.value = value;
+        this.__value = value;
       }
     }
 
@@ -77,17 +77,17 @@ export function Enum<E extends IEnum>(enum_values: E) {
     static create<T extends ET>(type: T, value?: Type2Value[T]): EnumClass {
       const self = new this(type, value);
       if (evalues[type] === "void") {
-        delete self.value;
+        delete self.__value;
       }
       return self;
     }
 
     is(type: ET): boolean {
-      return this.type === type;
+      return this.__type === type;
     }
 
     if_is<T extends ET>(type: T, func: Type2Func[T]): void {
-      if (type !== this.type) {
+      if (type !== this.__type) {
         return;
       }
 
@@ -96,7 +96,7 @@ export function Enum<E extends IEnum>(enum_values: E) {
         return;
       }
 
-      func(this.value);
+      func(this.__value);
     }
 
     match(arms: { [key in ET]: Type2Func[key] }): void;
@@ -114,13 +114,13 @@ export function Enum<E extends IEnum>(enum_values: E) {
       },
       def?: ZeroParamFunc
     ): void {
-      const arm = arms[this.type];
+      const arm = arms[this.__type];
 
       if (arm !== undefined) {
-        if (evalues[this.type] === "void") {
+        if (evalues[this.__type] === "void") {
           (arm as ZeroParamFunc)();
         } else {
-          arm(this.value);
+          arm(this.__value);
         }
         return;
       }
@@ -138,11 +138,11 @@ export function Enum<E extends IEnum>(enum_values: E) {
         throw new Error(`The value ${type as string} of this enum, doesn't contain a value.`);
       }
 
-      if (this.type !== type) {
+      if (this.__type !== type) {
         throw new Error(`Enum is not ${type as string}`);
       }
 
-      return this.value;
+      return this.__value;
     }
 
     expect<T extends ET>(type: T, msg: string): Type2Value[T] {
@@ -150,11 +150,11 @@ export function Enum<E extends IEnum>(enum_values: E) {
         throw new Error(`The value ${type as string} of this enum, doesn't contain a value.`);
       }
 
-      if (this.type !== type) {
+      if (this.__type !== type) {
         throw new Error(msg);
       }
 
-      return this.value;
+      return this.__value;
     }
   };
 }
