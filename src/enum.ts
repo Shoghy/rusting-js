@@ -45,10 +45,25 @@ export function Enum<E extends IEnum>(enum_values: E) {
   }
 
   return class EnumClass {
+    /**
+     * This property shouldn't be public, but anonymous classes
+     * cannot have private or protected properties or methods
+     * @private
+     */
     __type: ET;
+    /**
+     * This property shouldn't be public, but anonymous classes
+     * cannot have private or protected properties or methods
+     * @private
+     */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     __value: any;
 
+    /**
+     * This property shouldn't be public, but anonymous classes
+     * cannot have private or protected properties or methods
+     * @protected
+     */
     constructor(
       type: ET,
       value: unknown,
@@ -61,6 +76,11 @@ export function Enum<E extends IEnum>(enum_values: E) {
       return this.__type;
     }
 
+    /**
+     * This property shouldn't be public, but anonymous classes
+     * cannot have private or protected properties or methods
+     * @protected
+     */
     _set_type<T extends ET>(type: E[T] extends "void" ? T : never): void;
     _set_type<T extends ET>(type: E[T] extends "void" ? never : T, value: Type2Value[T]): void;
     _set_type<T extends ET>(type: T, value?: Type2Value[T]): void {
