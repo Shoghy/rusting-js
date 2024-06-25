@@ -13,12 +13,18 @@ export class Option<T> {
     this.__type = type;
   }
 
+  /**
+   * Creates a `Some` type `Option`
+   */
   static Some<T>(value: T): Option<T> {
     const self = new Option<T>(EType.Some);
     self.__value = value;
     return self;
   }
 
+  /**
+   * Creates a `None` type `Option`
+   */
   static None<T>(): Option<T> {
     return new Option(EType.None);
   }
@@ -660,6 +666,12 @@ export class Option<T> {
   }
 }
 
+/**
+ * Creates a `Some` type `Option`
+ */
 export const Some = Option.Some;
 
+/**
+ * Creates a `None` type `Option`
+ */
 export const None = Option.None;
