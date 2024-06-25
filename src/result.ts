@@ -181,7 +181,7 @@ export class Result<T, E> {
   }
 
   is_equal_to(other: Result<T, E>): boolean {
-    if(this.__type !== other.__type){
+    if (this.__type !== other.__type) {
       return false;
     }
     return this.__value === other.__value;
@@ -190,12 +190,26 @@ export class Result<T, E> {
   match(arms: {
     ok: (value: T) => unknown,
     err: (err: E) => unknown,
-  }): void{
-    if(this.is_err()){
+  }): void {
+    if (this.is_err()) {
       arms.err(this.__value as E);
       return;
     }
     arms.ok(this.__value as T);
+  }
+
+  if_ok(func: (value: T) => unknown): void {
+    if (this.is_err()) {
+      return;
+    }
+    func(this.__value as T);
+  }
+
+  if_err(func: (value: E) => unknown): void {
+    if (this.is_ok()) {
+      return;
+    }
+    func(this.__value as E);
   }
 }
 
