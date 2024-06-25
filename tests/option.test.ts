@@ -54,7 +54,7 @@ describe("Testing `unwrap` method", () => {
 describe("Testing `expect` method", () => {
   const msg = "This should panic";
 
-  test("`None` should panic with the same message", () => {
+  test("`None` should panic", () => {
     const none = None<number[]>();
     let val = [1, 2, 3];
 
