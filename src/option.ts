@@ -356,7 +356,7 @@ export class Option<T> {
     if (this.is_some()) {
       return this.__value;
     }
-    panic("`Option` is None");
+    panic("Called `unwrap` method on a `None`");
   }
 
   /**

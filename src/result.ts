@@ -148,15 +148,14 @@ export class Result<T, E> {
     if (this.is_ok()) {
       return this.__value as T;
     }
-    panic("`Result` is Err");
+    panic("Called `unwrap` method on a `Err`");
   }
 
   unwrap_err(): E {
     if (this.is_err()) {
       return this.__value as E;
     }
-
-    panic("`Result` is Ok");
+    panic("Called `unwrap_err` method on a `Ok`");
   }
 
   unwrap_or(def: T): T {
