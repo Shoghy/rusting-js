@@ -1,4 +1,4 @@
-import { panic } from "./panic_functions";
+import { panic } from "./panic";
 
 interface JSTypes {
   string: string

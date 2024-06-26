@@ -1,6 +1,6 @@
 import { expect, test, describe } from "bun:test";
 import { Err, Ok, Result } from "../src/result";
-import { unreachable } from "../src/panic_functions";
+import { unreachable } from "../src/panic";
 import { None, Some } from "../src/option";
 import { RandomInt, RandomString } from "./random";
 

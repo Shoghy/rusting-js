@@ -1,5 +1,4 @@
-export { catch_unwind } from "./catch_unwind";
-export { panic, todo, unimplemented, unreachable } from "./panic_functions";
+export { panic, todo, unimplemented, unreachable, catch_unwind } from "./panic";
 export { Mutex } from "./mutex";
 export { Enum } from "./enum";
 export { Some, Option, None } from "./option";

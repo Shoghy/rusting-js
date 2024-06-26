@@ -8,7 +8,7 @@
 import { expect, test } from "bun:test";
 import { None, Some } from "../src/option";
 import { Err, Ok } from "../src/result";
-import { unreachable } from "../src/panic_functions";
+import { unreachable } from "../src/panic";
 
 test("is_some", () => {
   const some = Some(0);

@@ -1,4 +1,4 @@
-import { panic } from "./panic_functions";
+import { panic } from "./panic";
 import { Err, Ok, type Result } from "./result";
 
 enum EType {

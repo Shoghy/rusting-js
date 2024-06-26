@@ -1,5 +1,5 @@
 import { None, type Option, Some } from "./option";
-import { panic } from "./panic_functions";
+import { panic } from "./panic";
 
 enum EType {
   Ok,
