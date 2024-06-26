@@ -1,21 +1,50 @@
 import { Err, Ok, type Result } from "./result";
 
+/**
+ * Use it to mark the code as unreachable when the compiler is
+ * not able to determinate if the code is unreachable
+ * @throws {Error}
+ * @param message 
+ * Explain why do you think this code is unreachable
+ */
 export function unreachable(message?: string): never {
   throw new Error(message, {
     cause: "Code marked as unreachable was executed"
   });
 }
 
+/**
+ * Make the program panics
+ * @throws {Error}
+ * @param message 
+ * Explain why the program panicked
+ */
 export function panic(message?: string): never {
   throw new Error(message, {
     cause: "Panic function call"
   });
 }
 
-export function todo(message: string): never {
-  throw new Error(message, {
+/**
+ * Mark the code as in progress
+ * @throws {Error}
+ * @param message 
+ * Explain what needs to be done
+ */
+export function todo(message: string): never;
+export function todo(message: string, panic: false): void;
+export function todo(message: string, panic: boolean = true): never | void {
+  const error = new Error(message, {
     cause: "Unfinished code was executed"
   });
+
+  if (!panic) {
+    // eslint-disable-next-line no-console
+    console.warn(error);
+    return;
+  }
+
+  throw error;
 }
 
 export function unimplemented(message?: string): never {
@@ -24,10 +53,10 @@ export function unimplemented(message?: string): never {
   });
 }
 
-async function catch_async<T, E>(promise: Promise<T>): Promise<Result<T, E>>{
-  try{
+async function catch_async<T, E>(promise: Promise<T>): Promise<Result<T, E>> {
+  try {
     return Ok(await promise);
-  }catch(e){
+  } catch (e) {
     return Err(e as E);
   }
 }
@@ -38,14 +67,14 @@ async function catch_async<T, E>(promise: Promise<T>): Promise<Result<T, E>>{
  */
 export function catch_unwind<T, E>(func: T extends Promise<unknown> ? never : () => T): Result<T, E>;
 export function catch_unwind<T, E>(func: T extends Promise<unknown> ? () => T : never): Promise<Result<Awaited<T>, E>>;
-export function catch_unwind<T, E>(func: () => T): Result<T, E> | Promise<Result<T, E>>{
-  try{
+export function catch_unwind<T, E>(func: () => T): Result<T, E> | Promise<Result<T, E>> {
+  try {
     const value = func();
-    if(value instanceof Promise){
+    if (value instanceof Promise) {
       return catch_async<T, E>(value);
     }
     return Ok(value);
-  }catch(e){
+  } catch (e) {
     return Err(e as E);
   }
 }
