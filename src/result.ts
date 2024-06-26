@@ -26,26 +26,89 @@ export class Result<T, E> {
     return self;
   }
 
+  /**
+   * Returns true if `Result` is type of `Ok`
+   * @example
+   * const ok = Ok(1);
+   * expect(ok.is_ok()).toBeTrue();
+   * 
+   * const err = Err(2);
+   * expect(err.is_ok()).toBeFalse();
+   */
   is_ok(): boolean {
     return this.__type === EType.Ok;
   }
 
+  /**
+   * Returns true if `Result` is type of `Err`
+   * @example
+   * const ok = Ok(1);
+   * expect(ok.is_err()).toBeFalse();
+   * 
+   * const err = Err(2);
+   * expect(err.is_err()).toBeTrue();
+   */
   is_err(): boolean {
     return this.__type === EType.Err;
   }
 
+  /**
+   * Execute the `func` parameter if `Result` is `Ok`
+   * @example
+   * const ok = Ok("Hola");
+   * ok.inspect((value) => {
+   *   expect(value).toBe("Hola");
+   * });
+   * 
+   * const err = Err("Mundo");
+   * err.inspect(() => {
+   *   unreachable();
+   * });
+   */
   inspect(func: (ok: T) => unknown): this {
     if (this.is_err()) return this;
     func(this.__value as T);
     return this;
   }
 
+  /**
+   * Execute the `func` parameter if `Result` is `Err`
+   * @example
+   * const ok = Ok(2);
+   * ok.inspect_err(() => {
+   *   unreachable();
+   * });
+   * 
+   * const err = Err(4);
+   * err.inspect_err((value) => {
+   *   expect(value).toBe(4);
+   * });
+   */
   inspect_err(func: (err: E) => unknown): this {
     if (this.is_ok()) return this;
     func(this.__value as E);
     return this;
   }
 
+  /**
+   * Returns `this` if it is `Err`, otherwise return `res`
+   * @example
+   * let val1 = Ok<string, number>("Bill Cipher");
+   * let val2 = Err<number, string>(10);
+   * expect(val1.and(val2)).toEqual(Err(10));
+   * 
+   * val1 = Err(3);
+   * val2 = Ok("Gideon");
+   * expect(val1.and(val2)).toEqual(Err(3));
+   * 
+   * val1 = Ok("Stan Lee");
+   * val2 = Ok("Stan Ford");
+   * expect(val1.and(val2)).toEqual(Ok("Stan Ford"));
+   * 
+   * val1 = Err(1);
+   * val2 = Err(2);
+   * expect(val1.and(val2)).toEqual(Err(1));
+   */
   and<U>(res: Result<U, E>): Result<U, E> {
     if (this.is_err()) {
       return Err(this.__value as E);

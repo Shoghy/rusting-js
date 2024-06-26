@@ -76,7 +76,7 @@ export class Option<T> {
   }
 
   /**
-   * Returns `this` if is `Some`, otherwise returns optb
+   * Returns `this` if it is `Some`, otherwise returns optb
    * @example
    * let val1 = Some("lorem");
    * let val2 = None<string>();
