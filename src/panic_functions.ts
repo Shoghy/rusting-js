@@ -5,7 +5,9 @@ export function unreachable(message?: string): never {
 }
 
 export function panic(message?: string): never {
-  throw new Error(message);
+  throw new Error(message, {
+    cause: "Panic function call"
+  });
 }
 
 export function todo(message: string): never {
