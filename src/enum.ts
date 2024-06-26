@@ -89,7 +89,7 @@ export function Enum<E extends IEnum>(enum_values: E) {
       this.__type = type;
       if (evalues[type] === "void") {
         delete this.__value;
-      }else{
+      } else {
         this.__value = value;
       }
     }
@@ -177,6 +177,13 @@ export function Enum<E extends IEnum>(enum_values: E) {
       }
 
       return this.__value;
+    }
+
+    toString(): string {
+      if (evalues[this.__type] === "void") {
+        return this.__type as string;
+      }
+      return `${this.__type as string}(${this.__value})`;
     }
   };
 }

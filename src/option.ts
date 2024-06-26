@@ -421,7 +421,7 @@ export class Option<T> {
     return Some([this.__value, other.__value]);
   }
 
-  to_string(): string {
+  toString(): string {
     if (this.is_some()) {
       return `Some(${this.__value})`;
     }

@@ -172,7 +172,7 @@ export class Result<T, E> {
     return func(this.__value as E);
   }
 
-  to_string(): string {
+  toString(): string {
     if (this.is_ok()) {
       return `Ok(${this.__value})`;
     }
