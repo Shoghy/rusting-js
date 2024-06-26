@@ -2,6 +2,7 @@ import { expect, test, describe } from "bun:test";
 import { Err, Ok, Result } from "../src/result";
 import { unreachable } from "../src/panic_functions";
 import { None, Some } from "../src/option";
+import { RandomInt, RandomString } from "./random";
 
 describe("Testing `Ok` and `Err` equality", () => {
   test("`Ok` and `Err` should never be equal", () => {
@@ -184,7 +185,7 @@ describe("Testing `err` method", () => {
 });
 
 describe("Testing `expect` method", () => {
-  test("`Ok` should not panic and should return its wrapped value", () => {
+  test("`Ok` should return its wrapped value", () => {
     const ok = Ok("Mate");
     expect(ok.expect("Mensage de error")).toBe("Mate");
   });
@@ -192,5 +193,147 @@ describe("Testing `expect` method", () => {
   test("`Err` should panic", () => {
     const err = Err("Rayo McQueen");
     expect(() => err.expect("Error message")).toThrow();
+  });
+});
+
+describe("Testing `expect_err` method", () => {
+  test("`Ok` should panic", () => {
+    const ok = Ok(23);
+    expect(() => ok.expect_err("EEEEEERRRRROOOOORRR")).toThrow();
+  });
+
+  test("`Err` should return its wrapped value", () => {
+    const err = Err(12);
+    expect(err.expect_err("YOLO")).toBe(12);
+  });
+});
+
+describe("Testing `is_err_and` method", () => {
+  const r_true = () => true;
+  const r_false = () => false;
+
+  test("`Ok` should always return false", () => {
+    const ok = Ok({hola: "mundo"});
+
+    expect(ok.is_err_and(r_true)).toBeFalse();
+    expect(ok.is_err_and(r_false)).toBeFalse();
+  });
+
+  test("`Ok` should not execute the `func` parameter", (done) => {
+    const ok = Ok("This is an `Ok`");
+    ok.is_err_and(() => {
+      done("`is_err_and` method was executed");
+      unreachable();
+    });
+    done();
+  });
+
+  test("`Err` should execute the `func` parameter and return its returned value", () => {
+    const err = Err(55);
+
+    expect(err.is_err_and(r_true)).toBeTrue();
+    expect(err.is_err_and(r_false)).toBeFalse();
+    expect(err.is_err_and((val) => val === 55)).toBeTrue();
+    expect(err.is_err_and((val) => val === 77)).toBeFalse();
+  });
+});
+
+describe("Testing `is_ok_and` method", () => {
+  const r_true = () => true;
+  const r_false = () => false;
+
+  test("`Err` should always return false", () => {
+    const err = Err("Copy + Paste");
+
+    expect(err.is_ok_and(r_true)).toBeFalse();
+    expect(err.is_ok_and(r_false)).toBeFalse();
+  });
+
+  test("`Err` should not execute the `func` parameter", (done) => {
+    const err = Err("This is an `Err`");
+    err.is_ok_and(() => {
+      done("`is_ok_and` method was executed");
+      unreachable();
+    });
+    done();
+  });
+
+  test("`Ok` should execute the `func` parameter and return its returned value", () => {
+    const ok = Ok(77);
+
+    expect(ok.is_ok_and(r_true)).toBeTrue();
+    expect(ok.is_ok_and(r_false)).toBeFalse();
+    expect(ok.is_ok_and((val) => val === 55)).toBeFalse();
+    expect(ok.is_ok_and((val) => val === 77)).toBeTrue();
+  });
+});
+
+describe("Testing `map` method", () => {
+  test("`Ok` should execute the `func` parameter and return its returned value wrapped in a `Ok`", () => {
+    const num = RandomInt(1, 100);
+    const ok1 = Ok(num);
+    const result1 = ok1.map((value) => value*value);
+
+    expect(result1.is_ok()).toBeTrue();
+    expect(result1.unwrap()).toBe(num*num);
+
+    const str1 = RandomString(7);
+    const str2 = RandomString(7);
+    const ok2 = Ok(str1);
+    const result2 = ok2.map((value) => value+str2);
+
+    expect(result2.is_ok()).toBeTrue();
+    expect(result2.unwrap()).toBe(str1+str2);
+  });
+
+  test("`Err` should not execute the `func` parameter", (done) => {
+    const err = Err(RandomInt(1, 100));
+    err.map(() => {
+      done("`map` method was executed");
+    });
+    done();
+  });
+
+  test("`Err` should return its value wrapped in a `Err`", () => {
+    const str = RandomString(11);
+    const err = Err(str);
+    const result = err.map(() => {});
+
+    expect(result).toEqual(Err(str));
+  });
+});
+
+describe("Testing `map_err` method", () => {
+  test("`Err` should execute the `func` parameter and return its returned value wrapped in a `Err`", () => {
+    const num = RandomInt(1, 100);
+    const err = Err(num);
+    const result1 = err.map_err((value) => value*value);
+
+    expect(result1.is_err()).toBeTrue();
+    expect(result1.unwrap_err()).toBe(num*num);
+
+    const str1 = RandomString(7);
+    const str2 = RandomString(7);
+    const err2 = Err(str1);
+    const result2 = err2.map_err((value) => value+str2);
+
+    expect(result2.is_err()).toBeTrue();
+    expect(result2.unwrap_err()).toBe(str1+str2);
+  });
+
+  test("`Ok` should not execute the `func` parameter", (done) => {
+    const ok = Ok(RandomInt(1, 100));
+    ok.map_err(() => {
+      done("`map_err` method was executed");
+    });
+    done();
+  });
+
+  test("`Ok` should return its value wrapped in a `Ok`", () => {
+    const str = RandomString(11);
+    const ok = Ok(str);
+    const result = ok.map_err(() => {});
+
+    expect(result).toEqual(Ok(str));
   });
 });
