@@ -95,18 +95,18 @@ export class Result<T, E> {
     return func(this.__value as T);
   }
 
-  map<U>(func: (ok: T) => Result<U, E>): Result<U, E> {
+  map<U>(func: (ok: T) => U): Result<U, E> {
     if (this.is_err()) {
       return Err(this.__value as E);
     }
-    return func(this.__value as T);
+    return Ok(func(this.__value as T));
   }
 
-  map_err<F>(func: (err: E) => Result<T, F>): Result<T, F> {
+  map_err<F>(func: (err: E) => F): Result<T, F> {
     if (this.is_ok()) {
       return Ok(this.__value as T);
     }
-    return func(this.__value as E);
+    return Err(func(this.__value as E));
   }
 
   map_or<U>(def: U, func: (ok: T) => U): U {
