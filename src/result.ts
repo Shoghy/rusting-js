@@ -6,12 +6,15 @@ enum EType {
   Err,
 }
 
+const type_symbol = Symbol("type");
+const value_symbol = Symbol("value");
+
 export class Result<T, E> {
-  private __type: EType;
-  private __value!: T | E;
+  private [type_symbol]: EType;
+  private [value_symbol]!: T | E;
 
   private constructor(type: EType) {
-    this.__type = type;
+    this[type_symbol] = type;
   }
 
   /**
@@ -19,7 +22,7 @@ export class Result<T, E> {
    */
   static Ok<T, E = unknown>(value: T): Result<T, E> {
     const self = new Result<T, E>(EType.Ok);
-    self.__value = value;
+    self[value_symbol] = value;
     return self;
   }
 
@@ -28,7 +31,7 @@ export class Result<T, E> {
    */
   static Err<E, T = unknown>(value: E): Result<T, E> {
     const self = new Result<T, E>(EType.Err);
-    self.__value = value;
+    self[value_symbol] = value;
     return self;
   }
 
@@ -42,7 +45,7 @@ export class Result<T, E> {
    * expect(err.is_ok()).toBeFalse();
    */
   is_ok(): boolean {
-    return this.__type === EType.Ok;
+    return this[type_symbol] === EType.Ok;
   }
 
   /**
@@ -55,7 +58,7 @@ export class Result<T, E> {
    * expect(err.is_err()).toBeTrue();
    */
   is_err(): boolean {
-    return this.__type === EType.Err;
+    return this[type_symbol] === EType.Err;
   }
 
   /**
@@ -73,7 +76,7 @@ export class Result<T, E> {
    */
   inspect(func: (ok: T) => unknown): this {
     if (this.is_err()) return this;
-    func(this.__value as T);
+    func(this[value_symbol] as T);
     return this;
   }
 
@@ -92,7 +95,7 @@ export class Result<T, E> {
    */
   inspect_err(func: (err: E) => unknown): this {
     if (this.is_ok()) return this;
-    func(this.__value as E);
+    func(this[value_symbol] as E);
     return this;
   }
 
@@ -117,7 +120,7 @@ export class Result<T, E> {
    */
   and<U>(res: Result<U, E>): Result<U, E> {
     if (this.is_err()) {
-      return Err(this.__value as E);
+      return Err(this[value_symbol] as E);
     }
     return res;
   }
@@ -140,9 +143,9 @@ export class Result<T, E> {
    */
   and_then<U>(func: (value: T) => Result<U, E>): Result<U, E> {
     if (this.is_err()) {
-      return Err(this.__value as E);
+      return Err(this[value_symbol] as E);
     }
-    return func(this.__value as T);
+    return func(this[value_symbol] as T);
   }
 
   /**
@@ -159,7 +162,7 @@ export class Result<T, E> {
     if (this.is_ok()) {
       return None();
     }
-    return Some(this.__value as E);
+    return Some(this[value_symbol] as E);
   }
 
   /**
@@ -177,7 +180,7 @@ export class Result<T, E> {
    */
   expect(value: string): T {
     if (this.is_ok()) {
-      return this.__value as T;
+      return this[value_symbol] as T;
     }
     panic(value);
   }
@@ -197,7 +200,7 @@ export class Result<T, E> {
    */
   expect_err(value: string): E {
     if (this.is_err()) {
-      return this.__value as E;
+      return this[value_symbol] as E;
     }
     panic(value);
   }
@@ -223,35 +226,35 @@ export class Result<T, E> {
     if (this.is_ok()) {
       return false;
     }
-    return func(this.__value as E);
+    return func(this[value_symbol] as E);
   }
 
   is_ok_and(func: (ok: T) => boolean): boolean {
     if (this.is_err()) {
       return false;
     }
-    return func(this.__value as T);
+    return func(this[value_symbol] as T);
   }
 
   map<U>(func: (ok: T) => U): Result<U, E> {
     if (this.is_err()) {
-      return Err(this.__value as E);
+      return Err(this[value_symbol] as E);
     }
-    return Ok(func(this.__value as T));
+    return Ok(func(this[value_symbol] as T));
   }
 
   map_err<F>(func: (err: E) => F): Result<T, F> {
     if (this.is_ok()) {
-      return Ok(this.__value as T);
+      return Ok(this[value_symbol] as T);
     }
-    return Err(func(this.__value as E));
+    return Err(func(this[value_symbol] as E));
   }
 
   map_or<U>(def: U, func: (ok: T) => U): U {
     if (this.is_err()) {
       return def;
     }
-    return func(this.__value as T);
+    return func(this[value_symbol] as T);
   }
 
   map_or_else<U>(arms: {
@@ -259,72 +262,72 @@ export class Result<T, E> {
     err: (value: E) => U,
   }): U {
     if (this.is_err()) {
-      return arms.err(this.__value as E);
+      return arms.err(this[value_symbol] as E);
     }
-    return arms.ok(this.__value as T);
+    return arms.ok(this[value_symbol] as T);
   }
 
   ok(): Option<T> {
     if (this.is_err()) {
       return None();
     }
-    return Some(this.__value as T);
+    return Some(this[value_symbol] as T);
   }
 
   or<F>(res: Result<T, F>): Result<T, F> {
     if (this.is_ok()) {
-      return Ok(this.__value as T);
+      return Ok(this[value_symbol] as T);
     }
     return res;
   }
 
   or_else<F>(op: (err: E) => Result<T, F>): Result<T, F> {
     if (this.is_ok()) {
-      return Ok(this.__value as T);
+      return Ok(this[value_symbol] as T);
     }
-    return op(this.__value as E);
+    return op(this[value_symbol] as E);
   }
 
   unwrap(): T {
     if (this.is_ok()) {
-      return this.__value as T;
+      return this[value_symbol] as T;
     }
     panic("Called `unwrap` method on a `Err`");
   }
 
   unwrap_err(): E {
     if (this.is_err()) {
-      return this.__value as E;
+      return this[value_symbol] as E;
     }
     panic("Called `unwrap_err` method on a `Ok`");
   }
 
   unwrap_or(def: T): T {
     if (this.is_ok()) {
-      return this.__value as T;
+      return this[value_symbol] as T;
     }
     return def;
   }
 
   unwrap_or_else(func: (err: E) => T): T {
     if (this.is_ok()) {
-      return this.__value as T;
+      return this[value_symbol] as T;
     }
-    return func(this.__value as E);
+    return func(this[value_symbol] as E);
   }
 
   toString(): string {
     if (this.is_ok()) {
-      return `Ok(${this.__value})`;
+      return `Ok(${this[value_symbol]})`;
     }
-    return `Err(${this.__value})`;
+    return `Err(${this[value_symbol]})`;
   }
 
   is_equal_to(other: Result<T, E>): boolean {
-    if (this.__type !== other.__type) {
+    if (this[type_symbol] !== other[type_symbol]) {
       return false;
     }
-    return this.__value === other.__value;
+    return this[value_symbol] === other[value_symbol];
   }
 
   match(arms: {
@@ -332,24 +335,24 @@ export class Result<T, E> {
     err: (err: E) => unknown,
   }): void {
     if (this.is_err()) {
-      arms.err(this.__value as E);
+      arms.err(this[value_symbol] as E);
       return;
     }
-    arms.ok(this.__value as T);
+    arms.ok(this[value_symbol] as T);
   }
 
   if_ok(func: (value: T) => unknown): void {
     if (this.is_err()) {
       return;
     }
-    func(this.__value as T);
+    func(this[value_symbol] as T);
   }
 
   if_err(func: (value: E) => unknown): void {
     if (this.is_ok()) {
       return;
     }
-    func(this.__value as E);
+    func(this[value_symbol] as E);
   }
 }
 

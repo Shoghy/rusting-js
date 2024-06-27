@@ -1,9 +1,12 @@
 import { catch_unwind, panic } from "./panic";
 import { type Result } from "./result";
 
+const get_symbol = Symbol("get");
+const set_symbol = Symbol("set");
+
 export class Mutex<T> {
-  private readonly get: () => T;
-  private readonly set: (val: T) => void;
+  private readonly [get_symbol]: () => T;
+  private readonly [set_symbol]: (val: T) => void;
 
   private unlockers: {
     [key: symbol]: () => void
@@ -12,8 +15,8 @@ export class Mutex<T> {
   private current_locker!: Promise<unknown>;
 
   constructor(value: T) {
-    this.get = () => value;
-    this.set = (val: T) => {
+    this[get_symbol] = () => value;
+    this[set_symbol] = (val: T) => {
       value = val;
     };
   }
@@ -55,7 +58,7 @@ export class Mutex<T> {
       };
     });
 
-    const mutex_guard = new MutexGuard(this.get, this.set, resolve_promise);
+    const mutex_guard = new MutexGuard(this[get_symbol], this[set_symbol], resolve_promise);
 
     await prev_locker;
 

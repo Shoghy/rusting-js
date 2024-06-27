@@ -6,12 +6,15 @@ enum EType {
   None,
 }
 
+const type_symbol = Symbol("type");
+const value_symbol = Symbol("value");
+
 export class Option<T> {
-  private __value!: T;
-  private __type: EType;
+  private [value_symbol]!: T;
+  private [type_symbol]: EType;
 
   private constructor(type: EType) {
-    this.__type = type;
+    this[type_symbol] = type;
   }
 
   /**
@@ -19,7 +22,7 @@ export class Option<T> {
    */
   static Some<T>(value: T): Option<T> {
     const self = new Option<T>(EType.Some);
-    self.__value = value;
+    self[value_symbol] = value;
     return self;
   }
 
@@ -40,7 +43,7 @@ export class Option<T> {
    * expect(none.is_some()).toBe(false);
    */
   is_some(): boolean {
-    return this.__type === EType.Some;
+    return this[type_symbol] === EType.Some;
   }
 
   /**
@@ -53,7 +56,7 @@ export class Option<T> {
    * expect(none.is_none()).toBe(true);
    */
   is_none(): boolean {
-    return this.__type === EType.None;
+    return this[type_symbol] === EType.None;
   }
 
   /**
@@ -71,7 +74,7 @@ export class Option<T> {
    */
   inspect(func: (value: T) => unknown): this {
     if (!this.is_some()) return this;
-    func(this.__value);
+    func(this[value_symbol]);
     return this;
   }
 
@@ -198,7 +201,7 @@ export class Option<T> {
    */
   and_then<U>(func: (value: T) => Option<U>): Option<U> {
     if (this.is_some()) {
-      return func(this.__value);
+      return func(this[value_symbol]);
     }
     return None();
   }
@@ -218,7 +221,7 @@ export class Option<T> {
    */
   expect(msg: string): T {
     if (this.is_some()) {
-      return this.__value;
+      return this[value_symbol];
     }
     panic(msg);
   }
@@ -238,10 +241,10 @@ export class Option<T> {
    */
   get_or_insert(value: T): T {
     if (this.is_none()) {
-      this.__value = value;
-      this.__type = EType.Some;
+      this[value_symbol] = value;
+      this[type_symbol] = EType.Some;
     }
-    return this.__value;
+    return this[value_symbol];
   }
 
   /**
@@ -263,10 +266,10 @@ export class Option<T> {
    */
   get_or_insert_with(func: () => T): T {
     if (this.is_none()) {
-      this.__value = func();
-      this.__type = EType.Some;
+      this[value_symbol] = func();
+      this[type_symbol] = EType.Some;
     }
-    return this.__value;
+    return this[value_symbol];
   }
 
   /**
@@ -287,9 +290,9 @@ export class Option<T> {
    * expect(option2).toEqual(Some(2));
    */
   insert(value: T): T {
-    this.__value = value;
-    this.__type = EType.Some;
-    return this.__value;
+    this[value_symbol] = value;
+    this[type_symbol] = EType.Some;
+    return this[value_symbol];
   }
 
   /**
@@ -312,7 +315,7 @@ export class Option<T> {
     if (this.is_none()) {
       return false;
     }
-    return func(this.__value);
+    return func(this[value_symbol]);
   }
 
   /**
@@ -333,10 +336,10 @@ export class Option<T> {
     if (this.is_none()) {
       return None();
     }
-    const value = this.__value;
+    const value = this[value_symbol];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    delete (this as any).__value;
-    this.__type = EType.None;
+    delete (this as any)[value_symbol];
+    this[type_symbol] = EType.None;
     return Some(value);
   }
 
@@ -354,7 +357,7 @@ export class Option<T> {
    */
   unwrap(): T {
     if (this.is_some()) {
-      return this.__value;
+      return this[value_symbol];
     }
     panic("Called `unwrap` method on a `None`");
   }
@@ -372,7 +375,7 @@ export class Option<T> {
    */
   unwrap_or(value: T): T {
     if (this.is_some()) {
-      return this.__value;
+      return this[value_symbol];
     }
     return value;
   }
@@ -390,7 +393,7 @@ export class Option<T> {
    */
   unwrap_or_else(func: () => T): T {
     if (this.is_some()) {
-      return this.__value;
+      return this[value_symbol];
     }
     return func();
   }
@@ -418,24 +421,24 @@ export class Option<T> {
     if (this.is_none() || other.is_none()) {
       return None();
     }
-    return Some([this.__value, other.__value]);
+    return Some([this[value_symbol], other[value_symbol]]);
   }
 
   toString(): string {
     if (this.is_some()) {
-      return `Some(${this.__value})`;
+      return `Some(${this[value_symbol]})`;
     }
     return "None";
   }
 
   is_equal_to(other: Option<T>): boolean {
-    if (this.__type !== other.__type) {
+    if (this[type_symbol] !== other[type_symbol]) {
       return false;
     }
-    if (this.__type === EType.None) {
+    if (this[type_symbol] === EType.None) {
       return true;
     }
-    return this.__value === other.__value;
+    return this[value_symbol] === other[value_symbol];
   }
 
   /**
@@ -459,7 +462,7 @@ export class Option<T> {
     if (this.is_none()) {
       return None();
     }
-    return Some(func(this.__value));
+    return Some(func(this[value_symbol]));
   }
 
   /**
@@ -483,7 +486,7 @@ export class Option<T> {
     if (this.is_none()) {
       return def;
     }
-    return func(this.__value);
+    return func(this[value_symbol]);
   }
 
   /**
@@ -520,7 +523,7 @@ export class Option<T> {
     if (this.is_none()) {
       return arms.none();
     }
-    return arms.some(this.__value);
+    return arms.some(this[value_symbol]);
   }
 
   /**
@@ -540,7 +543,7 @@ export class Option<T> {
     if (this.is_none()) {
       return Err(err);
     }
-    return Ok(this.__value);
+    return Ok(this[value_symbol]);
   }
 
   /**
@@ -558,7 +561,7 @@ export class Option<T> {
    */
   ok_or_else<E>(func: () => E): Result<T, E> {
     if (this.is_some()) {
-      return Ok(this.__value);
+      return Ok(this[value_symbol]);
     }
     return Err(func());
   }
@@ -576,7 +579,7 @@ export class Option<T> {
    * expect(result2).toBe("Some");
    */
   unwrap_unchecked(): T | undefined {
-    return this.__value;
+    return this[value_symbol];
   }
 
   /**
@@ -600,7 +603,7 @@ export class Option<T> {
     if (this.is_none()) {
       return;
     }
-    func(this.__value);
+    func(this[value_symbol]);
   }
 
   /**
@@ -663,7 +666,7 @@ export class Option<T> {
       arms.none();
       return;
     }
-    arms.some(this.__value);
+    arms.some(this[value_symbol]);
   }
 }
 
