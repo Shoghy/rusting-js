@@ -7,6 +7,7 @@ interface JSTypes {
   boolean: boolean
   symbol: symbol
   object: object
+  unknown: unknown
   function: <A extends Array<unknown>, R>(...args: A) => R
 }
 
@@ -15,7 +16,7 @@ type StrJSTypes = keyof JSTypes;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ClassConstructor = abstract new (...args: any) => any;
 
-type ZeroParamFunc = () => unknown;
+type ZeroParamFunc<T = unknown> = () => T;
 
 interface IEnum {
   [key: string]: StrJSTypes | ClassConstructor | "void"
@@ -36,61 +37,76 @@ export function Enum<E extends IEnum>(enum_values: E) {
     : never
   }
 
-  type Type2Func = {
+  type Type2Func<T = unknown> = {
     [key in ET]: E[key] extends "void"
-    ? ZeroParamFunc
+    ? ZeroParamFunc<T>
     : E[key] extends StrJSTypes
-    ? (value: JSTypes[E[key]]) => unknown
+    ? (value: JSTypes[E[key]]) => T
     : E[key] extends ClassConstructor
-    ? (value: InstanceType<E[key]>) => unknown
+    ? (value: InstanceType<E[key]>) => T
     : never
   }
 
-  return class EnumClass {
-    /**
-     * This property shouldn't be public, but anonymous classes
-     * cannot have private or protected properties or methods
-     * @private
-     */
-    __type: ET;
-    /**
-     * This property shouldn't be public, but anonymous classes
-     * cannot have private or protected properties or methods
-     * @private
-     */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    __value: any;
+  const type_symbol = Symbol("type");
+  const value_symbol = Symbol("value");
 
-    /**
-     * This property shouldn't be public, but anonymous classes
-     * cannot have private or protected properties or methods
-     * @protected
-     */
+  return class EnumClass {
     constructor(
       type: ET,
       value: unknown,
     ) {
-      this.__type = type;
-      this.__value = value;
+      this.update(type_symbol, type);
+      this.update(value_symbol, value);
     }
 
     get_type(): ET {
-      return this.__type;
+      return this.get(type_symbol);
     }
 
     /**
-     * This property shouldn't be public, but anonymous classes
-     * cannot have private or protected properties or methods
-     * @protected
+     * Don't call this method. This method is for internal use of the class.
+     * If called it will panic.
      */
-    _set_type<T extends ET>(type: E[T] extends "void" ? T : never): void;
-    _set_type<T extends ET>(type: E[T] extends "void" ? never : T, value: Type2Value[T]): void;
-    _set_type<T extends ET>(type: T, value?: Type2Value[T]): void {
-      this.__type = type;
-      if (evalues[type] === "void") {
-        delete this.__value;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    update(sym: symbol, value?: any): void {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const self = this as any;
+      if (sym === type_symbol) {
+        if (!(value in evalues)) {
+          panic("Invalid value for `type`");
+        }
+      } else if (sym === value_symbol) {
+        if (value === undefined) {
+          delete self[sym];
+          return;
+        }
       } else {
-        this.__value = value;
+        panic("`update` was called outside of `EnumClass`");
+      }
+      self[sym] = value;
+    }
+
+    /**
+     * Don't call this method. This method is for internal use of the class.
+     * If called it will panic.
+     */
+    get(sym: symbol) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const self = this as any;
+      if (sym !== type_symbol && sym !== value_symbol) {
+        panic("`get` was called outside of `EnumClass`");
+      }
+      return self[sym];
+    }
+
+    change_to<T extends ET>(type: E[T] extends "void" ? T : never): void;
+    change_to<T extends ET>(type: E[T] extends "void" ? never : T, value: Type2Value[T]): void;
+    change_to<T extends ET>(type: T, value?: Type2Value[T]): void {
+      this.update(type_symbol, type);
+      if (evalues[type] === "void") {
+        this.update(value_symbol, undefined);
+      } else {
+        this.update(value_symbol, value);
       }
     }
 
@@ -99,17 +115,17 @@ export function Enum<E extends IEnum>(enum_values: E) {
     static create<T extends ET>(type: T, value?: Type2Value[T]): EnumClass {
       const self = new this(type, value);
       if (evalues[type] === "void") {
-        delete self.__value;
+        self.update(value_symbol, undefined);
       }
       return self;
     }
 
     is(type: ET): boolean {
-      return this.__type === type;
+      return this.get(type_symbol) === type;
     }
 
     if_is<T extends ET>(type: T, func: Type2Func[T]): void {
-      if (type !== this.__type) {
+      if (type !== this.get(type_symbol)) {
         return;
       }
 
@@ -118,72 +134,40 @@ export function Enum<E extends IEnum>(enum_values: E) {
         return;
       }
 
-      func(this.__value);
+      func(this.get(value_symbol));
     }
 
-    match(arms: { [key in ET]: Type2Func[key] }): void;
-
-    match(
-      arms: {
-        [key in ET]?: Type2Func[key]
-      },
-      def: ZeroParamFunc
-    ): void;
-
-    match(
-      arms: {
-        [key in ET]?: Type2Func[key]
-      },
-      def?: ZeroParamFunc
-    ): void {
-      const arm = arms[this.__type];
+    return_match<T>(arms: { [key in ET]: Type2Func<T>[key] }): T;
+    return_match<T>(arms: { [key in ET]?: Type2Func<T>[key] }, def: ZeroParamFunc<T>): T;
+    return_match<T>(arms: { [key in ET]?: Type2Func<T>[key] }, def?: ZeroParamFunc<T>): T {
+      const arm = arms[this.get(type_symbol)];
 
       if (arm !== undefined) {
-        if (evalues[this.__type] === "void") {
-          (arm as ZeroParamFunc)();
+        if (evalues[this.get(type_symbol)] === "void") {
+          return (arm as ZeroParamFunc<T>)();
         } else {
-          arm(this.__value);
+          return arm(this.get(value_symbol));
         }
-        return;
       }
 
       if (def !== undefined) {
-        def();
-        return;
+        return def();
       }
 
       panic("All arms should be filled or `def` should be a function");
     }
 
-    unwrap<T extends ET>(type: T): Type2Value[T] {
-      if (evalues[type] === "void") {
-        panic(`The value ${type as string} of this enum, doesn't contain a value.`);
-      }
-
-      if (this.__type !== type) {
-        panic(`Enum is not ${type as string}`);
-      }
-
-      return this.__value;
-    }
-
-    expect<T extends ET>(type: T, msg: string): Type2Value[T] {
-      if (evalues[type] === "void") {
-        panic(`The value ${type as string} of this enum, doesn't contain a value.`);
-      }
-
-      if (this.__type !== type) {
-        panic(msg);
-      }
-
-      return this.__value;
+    match(arms: { [key in ET]: Type2Func[key] }): void;
+    match(arms: { [key in ET]?: Type2Func[key] }, def: ZeroParamFunc): void;
+    match(arms: { [key in ET]?: Type2Func[key] }, def?: ZeroParamFunc): void {
+      this.return_match(arms, def as ZeroParamFunc);
     }
 
     toString(): string {
-      if (evalues[this.__type] === "void") {
-        return this.__type as string;
+      if (evalues[this.get(type_symbol)] === "void") {
+        return this.get(type_symbol);
       }
-      return `${this.__type as string}(${this.__value})`;
+      return `${this.get(type_symbol)}(${this.get(value_symbol)})`;
     }
   };
 }
