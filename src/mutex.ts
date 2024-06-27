@@ -3,16 +3,17 @@ import { type Result } from "./result";
 
 const get_symbol = Symbol("get");
 const set_symbol = Symbol("set");
+const locker_symbol = Symbol("locker");
 
 export class Mutex<T> {
   private readonly [get_symbol]: () => T;
   private readonly [set_symbol]: (val: T) => void;
+  private [locker_symbol]!: Promise<unknown>;
 
-  private unlockers: {
+  protected unlockers: {
     [key: symbol]: () => void
   } = {};
-  private lockers_count = 0;
-  private current_locker!: Promise<unknown>;
+  protected lockers_count = 0;
 
   constructor(value: T) {
     this[get_symbol] = () => value;
@@ -43,11 +44,11 @@ export class Mutex<T> {
   async lock(): Promise<MutexGuard<T>> {
     this.lockers_count += 1;
 
-    const prev_locker = this.current_locker;
+    const prev_locker = this[locker_symbol];
 
     let resolve_promise: () => void = () => { };
 
-    this.current_locker = new Promise((resolve) => {
+    this[locker_symbol] = new Promise((resolve) => {
       const unlocker_key = Symbol();
       this.unlockers[unlocker_key] = () => mutex_guard.unlock();
 
