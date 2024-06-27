@@ -179,11 +179,14 @@ export class Result<T, E> {
     return func(this.__value as T);
   }
 
-  map_or_else<U>(err_func: (err: E) => U, ok_func: (ok: T) => U): U {
+  map_or_else<U>(arms: {
+    ok: (value: T) => U,
+    err: (value: E) => U,
+  }): U {
     if (this.is_err()) {
-      return err_func(this.__value as E);
+      return arms.err(this.__value as E);
     }
-    return ok_func(this.__value as T);
+    return arms.ok(this.__value as T);
   }
 
   ok(): Option<T> {

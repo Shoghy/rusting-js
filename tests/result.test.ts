@@ -89,8 +89,8 @@ describe("Testing `inspect` method", () => {
     const ok = Ok("Original");
     const err = Err("Doppelganger");
 
-    expect(ok.inspect(() => {})).toBe(ok);
-    expect(err.inspect(() => {})).toBe(err);
+    expect(ok.inspect(() => { })).toBe(ok);
+    expect(err.inspect(() => { })).toBe(err);
   });
 });
 
@@ -118,8 +118,8 @@ describe("Testing `inspect_err` method", () => {
     const ok = Ok("C#"); //Microsoft flavored JAVA
     const err = Err("JAVA");
 
-    expect(ok.inspect_err(() => {})).toBe(ok);
-    expect(err.inspect_err(() => {})).toBe(err);
+    expect(ok.inspect_err(() => { })).toBe(ok);
+    expect(err.inspect_err(() => { })).toBe(err);
   });
 });
 
@@ -157,7 +157,7 @@ describe("Testing `and_then` method", () => {
   test("`Ok` should run the `func` parameter and return its value", () => {
     const ok = Ok("Hello");
     const result = ok.and_then((value) => {
-      return Ok(value+" World");
+      return Ok(value + " World");
     });
     expect(result).toEqual(Ok("Hello World"));
   });
@@ -213,7 +213,7 @@ describe("Testing `is_err_and` method", () => {
   const r_false = () => false;
 
   test("`Ok` should always return false", () => {
-    const ok = Ok({hola: "mundo"});
+    const ok = Ok({ hola: "mundo" });
 
     expect(ok.is_err_and(r_true)).toBeFalse();
     expect(ok.is_err_and(r_false)).toBeFalse();
@@ -273,16 +273,16 @@ describe("Testing `map` method", () => {
     const num1 = RandomInt(1, 100);
     const num2 = RandomInt(1, 100);
     const ok1 = Ok(num1);
-    const result1 = ok1.map((value) => value*num2);
+    const result1 = ok1.map((value) => value * num2);
 
-    expect(result1).toEqual(Ok(num1*num2));
+    expect(result1).toEqual(Ok(num1 * num2));
 
     const str1 = RandomString(7);
     const str2 = RandomString(7);
     const ok2 = Ok(str1);
-    const result2 = ok2.map((value) => value+str2);
+    const result2 = ok2.map((value) => value + str2);
 
-    expect(result2).toEqual(Ok(str1+str2));
+    expect(result2).toEqual(Ok(str1 + str2));
   });
 
   test("`Err` should not execute the `func` parameter", (done) => {
@@ -296,7 +296,7 @@ describe("Testing `map` method", () => {
   test("`Err` should return its value wrapped in a `Err`", () => {
     const str = RandomString(11);
     const err = Err(str);
-    const result = err.map(() => {});
+    const result = err.map(() => { });
 
     expect(result).toEqual(Err(str));
   });
@@ -307,16 +307,16 @@ describe("Testing `map_err` method", () => {
     const num1 = RandomInt(1, 100);
     const num2 = RandomInt(1, 100);
     const err = Err(num1);
-    const result1 = err.map_err((value) => value*num2);
+    const result1 = err.map_err((value) => value * num2);
 
-    expect(result1).toEqual(Err(num1*num2));
+    expect(result1).toEqual(Err(num1 * num2));
 
     const str1 = RandomString(7);
     const str2 = RandomString(7);
     const err2 = Err(str1);
-    const result2 = err2.map_err((value) => value+str2);
+    const result2 = err2.map_err((value) => value + str2);
 
-    expect(result2).toEqual(Err(str1+str2));
+    expect(result2).toEqual(Err(str1 + str2));
   });
 
   test("`Ok` should not execute the `func` parameter", (done) => {
@@ -330,7 +330,7 @@ describe("Testing `map_err` method", () => {
   test("`Ok` should return its value wrapped in a `Ok`", () => {
     const str = RandomString(11);
     const ok = Ok(str);
-    const result = ok.map_err(() => {});
+    const result = ok.map_err(() => { });
 
     expect(result).toEqual(Ok(str));
   });
@@ -342,10 +342,10 @@ describe("Testing `map_or` method", () => {
     const num = RandomInt(101, 200);
     const ok = Ok(num);
     const result = ok.map_or(def, (value) => {
-      return (value*value+value)/2;
+      return (value * value + value) / 2;
     });
 
-    expect(result).toBe((num*num+num)/2);
+    expect(result).toBe((num * num + num) / 2);
   });
 
   test("`Err` should not execute the func parameter and should return def", (done) => {
@@ -363,18 +363,21 @@ describe("Testing `map_or` method", () => {
 });
 
 describe("Testing `map_or_else` method", () => {
-  test("`Ok` should execute `ok_func` parameter and return its returned value", () => {
+  test("`Ok` should execute `ok` arm and return its returned value", () => {
     const str1 = RandomString(11);
     const str2 = RandomString(11);
     const ok = Ok(str1);
 
-    const result = ok.map_or_else(() => {
-      unreachable();
-    }, (value) => {
-      return value + str2;
+    const result = ok.map_or_else({
+      ok(value) {
+        return value + str2;
+      },
+      err() {
+        unreachable();
+      },
     });
 
-    expect(result).toBe(str1+str2);
+    expect(result).toBe(str1 + str2);
   });
 
   test("`Err` should execute `err_func` parameter and return its returned value", () => {
@@ -382,13 +385,16 @@ describe("Testing `map_or_else` method", () => {
     const str2 = RandomString(11);
     const err = Err(str1);
 
-    const result = err.map_or_else((value) => {
-      return value + str2;
-    }, () => {
-      unreachable();
+    const result = err.map_or_else({
+      ok() {
+        unreachable();
+      },
+      err(value) {
+        return value + str2;
+      }
     });
 
-    expect(result).toBe(str1+str2);
+    expect(result).toBe(str1 + str2);
   });
 });
 
@@ -507,10 +513,10 @@ describe("Testing `unwrap_or_else` method", () => {
     const err = Err(str1);
 
     const result = err.unwrap_or_else((value) => {
-      return value+str2;
+      return value + str2;
     });
 
-    expect(result).toBe(str1+str2);
+    expect(result).toBe(str1 + str2);
   });
 });
 
@@ -534,11 +540,11 @@ describe("Testing `match` method", () => {
     const str = RandomString(11);
     const err = Err(str);
     err.match({
-      err(value){
+      err(value) {
         expect(value).toBe(str);
         done();
       },
-      ok(){
+      ok() {
         done("`ok` arm was executed");
       }
     });
