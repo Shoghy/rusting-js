@@ -1,5 +1,6 @@
 import { expect, test, describe } from "bun:test";
 import { Enum } from "../src/enum";
+import { panic } from "../src/panic";
 
 const ExampleEnum = Enum({
   Str: "string",
@@ -18,7 +19,7 @@ test("`get_type` method should return the created type", () => {
 });
 
 describe("Testing `Enum` equality", () => {
-  test("Two different enum arms should be different",  () => {
+  test("Two different enum arms should be different", () => {
     const str = ExampleEnum.create("Str", "Lo mismo");
     const str2 = ExampleEnum.create("Str2", "Lo mismo");
     expect(str).not.toEqual(str2);
@@ -39,7 +40,7 @@ describe("Testing `Enum` equality", () => {
     expect(str1).toEqual(str2);
   });
 
-  test("If an arm don't hold a value it should always be equal",  () => {
+  test("If an arm don't hold a value it should always be equal", () => {
     const nothing1 = ExampleEnum.create("Nothing" as never, "Hello World" as never);
     const nothing2 = ExampleEnum.create("Nothing" as never, 13 as never);
     expect(nothing1).toEqual(nothing2);
@@ -72,3 +73,54 @@ describe("Testing `if_is` method", () => {
     expect(val).toBe(27);
   });
 });
+
+/**
+ * Trying to imitate `Option` class with `Enum`
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+class Option<T> extends Enum({
+  some: "unknown",
+  none: "void",
+}) {
+  static Some<T>(value: T) {
+    return this.create("some", value) as Option<T>;
+  }
+
+  static None<T>() {
+    return this.create("none") as Option<T>;
+  }
+
+  is_some(): boolean{
+    return this.is("some");
+  }
+
+  is_none(): boolean{
+    return this.is("none");
+  }
+
+  if_some(func: (value: T) => unknown) {
+    this.if_is("some", (value) => func(value as T));
+  }
+
+  if_none(func: () => unknown) {
+    this.if_is("none", func);
+  }
+
+  unwrap(): T {
+    return this.return_match({
+      some: (value) => value as T,
+      none: () => panic("Called `unwrap` method on a `None`"),
+    });
+  }
+
+  take(){
+    const copy = this.return_match({
+      some: (value) => Option.Some(value as T),
+      none:  () => Option.None(),
+    });
+
+    this.change_to("none");
+
+    return copy;
+  }
+}
