@@ -205,12 +205,12 @@ export class Option<T> {
 
   /**
    * Returns the `value` contained in `Some`.
-   * @throws {Error}
    * If `Option` is `None` panics.
+   * @throws {Error}
    * @example
    * const none = None();
    * const msg = "This should throw an exception";
-   * expect(() => none.expect(msg)).toThrow(new Panic(msg));
+   * expect(() => none.expect(msg)).toThrowError(msg);
    *
    * const some = Some(1);
    * const val = some.expect("This should not panic");

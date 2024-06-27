@@ -14,12 +14,18 @@ export class Result<T, E> {
     this.__type = type;
   }
 
+  /**
+   * Creates a `Ok` type `Result`
+   */
   static Ok<T, E = unknown>(value: T): Result<T, E> {
     const self = new Result<T, E>(EType.Ok);
     self.__value = value;
     return self;
   }
 
+  /**
+   * Creates a `Err` type `Result`
+   */
   static Err<E, T = unknown>(value: E): Result<T, E> {
     const self = new Result<T, E>(EType.Err);
     self.__value = value;
@@ -116,6 +122,22 @@ export class Result<T, E> {
     return res;
   }
 
+  /**
+   * If `Result` is `Ok` execute the `func` parameter and returns its return value,
+   * otherwise it just return `Err`
+   * @example
+   * const ok = Ok(5);
+   * const result1 = ok.and_then((value) => {
+   *   return Ok(value * value);
+   * });
+   * expect(result1).toEqual(Ok(25));
+   * 
+   * const err = Err<number, number>(7);
+   * const result2 = err.and_then((value) => {
+   *   return Ok(value*value);
+   * });
+   * expect(result2).toEqual(Err(7));
+   */
   and_then<U>(func: (value: T) => Result<U, E>): Result<U, E> {
     if (this.is_err()) {
       return Err(this.__value as E);
@@ -123,6 +145,16 @@ export class Result<T, E> {
     return func(this.__value as T);
   }
 
+  /**
+   * If `Result` is `Err` the wrapped value of `Err` wrapped on a `Some`,
+   * if `Result` is `Ok` returns `None`
+   * @example
+   * const ok = Ok("You're cute");
+   * expect(ok.err()).toEqual(None());
+   * 
+   * const err = Err(new Error("EEEERRRROOORRRR"));
+   * expect(err.err()).toEqual(Some(new Error("EEEERRRROOORRRR")));
+   */
   err(): Option<E> {
     if (this.is_ok()) {
       return None();
@@ -130,6 +162,19 @@ export class Result<T, E> {
     return Some(this.__value as E);
   }
 
+  /**
+   * If `Result` is `Ok` returns its wrapped value,
+   * if `Result` is `Err` panics with the message given
+   * in the `value` parameter
+   * @example
+   * const msg = "I am am error message, I am here to tell you what went wrong.";
+   * 
+   * const ok = Ok("Minecraft");
+   * expect(ok.expect(msg)).toBe("Minecraft");
+   * 
+   * const err = Err("Also try Terraria");
+   * expect(() => err.expect(msg)).toThrowError(msg);
+   */
   expect(value: string): T {
     if (this.is_ok()) {
       return this.__value as T;
@@ -137,6 +182,19 @@ export class Result<T, E> {
     panic(value);
   }
 
+  /**
+   * If `Result` is `Err` return its wrapped value,
+   * if `REsult` is `Ok` panics with the message given
+   * in the `value` parameter
+   * @example
+   * const msg = "Did I do a good job?";
+   * 
+   * const ok = Ok("Terraria");
+   * expect(() => ok.expect_err(msg)).toThrowError(msg);
+   * 
+   * const err = Err("Also try Minecraft");
+   * expect(err.expect_err(msg)).toBe("Also try Minecraft");
+   */
   expect_err(value: string): E {
     if (this.is_err()) {
       return this.__value as E;
@@ -144,6 +202,23 @@ export class Result<T, E> {
     panic(value);
   }
 
+  /**
+   * If `Result` is `Ok` returns `false`, otherwise
+   * execute the `func` parameter and return its returned value
+   * @example
+   * const r_true = () =>  true;
+   * const r_false = () => false;
+   * 
+   * const ok = Ok("Why are you reading this?");
+   * expect(ok.is_err_and(r_true)).toBeFalse();
+   * expect(ok.is_err_and(r_false)).toBeFalse();
+   * 
+   * const err = Err(7);
+   * expect(err.is_err_and(r_true)).toBeTrue();
+   * expect(err.is_err_and(r_false)).toBeFalse();
+   * expect(err.is_err_and((val) => val === 7)).toBeTrue();
+   * expect(err.is_err_and((val) => val === 8)).toBeFalse();
+   */
   is_err_and(func: (err: E) => boolean): boolean {
     if (this.is_ok()) {
       return false;
@@ -278,6 +353,12 @@ export class Result<T, E> {
   }
 }
 
+/**
+ * Creates a `Ok` type `Result`
+ */
 export const Ok = Result.Ok;
 
+/**
+ * Creates a `Err` type `Result`
+ */
 export const Err = Result.Err;

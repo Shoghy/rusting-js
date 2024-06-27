@@ -123,7 +123,7 @@ test("and_then", () => {
 test("expect", () => {
   const none = None();
   const msg = "This should throw an exception";
-  expect(() => none.expect(msg)).toThrow();
+  expect(() => none.expect(msg)).toThrowError(msg);
 
   const some = Some(1);
   const val = some.expect("This should not panic");
