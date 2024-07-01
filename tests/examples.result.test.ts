@@ -124,3 +124,124 @@ test("is_err_and", () => {
   expect(err.is_err_and((val) => val === 7)).toBeTrue();
   expect(err.is_err_and((val) => val === 8)).toBeFalse();
 });
+
+test("is_ok_and", () => {
+  const r_true = () => true;
+  const r_false = () => false;
+
+  const ok = Ok(1);
+  expect(ok.is_ok_and(r_true)).toBeTrue();
+  expect(ok.is_ok_and(r_false)).toBeFalse();
+  expect(ok.is_ok_and((val) => val === 1)).toBeTrue();
+  expect(ok.is_ok_and((val) => val === 2)).toBeFalse();
+
+  const err = Err(2);
+  expect(err.is_ok_and(r_true)).toBeFalse();
+  expect(err.is_ok_and(r_false)).toBeFalse();
+});
+
+test("map", () => {
+  const ok = Ok("Hello ");
+  const result1 = ok.map((val) => val+"World!");
+  expect(result1).toEqual(Ok("Hello World!"));
+
+  const err = Err(new Error("Hey"));
+  const result2 = err.map(() => 1);
+  expect(result2).toEqual(Err(new Error("Hey")));
+});
+
+test("map_err", () => {
+  const ok = Ok(99);
+  const result1 = ok.map_err(() => 7);
+  expect(result1).toEqual(Ok(99));
+
+  const err = Err(8);
+  const return2 = err.map_err((val) => val*9);
+  expect(return2).toEqual(Err(72));
+});
+
+test("map_or", () => {
+  const ok = Ok("Nih");
+  const result1 = ok.map_or("Python", (val) => `Knights who say ${val}`);
+  expect(result1).toBe("Knights who say Nih");
+
+  const err = Err(12);
+  const result2 = err.map_or("Default value", () => "Not default value");
+  expect(result2).toBe("Default value");
+});
+
+test("map_or_else", () => {
+  const ok = Ok("egg_irl");
+  const result1 = ok.map_or_else({
+    ok: (val) => `r/${val}`,
+    err: () => unreachable(),
+  });
+  expect(result1).toBe("r/egg_irl");
+
+  const err = Err("Celeste");
+  const result2 = err.map_or_else({
+    ok: () => unreachable(),
+    err: (val) => `${val}: Madeline`,
+  });
+  expect(result2).toBe("Celeste: Madeline");
+});
+
+test("ok", () => {
+  const ok = Ok(32);
+  expect(ok.ok()).toEqual(Some(32));
+
+  const err = Err("lmao");
+  expect(err.ok()).toEqual(None());
+});
+
+test("or", () => {
+  let val1 = Ok<number, string>(21);
+  let val2 = Err<string, number>("This should be an error message");
+  expect(val1.or(val2)).toEqual(Ok(21));
+
+  val1 = Err("Another error message");
+  val2 = Ok(44);
+  expect(val1.or(val2)).toEqual(Ok(44));
+
+  val1 = Ok(85);
+  val2 = Ok(333);
+  expect(val1.or(val2)).toEqual(Ok(85));
+
+  val1 = Err("Yet another error message");
+  val2 = Err("-Error message enthusiast");
+  expect(val1.or(val2)).toEqual(Err("-Error message enthusiast"));
+});
+
+test("or_else", () => {
+  const ok = Ok("The same value");
+  const result1 = ok.or_else(() => Ok("Another value"));
+  expect(result1).toEqual(Ok("The same value"));
+
+  const err = Err("Value");
+  const result2 = err.or_else((val) => Err(`Another ${val}`));
+  expect(result2).toEqual(Err("Another Value"));
+});
+
+test("unwrap", () => {
+  const ok = Ok(0);
+  expect(ok.unwrap()).toBe(0);
+
+  const err = Err(777);
+  expect(() => err.unwrap()).toThrowError("Called `unwrap` method on a `Err`");
+});
+
+test("unwrap_err", () => {
+  const ok = Ok("Never");
+  expect(() => ok.unwrap_err()).toThrowError("Called `unwrap_err` method on a `Ok`");
+
+  const err = Err("Gonna");
+  expect(err.unwrap_err()).toBe("Gonna");
+});
+
+test("unwrap_or", () => {
+  const ok = Ok(-37);
+  expect(ok.unwrap_or(74)).toBe(-37);
+
+  const err = Err<number[], number[]>([1, 2, 3]);
+  expect(err.unwrap_or([4, 5, 6])).toEqual([4, 5, 6]);
+});
