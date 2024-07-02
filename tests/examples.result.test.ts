@@ -245,3 +245,61 @@ test("unwrap_or", () => {
   const err = Err<number[], number[]>([1, 2, 3]);
   expect(err.unwrap_or([4, 5, 6])).toEqual([4, 5, 6]);
 });
+
+test("unwrap_or_else", () => {
+  const ok = Ok("Returned");
+  expect(ok.unwrap_or_else(() =>  "Not Returned")).toBe("Returned");
+
+  const err = Err(5);
+  expect(err.unwrap_or_else((val) => val*3)).toBe(15);
+});
+
+test("match", () => {
+  let value = 0;
+  const ok = Ok(7);
+  ok.match({
+    ok: (val) => {
+      value = val;
+    },
+    err: () => unreachable(),
+  });
+  expect(value).toBe(7);
+
+  value = 0;
+  const err = Err(123);
+  err.match({
+    ok: () => unreachable(),
+    err: (val) => {
+      value = val;
+    }
+  });
+  expect(value).toBe(123);
+});
+
+test("if_ok", () => {
+  let value = 0;
+  const ok = Ok(32);
+  ok.if_ok((val) => {
+    value = val;
+  });
+  expect(value).toBe(32);
+
+  const err = Err(64);
+  err.if_ok(() => {
+    throw new Error("This will not be executed");
+  });
+});
+
+test("if_err", () => {
+  const ok = Ok(57);
+  ok.if_err(() => {
+    throw new Error("This will not be executed");
+  });
+
+  let value = 0;
+  const err = Err(39);
+  err.if_err((val) => {
+    value = val;
+  });
+  expect(value).toBe(39);
+});

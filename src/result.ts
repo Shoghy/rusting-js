@@ -459,6 +459,17 @@ export class Result<T, E> {
     return def;
   }
 
+  /**
+   * If `Result` is `Ok` return its wrapped value,
+   * otherwise execute the `func` parameter and
+   * return its returned value.
+   * @example
+   * const ok = Ok("Returned");
+   * expect(ok.unwrap_or_else(() =>  "Not Returned")).toBe("Returned");
+   * 
+   * const err = Err(5);
+   * expect(err.unwrap_or_else((val) => val*3)).toBe(15);
+   */
   unwrap_or_else(func: (err: E) => T): T {
     if (this.is_ok()) {
       return this[value_symbol] as T;
@@ -480,6 +491,30 @@ export class Result<T, E> {
     return this[value_symbol] === other[value_symbol];
   }
 
+  /**
+   * If `Result` is `Ok` execute the `ok` property function,
+   * if is `Err` execute the `err` property function.
+   * @example
+   * let value = 0;
+   * const ok = Ok(7);
+   * ok.match({
+   *   ok: (val) => {
+   *     value = val;
+   *   },
+   *   err: () => unreachable(),
+   * });
+   * expect(value).toBe(7);
+   * 
+   * value = 0;
+   * const err = Err(123);
+   * err.match({
+   *   ok: () => unreachable(),
+   *   err: (val) => {
+   *     value = val;
+   *   }
+   * });
+   * expect(value).toBe(123);
+   */
   match(arms: {
     ok: (value: T) => unknown,
     err: (err: E) => unknown,
@@ -491,6 +526,21 @@ export class Result<T, E> {
     arms.ok(this[value_symbol] as T);
   }
 
+  /**
+   * If `Result` is `Ok` execute the `func parameter`
+   * @example
+   * let value = 0;
+   * const ok = Ok(32);
+   * ok.if_ok((val) => {
+   *   value = val;
+   * });
+   * expect(value).toBe(32);
+   * 
+   * const err = Err(64);
+   * err.if_ok(() => {
+   *   throw new Error("This will not be executed");
+   * });
+   */
   if_ok(func: (value: T) => unknown): void {
     if (this.is_err()) {
       return;
@@ -498,6 +548,21 @@ export class Result<T, E> {
     func(this[value_symbol] as T);
   }
 
+  /**
+   * If `Result` is `Err` execute the `func` parameter
+   * @example
+   * const ok = Ok(57);
+   * ok.if_err(() => {
+   *   throw new Error("This will not be executed");
+   * });
+   * 
+   * let value = 0;
+   * const err = Err(39);
+   * err.if_err((val) => {
+   *   value = val;
+   * });
+   * expect(value).toBe(39);
+   */
   if_err(func: (value: E) => unknown): void {
     if (this.is_ok()) {
       return;
