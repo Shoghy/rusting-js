@@ -6,6 +6,10 @@
   "author": {
     "name": "Shoghy Martinez"
   },
+  "keywords": [
+    "typescript",
+    "rust"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/Shoghy/rusting-js"
