@@ -1,12 +1,19 @@
 {
-  "name": "rust-types",
+  "name": "rusting-js",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": {
     "name": "Shoghy Martinez"
   },
-  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Shoghy/rust-types"
+  },
+  "files": [
+    "dist/*"
+  ],
+  "version": "0.1.1",
   "license": "MIT",
   "scripts": {
     "build": "tsup",
