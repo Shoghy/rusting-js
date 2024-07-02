@@ -146,10 +146,10 @@ export class Option<T> {
    * expect(val1.xor(val2)).toEqual(None());
    */
   xor(optb: Option<T>): Option<T> {
-    if (this.is_some() && optb.is_some()) {
-      return None();
-    }
     if (this.is_some()) {
+      if (optb.is_some()) {
+        return None();
+      }
       return this;
     }
     if (optb.is_some()) {
@@ -633,6 +633,9 @@ export class Option<T> {
   /**
    * If `Option` is `Some` call the function property `some`.
    * If `Option` is `None` call the function property `none`.
+   * 
+   * This function will return the returned value by the executed
+   * function
    * @example
    * let value = 0;
    * const none = None<number>();
@@ -658,15 +661,14 @@ export class Option<T> {
    * });
    * expect(value).toBe(1);
    */
-  match(arms: {
-    some: (value: T) => unknown,
-    none: () => unknown,
-  }): void {
+  match<U>(arms: {
+    some: (value: T) => U,
+    none: () => U,
+  }): U {
     if (this.is_none()) {
-      arms.none();
-      return;
+      return arms.none();
     }
-    arms.some(this[value_symbol]);
+    return arms.some(this[value_symbol]);
   }
 }
 

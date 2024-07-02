@@ -494,6 +494,9 @@ export class Result<T, E> {
   /**
    * If `Result` is `Ok` execute the `ok` property function,
    * if is `Err` execute the `err` property function.
+   * 
+   * This function will return the returned value by the executed
+   * function
    * @example
    * let value = 0;
    * const ok = Ok(7);
@@ -515,15 +518,14 @@ export class Result<T, E> {
    * });
    * expect(value).toBe(123);
    */
-  match(arms: {
-    ok: (value: T) => unknown,
-    err: (err: E) => unknown,
-  }): void {
+  match<U>(arms: {
+    ok: (value: T) => U,
+    err: (err: E) => U,
+  }): U {
     if (this.is_err()) {
-      arms.err(this[value_symbol] as E);
-      return;
+      return arms.err(this[value_symbol] as E);
     }
-    arms.ok(this[value_symbol] as T);
+    return arms.ok(this[value_symbol] as T);
   }
 
   /**
