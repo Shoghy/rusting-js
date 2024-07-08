@@ -26,7 +26,7 @@ export function panic(message?: string): never {
 }
 
 /**
- * Mark the code as in progress
+ * Marks the code as in progress
  * @throws {Error}
  * @param message 
  * Explain what needs to be done
@@ -47,6 +47,12 @@ export function todo(message: string, panic: boolean = true): never | void {
   throw error;
 }
 
+/**
+ * Marks the code as unimplemented
+ * @throws {Error}
+ * @param message 
+ * Explain what needs to be implemented
+ */
 export function unimplemented(message?: string): never {
   throw new Error(message, {
     cause: "Unimplemented code was executed"
