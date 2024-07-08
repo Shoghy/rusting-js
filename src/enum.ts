@@ -137,9 +137,9 @@ export function Enum<E extends IEnum>(enum_values: E) {
       func(this.get(value_symbol));
     }
 
-    return_match<T>(arms: { [key in ET]: Type2Func<T>[key] }): T;
-    return_match<T>(arms: { [key in ET]?: Type2Func<T>[key] }, def: ZeroParamFunc<T>): T;
-    return_match<T>(arms: { [key in ET]?: Type2Func<T>[key] }, def?: ZeroParamFunc<T>): T {
+    match<T>(arms: { [key in ET]: Type2Func<T>[key] }): T;
+    match<T>(arms: { [key in ET]?: Type2Func<T>[key] }, def: ZeroParamFunc<T>): T;
+    match<T>(arms: { [key in ET]?: Type2Func<T>[key] }, def?: ZeroParamFunc<T>): T {
       const arm = arms[this.get(type_symbol)];
 
       if (arm !== undefined) {
@@ -155,12 +155,6 @@ export function Enum<E extends IEnum>(enum_values: E) {
       }
 
       panic("All arms should be filled or `def` should be a function");
-    }
-
-    match(arms: { [key in ET]: Type2Func[key] }): void;
-    match(arms: { [key in ET]?: Type2Func[key] }, def: ZeroParamFunc): void;
-    match(arms: { [key in ET]?: Type2Func[key] }, def?: ZeroParamFunc): void {
-      this.return_match(arms, def as ZeroParamFunc);
     }
 
     toString(): string {

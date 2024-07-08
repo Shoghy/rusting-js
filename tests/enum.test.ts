@@ -107,14 +107,14 @@ class Option<T> extends Enum({
   }
 
   unwrap(): T {
-    return this.return_match({
+    return this.match({
       some: (value) => value as T,
       none: () => panic("Called `unwrap` method on a `None`"),
     });
   }
 
   take(){
-    const copy = this.return_match({
+    const copy = this.match({
       some: (value) => Option.Some(value as T),
       none:  () => Option.None(),
     });
