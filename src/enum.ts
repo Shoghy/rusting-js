@@ -22,10 +22,10 @@ interface IEnum {
   [key: string]: StrJSTypes | ClassConstructor | "void"
 }
 
-export function Enum<E extends IEnum>(enum_values: E) {
+export function Enum<E extends IEnum>(evalues: E) {
   type ET = keyof E;
-  // Cloning the values so the object cannot be modified
-  const evalues: E = { ...enum_values };
+
+  evalues = Object.freeze(evalues);
 
   type Type2Value = {
     [key in ET]: E[key] extends "void"
@@ -115,7 +115,7 @@ export function Enum<E extends IEnum>(enum_values: E) {
     static create<T extends ET>(type: T, value?: Type2Value[T]): EnumClass {
       const self = new this(type, value);
       if (evalues[type] === "void") {
-        self.update(value_symbol, undefined);
+        self.update(value_symbol);
       }
       return self;
     }
