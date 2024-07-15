@@ -1,6 +1,7 @@
 import { panic } from "./panic";
 
 const text_encoder = new TextEncoder();
+const text_decoder = new TextDecoder();
 
 const vec_symbol = Symbol("vec");
 
@@ -32,5 +33,9 @@ export class RString {
 
   len(): number{
     return this[vec_symbol].length;
+  }
+
+  toString(){
+    return text_decoder.decode(this[vec_symbol]);
   }
 }
