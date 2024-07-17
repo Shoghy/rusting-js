@@ -31,20 +31,10 @@ export function panic(message?: string): never {
  * @param message 
  * Explain what needs to be done
  */
-export function todo(message: string): never;
-export function todo(message: string, panic: false): void;
-export function todo(message: string, panic: boolean = true): never | void {
-  const error = new Error(message, {
+export function todo(message: string): never {
+  throw new Error(message, {
     cause: "Unfinished code was executed"
   });
-
-  if (!panic) {
-    // eslint-disable-next-line no-console
-    console.warn(error);
-    return;
-  }
-
-  throw error;
 }
 
 /**
