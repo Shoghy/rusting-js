@@ -1,7 +1,7 @@
 import { expect, test, describe } from "bun:test";
-import { Err, Ok, Result } from "../src/result";
+import { Err, Ok, Result } from "../src/enums";
 import { unreachable } from "../src/panic";
-import { None, Some } from "../src/option";
+import { None, Some } from "../src/enums";
 import { RandomInt, RandomString } from "./random";
 
 describe("Testing `Ok` and `Err` equality", () => {

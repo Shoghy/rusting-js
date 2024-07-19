@@ -1,5 +1,5 @@
 import { catch_unwind, panic } from "./panic";
-import { type Result } from "./result";
+import { type Result } from "./enums";
 
 const get_symbol = Symbol("get");
 const set_symbol = Symbol("set");

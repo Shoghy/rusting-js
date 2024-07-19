@@ -6,8 +6,8 @@
  */
 
 import { expect, test } from "bun:test";
-import { None, Some } from "../src/option";
-import { Err, Ok } from "../src/result";
+import { None, Some } from "../src/enums";
+import { Err, Ok } from "../src/enums";
 import { unreachable } from "../src/panic";
 
 test("is_some", () => {

@@ -1,4 +1,4 @@
-import { panic } from "./panic";
+import { panic } from "../panic";
 
 interface JSTypes {
   string: string
@@ -47,31 +47,31 @@ export function Enum<E extends IEnum>(evalues: E) {
     : never
   }
 
-  function checker(type: ET, value: unknown): void{
-    if(!(type in evalues)){
+  function checker(type: ET, value: unknown): void {
+    if (!(type in evalues)) {
       panic(`\`${type as string}\` is not a posible state of this Enum.`);
     }
 
     const hold_type = evalues[type];
-    if(hold_type === "unknown"){
+    if (hold_type === "unknown") {
       return;
     }
 
     if (hold_type === "void") {
-      if(value !== undefined){
+      if (value !== undefined) {
         panic(`The value expected for the type ${type as string} of this Enum, is void`);
       }
       return;
     }
 
-    if(typeof hold_type === "string"){
-      if(typeof value !== hold_type){
+    if (typeof hold_type === "string") {
+      if (typeof value !== hold_type) {
         panic(`The value expected for the type ${type as string} of this Enum, is ${hold_type}`);
       }
       return;
     }
 
-    if(!(value instanceof (hold_type as ClassConstructor))){
+    if (!(value instanceof (hold_type as ClassConstructor))) {
       panic(`The value expected for the type ${type as string} of this Enum, is ${hold_type.name}`);
     }
   }
@@ -93,7 +93,7 @@ export function Enum<E extends IEnum>(evalues: E) {
      * If called it will panic.
      */
     update(sym: symbol, type: ET, value: unknown): void {
-      if(sym !== update_symbol){
+      if (sym !== update_symbol) {
         panic("`update` was called outside of `EnumClass`");
       }
 
@@ -101,10 +101,10 @@ export function Enum<E extends IEnum>(evalues: E) {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (this as any)[type_symbol] = type;
-      if(value === undefined){
+      if (value === undefined) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         delete (this as any)[value_symbol];
-      }else{
+      } else {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this as any)[value_symbol] = value;
       }
@@ -179,3 +179,6 @@ export function Enum<E extends IEnum>(evalues: E) {
     }
   };
 }
+
+export { Option, Some, None } from "./option";
+export { Result, Ok, Err } from "./result";

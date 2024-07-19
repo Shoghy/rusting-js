@@ -1,4 +1,4 @@
-import { Err, Ok, type Result } from "./result";
+import { Err, Ok, type Result } from "./enums";
 
 /**
  * Use it to mark the code as unreachable when the compiler is

@@ -6,9 +6,9 @@
  */
 
 import { expect, test } from "bun:test";
-import { Err, Ok } from "../src/result";
+import { Err, Ok } from "../src/enums";
 import { unreachable } from "../src/panic";
-import { None, Some } from "../src/option";
+import { None, Some } from "../src/enums";
 
 test("is_ok", () => {
   const ok = Ok(1);

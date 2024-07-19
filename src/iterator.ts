@@ -1,4 +1,4 @@
-import { Option } from "./option";
+import { Option } from "./enums";
 import { unimplemented } from "./panic";
 
 export class RIterator<T> {

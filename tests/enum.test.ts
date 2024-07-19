@@ -1,5 +1,5 @@
 import { expect, test, describe } from "bun:test";
-import { Enum } from "../src/enum";
+import { Enum } from "../src/enums";
 
 const ExampleEnum = Enum({
   Str: "string",

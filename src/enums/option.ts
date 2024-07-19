@@ -1,5 +1,5 @@
-import { Enum } from "./enum";
-import { panic } from "./panic";
+import { Enum } from ".";
+import { panic } from "../panic";
 import { Err, Ok, type Result } from "./result";
 
 
