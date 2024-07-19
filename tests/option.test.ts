@@ -593,7 +593,7 @@ describe("Testing `match` method", () => {
 
     some.match({
       Some: (value) => {
-        val = value as number;
+        val = value;
       },
       None: () => {
         unreachable();

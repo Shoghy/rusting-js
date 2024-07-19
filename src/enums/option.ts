@@ -185,7 +185,7 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
    */
   and_then<U>(f: (value: T) => Option<U>): Option<U> {
     return this.match({
-      Some: (x) => f(x as T),
+      Some: (x) => f(x),
       None: () => None(),
     });
   }
@@ -205,7 +205,7 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
    */
   expect(msg: string): T {
     return this.match({
-      Some: (x) => x as T,
+      Some: (x) => x,
       None: () => panic(msg),
     });
   }
@@ -295,7 +295,7 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
   is_some_and(f: (value: T) => boolean): boolean {
     return this.match({
       None: () => false,
-      Some: (x) => f(x as T),
+      Some: (x) => f(x),
     });
   }
 
@@ -317,7 +317,7 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
     return this.match({
       Some: (x) => {
         this.change_to("None");
-        return Some(x as T);
+        return Some(x);
       },
       None: () => None(),
     });
@@ -337,7 +337,7 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
    */
   unwrap(): T {
     return this.match({
-      Some: (x) => x as T,
+      Some: (x) => x,
       None: () => panic("Called `unwrap` method on a `None`"),
     });
   }
@@ -355,7 +355,7 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
    */
   unwrap_or(value: T): T {
     return this.match({
-      Some: (x) => x as T,
+      Some: (x) => x,
       None: () => value,
     });
   }
@@ -373,7 +373,7 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
    */
   unwrap_or_else(func: () => T): T {
     return this.match({
-      Some: (x) => x as T,
+      Some: (x) => x,
       None: () => func(),
     });
   }
@@ -423,7 +423,7 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
    */
   map<U>(f: (value: T) => U): Option<U> {
     return this.match({
-      Some: (x) => Some(f(x as T)),
+      Some: (x) => Some(f(x)),
       None: () => None(),
     });
   }
@@ -447,14 +447,14 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
    */
   map_or<U>(def: U, f: (value: T) => U): U {
     return this.match({
-      Some: (x) => f(x as T),
+      Some: (x) => f(x),
       None: () => def,
     });
   }
 
   map_or_else<U>(def: () => U, f: (value: T) => U): U {
     return this.match({
-      Some: (x) => f(x as T),
+      Some: (x) => f(x),
       None: () => def(),
     });
   }
@@ -474,7 +474,7 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
    */
   ok_or<E>(err: E): Result<T, E> {
     return this.match({
-      Some: (x) => Ok(x as T),
+      Some: (x) => Ok(x),
       None: () => Err(err),
     });
   }
@@ -494,7 +494,7 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
    */
   ok_or_else<E>(err: () => E): Result<T, E> {
     return this.match({
-      Some: (x) => Ok(x as T),
+      Some: (x) => Ok(x),
       None: () => Err(err()),
     });
   }
@@ -562,6 +562,43 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
    */
   if_none(func: () => unknown): void {
     this.if_is("None", func);
+  }
+
+  /**
+   * If `Option` is `Some` call the function property `Some`.
+   * If `Option` is `None` call the function property `None`.
+   * 
+   * This function will return the returned value by the executed
+   * @example
+   * let value = 0;
+   * const none = None<number>();
+   * none.match({
+   *   Some: (v) => {
+   *     value = v;
+   *   },
+   *   None: () => {
+   *     value = 2;
+   *   },
+   * });
+   * expect(value).toBe(2);
+   * 
+   * value = 0;
+   * const some = Some(1);
+   * some.match({
+   *   Some: (v) => {
+   *     value = v;
+   *   },
+   *   None: () => {
+   *     value = 2;
+   *   },
+   * });
+   * expect(value).toBe(1);
+   */
+  match<R>(arms: { Some: (value: T) => R; None: () => R; }): R;
+  match<R>(arms: { Some?: ((value: T) => R); None?: (() => R); }, def: () => R): R;
+  match<R>(arms: {Some?: ((value: T) => R); None?: (() => R); }, def?: () => R): R {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return super.match(arms as any, def as any);
   }
 }
 

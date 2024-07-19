@@ -322,3 +322,29 @@ test("if_none", () => {
   });
   expect(value).toBe(0);
 });
+
+test("match", () => {
+  let value = 0;
+  const none = None<number>();
+  none.match({
+    Some: (v) => {
+      value = v;
+    },
+    None: () => {
+      value = 2;
+    },
+  });
+  expect(value).toBe(2);
+
+  value = 0;
+  const some = Some(1);
+  some.match({
+    Some: (v) => {
+      value = v;
+    },
+    None: () => {
+      value = 2;
+    },
+  });
+  expect(value).toBe(1);
+});
