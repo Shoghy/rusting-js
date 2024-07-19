@@ -58,4 +58,3 @@ describe("Testing `if_is` method", () => {
     expect(val).toBe(27);
   });
 });
-
