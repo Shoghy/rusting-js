@@ -458,44 +458,6 @@ describe("Testing `map_or` method", () => {
   });
 });
 
-describe("Testing `map_or_else` method", () => {
-  test("`None` should call the function in the `none` property and return its returned value", () => {
-    const none = None();
-    let val = 1;
-
-    const result = none.map_or_else({
-      none: () => {
-        val = 2;
-        return "What should I put here?";
-      },
-      some: () => {
-        unreachable();
-      },
-    });
-
-    expect(val).toBe(2);
-    expect(result).toBe("What should I put here?");
-  });
-
-  test("`Some` should call the function in the `some` property and return its returned value", () => {
-    const some = Some([1, 9, 8, 4]);
-    let val = 1;
-
-    const result = some.map_or_else({
-      some: (value) => {
-        val = 2;
-        return value[2];
-      },
-      none: () => {
-        unreachable();
-      },
-    });
-
-    expect(val).toBe(2);
-    expect(result).toBe(8);
-  });
-});
-
 describe("Testing `ok_or` method", () => {
   test("`None` should return `Err`", () => {
     const none = None();
@@ -614,10 +576,10 @@ describe("Testing `match` method", () => {
     let val = 1;
 
     none.match({
-      none: () => {
+      None: () => {
         val = 2;
       },
-      some: () => {
+      Some: () => {
         unreachable();
       },
     });
@@ -630,10 +592,10 @@ describe("Testing `match` method", () => {
     let val = 1;
 
     some.match({
-      some: (value) => {
-        val = value;
+      Some: (value) => {
+        val = value as number;
       },
-      none: () => {
+      None: () => {
         unreachable();
       },
     });

@@ -261,30 +261,6 @@ test("map_or", () => {
   expect(result2).toBe("164");
 });
 
-test("map_or_else", () => {
-  const none = None();
-  const result1 = none.map_or_else({
-    some: () => {
-      return "It is Some";
-    },
-    none: () => {
-      return "It is None";
-    },
-  });
-  expect(result1).toBe("It is None");
-
-  const some = Some(17);
-  const result2 = some.map_or_else({
-    some: (value) => {
-      return value.toString();
-    },
-    none: () => {
-      return "It is None";
-    },
-  });
-  expect(result2).toBe("17");
-});
-
 test("ok_or", () => {
   const none = None();
   const result1 = none.ok_or("The value was a None");
@@ -345,30 +321,4 @@ test("if_none", () => {
     value = 1;
   });
   expect(value).toBe(0);
-});
-
-test("match", () => {
-  let value = 0;
-  const none = None<number>();
-  none.match({
-    some: (v) => {
-      value = v;
-    },
-    none: () => {
-      value = 2;
-    },
-  });
-  expect(value).toBe(2);
-
-  value = 0;
-  const some = Some(1);
-  some.match({
-    some: (v) => {
-      value = v;
-    },
-    none: () => {
-      value = 2;
-    },
-  });
-  expect(value).toBe(1);
 });

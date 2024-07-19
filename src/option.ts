@@ -1,36 +1,21 @@
+import { Enum } from "./enum";
 import { panic } from "./panic";
 import { Err, Ok, type Result } from "./result";
 
-enum EType {
-  Some,
-  None,
-}
 
-const type_symbol = Symbol("type");
-const value_symbol = Symbol("value");
-
-export class Option<T> {
-  private [value_symbol]!: T;
-  private [type_symbol]: EType;
-
-  private constructor(type: EType) {
-    this[type_symbol] = type;
-  }
-
+export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
   /**
    * Creates a `Some` type `Option`
    */
   static Some<T>(value: T): Option<T> {
-    const self = new Option<T>(EType.Some);
-    self[value_symbol] = value;
-    return self;
+    return new Option<T>("Some", value);
   }
 
   /**
    * Creates a `None` type `Option`
    */
   static None<T>(): Option<T> {
-    return new Option(EType.None);
+    return new Option("None", undefined);
   }
 
   /**
@@ -43,7 +28,7 @@ export class Option<T> {
    * expect(none.is_some()).toBe(false);
    */
   is_some(): boolean {
-    return this[type_symbol] === EType.Some;
+    return this.is("Some");
   }
 
   /**
@@ -56,7 +41,7 @@ export class Option<T> {
    * expect(none.is_none()).toBe(true);
    */
   is_none(): boolean {
-    return this[type_symbol] === EType.None;
+    return this.is("None");
   }
 
   /**
@@ -73,8 +58,7 @@ export class Option<T> {
    * });
    */
   inspect(func: (value: T) => unknown): this {
-    if (!this.is_some()) return this;
-    func(this[value_symbol]);
+    this.if_some(func);
     return this;
   }
 
@@ -185,7 +169,7 @@ export class Option<T> {
   }
 
   /**
-   * If `Option` is `Some`, execute the `func` parameter and return its returned value, otherwise return `None`
+   * If `Option` is `Some`, execute the `f` parameter and return its returned value, otherwise return `None`
    * @example
    * const none = None<number>();
    * const result1 = none.and_then((value) => {
@@ -199,11 +183,11 @@ export class Option<T> {
    * });
    * expect(result).toEqual(Some(25));
    */
-  and_then<U>(func: (value: T) => Option<U>): Option<U> {
-    if (this.is_some()) {
-      return func(this[value_symbol]);
-    }
-    return None();
+  and_then<U>(f: (value: T) => Option<U>): Option<U> {
+    return this.match({
+      Some: (x) => f(x as T),
+      None: () => None(),
+    });
   }
 
   /**
@@ -220,10 +204,10 @@ export class Option<T> {
    * expect(val).toBe(1);
    */
   expect(msg: string): T {
-    if (this.is_some()) {
-      return this[value_symbol];
-    }
-    panic(msg);
+    return this.match({
+      Some: (x) => x as T,
+      None: () => panic(msg),
+    });
   }
 
   /**
@@ -240,11 +224,10 @@ export class Option<T> {
    * expect(option2).toEqual(Some(42));
    */
   get_or_insert(value: T): T {
-    if (this.is_none()) {
-      this[value_symbol] = value;
-      this[type_symbol] = EType.Some;
-    }
-    return this[value_symbol];
+    this.if_none(() => {
+      this.change_to("Some", value);
+    });
+    return this.unwrap();
   }
 
   /**
@@ -265,11 +248,10 @@ export class Option<T> {
    * expect(option2).toEqual(Some("Cards Against Humanity"));
    */
   get_or_insert_with(func: () => T): T {
-    if (this.is_none()) {
-      this[value_symbol] = func();
-      this[type_symbol] = EType.Some;
-    }
-    return this[value_symbol];
+    this.if_none(() => {
+      this.change_to("Some", func());
+    });
+    return this.unwrap();
   }
 
   /**
@@ -290,13 +272,12 @@ export class Option<T> {
    * expect(option2).toEqual(Some(2));
    */
   insert(value: T): T {
-    this[value_symbol] = value;
-    this[type_symbol] = EType.Some;
-    return this[value_symbol];
+    this.change_to("Some", value);
+    return value;
   }
 
   /**
-   * If `Option` is `None` returns `false`, if it is `Some` execute the `func` parameter and return its returned value.
+   * If `Option` is `None` returns `false`, if it is `Some` execute the `f` parameter and return its returned value.
    * @example
    * const r_true = () => true;
    * const r_false = () => false;
@@ -311,11 +292,11 @@ export class Option<T> {
    * expect(some.is_some_and((value) => value == 1)).toBe(true);
    * expect(some.is_some_and((value) => value == 2)).toBe(false);
    */
-  is_some_and(func: (value: T) => boolean): boolean {
-    if (this.is_none()) {
-      return false;
-    }
-    return func(this[value_symbol]);
+  is_some_and(f: (value: T) => boolean): boolean {
+    return this.match({
+      None: () => false,
+      Some: (x) => f(x as T),
+    });
   }
 
   /**
@@ -333,14 +314,13 @@ export class Option<T> {
    * expect(option2).toEqual(None());
    */
   take(): Option<T> {
-    if (this.is_none()) {
-      return None();
-    }
-    const value = this[value_symbol];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    delete (this as any)[value_symbol];
-    this[type_symbol] = EType.None;
-    return Some(value);
+    return this.match({
+      Some: (x) => {
+        this.change_to("None");
+        return Some(x as T);
+      },
+      None: () => None(),
+    });
   }
 
   /**
@@ -356,10 +336,10 @@ export class Option<T> {
    * expect(val).toBe(1);
    */
   unwrap(): T {
-    if (this.is_some()) {
-      return this[value_symbol];
-    }
-    panic("Called `unwrap` method on a `None`");
+    return this.match({
+      Some: (x) => x as T,
+      None: () => panic("Called `unwrap` method on a `None`"),
+    });
   }
 
   /**
@@ -374,10 +354,10 @@ export class Option<T> {
    * expect(result2).toBe("Mr. Trance");
    */
   unwrap_or(value: T): T {
-    if (this.is_some()) {
-      return this[value_symbol];
-    }
-    return value;
+    return this.match({
+      Some: (x) => x as T,
+      None: () => value,
+    });
   }
 
   /**
@@ -392,10 +372,10 @@ export class Option<T> {
    * expect(result2).toBe(0);
    */
   unwrap_or_else(func: () => T): T {
-    if (this.is_some()) {
-      return this[value_symbol];
-    }
-    return func();
+    return this.match({
+      Some: (x) => x as T,
+      None: () => func(),
+    });
   }
 
   /**
@@ -421,28 +401,11 @@ export class Option<T> {
     if (this.is_none() || other.is_none()) {
       return None();
     }
-    return Some([this[value_symbol], other[value_symbol]]);
-  }
-
-  toString(): string {
-    if (this.is_some()) {
-      return `Some(${this[value_symbol]})`;
-    }
-    return "None";
-  }
-
-  is_equal_to(other: Option<T>): boolean {
-    if (this[type_symbol] !== other[type_symbol]) {
-      return false;
-    }
-    if (this[type_symbol] === EType.None) {
-      return true;
-    }
-    return this[value_symbol] === other[value_symbol];
+    return Some([this.unwrap(), other.unwrap()]);
   }
 
   /**
-   * If `Option` is `Some` it will call the `func` parameter
+   * If `Option` is `Some` it will call the `f` parameter
    * and return its returned value wrapped in a `Some`,
    * otherwise it will return `None`
    * @example
@@ -458,15 +421,15 @@ export class Option<T> {
    * });
    * expect(result2).toEqual(Some(4));
    */
-  map<U>(func: (value: T) => U): Option<U> {
-    if (this.is_none()) {
-      return None();
-    }
-    return Some(func(this[value_symbol]));
+  map<U>(f: (value: T) => U): Option<U> {
+    return this.match({
+      Some: (x) => Some(f(x as T)),
+      None: () => None(),
+    });
   }
 
   /**
-   * If `Option` is `Some` it will call the `func` parameter
+   * If `Option` is `Some` it will call the `f` parameter
    * and return its returned value,
    * otherwise it will return the `def` parameter
    * @example
@@ -482,48 +445,18 @@ export class Option<T> {
    * });
    * expect(result2).toBe("164");
    */
-  map_or<U>(def: U, func: (value: T) => U): U {
-    if (this.is_none()) {
-      return def;
-    }
-    return func(this[value_symbol]);
+  map_or<U>(def: U, f: (value: T) => U): U {
+    return this.match({
+      Some: (x) => f(x as T),
+      None: () => def,
+    });
   }
 
-  /**
-   * If `Option` is `Some` it will call the `some` property function
-   * and return its returned value. If `Option` is `None` it will call
-   * the `none` property function and return its returned value.
-   * @example
-   * const none = None();
-   * const result1 = none.map_or_else({
-   *   some: () => {
-   *     return "It is Some";
-   *   },
-   *   none: () => {
-   *     return "It is None";
-   *   },
-   * });
-   * expect(result1).toBe("It is None");
-   * 
-   * const some = Some(17);
-   * const result2 = some.map_or_else({
-   *   some: (value) => {
-   *     return value.toString();
-   *   },
-   *   none: () => {
-   *     return "It is None";
-   *   },
-   * });
-   * expect(result2).toBe("17");
-   */
-  map_or_else<U>(arms: {
-    some: (value: T) => U,
-    none: () => U,
-  }): U {
-    if (this.is_none()) {
-      return arms.none();
-    }
-    return arms.some(this[value_symbol]);
+  map_or_else<U>(def: () => U, f: (value: T) => U): U {
+    return this.match({
+      Some: (x) => f(x as T),
+      None: () => def(),
+    });
   }
 
   /**
@@ -540,15 +473,15 @@ export class Option<T> {
    * expect(result2).toEqual(Ok(9));
    */
   ok_or<E>(err: E): Result<T, E> {
-    if (this.is_none()) {
-      return Err(err);
-    }
-    return Ok(this[value_symbol]);
+    return this.match({
+      Some: (x) => Ok(x as T),
+      None: () => Err(err),
+    });
   }
 
   /**
    * If `Option` is `Some` it will return its value wrapped on an `Ok`.
-   * If `Option` is `None` it will call the `func` parameter and
+   * If `Option` is `None` it will call the `err` parameter and
    * return its returned value wrapped on an `Err`.
    * @example
    * const none = None();
@@ -559,11 +492,11 @@ export class Option<T> {
    * const result2 = some.ok_or_else(() => "DCXVI");
    * expect(result2).toEqual(Ok("DCLXVI"));
    */
-  ok_or_else<E>(func: () => E): Result<T, E> {
-    if (this.is_some()) {
-      return Ok(this[value_symbol]);
-    }
-    return Err(func());
+  ok_or_else<E>(err: () => E): Result<T, E> {
+    return this.match({
+      Some: (x) => Ok(x as T),
+      None: () => Err(err()),
+    });
   }
 
   /**
@@ -579,7 +512,14 @@ export class Option<T> {
    * expect(result2).toBe("Some");
    */
   unwrap_unchecked(): T | undefined {
-    return this[value_symbol];
+    const key_symbols = Object.getOwnPropertySymbols(this);
+    for (const key of key_symbols) {
+      if (key.description === "value") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return (this as any)[key];
+      }
+    }
+    return undefined;
   }
 
   /**
@@ -600,10 +540,7 @@ export class Option<T> {
    * expect(value).toBe(1);
    */
   if_some(func: (value: T) => unknown): void {
-    if (this.is_none()) {
-      return;
-    }
-    func(this[value_symbol]);
+    this.if_is("Some", (x) => func(x as T));
   }
 
   /**
@@ -624,51 +561,7 @@ export class Option<T> {
    * expect(value).toBe(0);
    */
   if_none(func: () => unknown): void {
-    if (this.is_some()) {
-      return;
-    }
-    func();
-  }
-
-  /**
-   * If `Option` is `Some` call the function property `some`.
-   * If `Option` is `None` call the function property `none`.
-   * 
-   * This function will return the returned value by the executed
-   * function
-   * @example
-   * let value = 0;
-   * const none = None<number>();
-   * none.match({
-   *   some: (v) => {
-   *     value = v;
-   *   },
-   *   none: () => {
-   *     value = 2;
-   *   },
-   * });
-   * expect(value).toBe(2);
-   * 
-   * value = 0;
-   * const some = Some(1);
-   * some.match({
-   *   some: (v) => {
-   *     value = v;
-   *   },
-   *   none: () => {
-   *     value = 2;
-   *   },
-   * });
-   * expect(value).toBe(1);
-   */
-  match<U>(arms: {
-    some: (value: T) => U,
-    none: () => U,
-  }): U {
-    if (this.is_none()) {
-      return arms.none();
-    }
-    return arms.some(this[value_symbol]);
+    this.if_is("None", func);
   }
 }
 
