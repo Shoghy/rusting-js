@@ -1,5 +1,5 @@
-import { None, Option, Some } from "./enums";
-import { panic, unimplemented } from "./panic";
+import { None, Option, Some } from "../enums";
+import { panic, unimplemented } from "../panic";
 
 export class RIterator<T> {
   next(): Option<T> {
