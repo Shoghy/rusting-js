@@ -1,1 +1,1 @@
-export { RIterator, FromIterator } from "./iterator";
+export { RIterator, type FromIterator } from "./iterator";
