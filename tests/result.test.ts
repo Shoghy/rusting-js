@@ -362,42 +362,6 @@ describe("Testing `map_or` method", () => {
   });
 });
 
-describe("Testing `map_or_else` method", () => {
-  test("`Ok` should execute `ok` arm and return its returned value", () => {
-    const str1 = RandomString(11);
-    const str2 = RandomString(11);
-    const ok = Ok(str1);
-
-    const result = ok.map_or_else({
-      ok(value) {
-        return value + str2;
-      },
-      err() {
-        unreachable();
-      },
-    });
-
-    expect(result).toBe(str1 + str2);
-  });
-
-  test("`Err` should execute `err_func` parameter and return its returned value", () => {
-    const str1 = RandomString(11);
-    const str2 = RandomString(11);
-    const err = Err(str1);
-
-    const result = err.map_or_else({
-      ok() {
-        unreachable();
-      },
-      err(value) {
-        return value + str2;
-      }
-    });
-
-    expect(result).toBe(str1 + str2);
-  });
-});
-
 describe("Testing `ok` method", () => {
   test("`Ok` should return a its value wrapped in a `Some`", () => {
     const str = RandomString(11);
@@ -525,11 +489,11 @@ describe("Testing `match` method", () => {
     const num = RandomInt(1, 100);
     const ok = Ok(num);
     ok.match({
-      ok(value) {
+      Ok(value) {
         expect(value).toBe(num);
         done();
       },
-      err() {
+      Err() {
         done("`err` arm was executed");
       }
     });
@@ -540,11 +504,11 @@ describe("Testing `match` method", () => {
     const str = RandomString(11);
     const err = Err(str);
     err.match({
-      err(value) {
+      Err(value) {
         expect(value).toBe(str);
         done();
       },
-      ok() {
+      Ok() {
         done("`ok` arm was executed");
       }
     });

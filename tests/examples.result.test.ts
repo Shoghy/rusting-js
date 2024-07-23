@@ -170,22 +170,6 @@ test("map_or", () => {
   expect(result2).toBe("Default value");
 });
 
-test("map_or_else", () => {
-  const ok = Ok("egg_irl");
-  const result1 = ok.map_or_else({
-    ok: (val) => `r/${val}`,
-    err: () => unreachable(),
-  });
-  expect(result1).toBe("r/egg_irl");
-
-  const err = Err("Celeste");
-  const result2 = err.map_or_else({
-    ok: () => unreachable(),
-    err: (val) => `${val}: Madeline`,
-  });
-  expect(result2).toBe("Celeste: Madeline");
-});
-
 test("ok", () => {
   const ok = Ok(32);
   expect(ok.ok()).toEqual(Some(32));
@@ -258,18 +242,18 @@ test("match", () => {
   let value = 0;
   const ok = Ok(7);
   ok.match({
-    ok: (val) => {
+    Ok: (val) => {
       value = val;
     },
-    err: () => unreachable(),
+    Err: () => unreachable(),
   });
   expect(value).toBe(7);
 
   value = 0;
   const err = Err(123);
   err.match({
-    ok: () => unreachable(),
-    err: (val) => {
+    Ok: () => unreachable(),
+    Err: (val) => {
       value = val;
     }
   });

@@ -1,38 +1,24 @@
 import { None, type Option, Some } from "./option";
 import { panic } from "../panic";
+import { Enum } from ".";
 
-enum EType {
-  Ok,
-  Err,
-}
-
-const type_symbol = Symbol("type");
-const value_symbol = Symbol("value");
-
-export class Result<T, E> {
-  private [type_symbol]: EType;
-  private [value_symbol]!: T | E;
-
-  private constructor(type: EType) {
-    this[type_symbol] = type;
-  }
+export class Result<T, E> extends Enum({
+  Ok: "unknown",
+  Err: "unknown",
+}) {
 
   /**
    * Creates a `Ok` type `Result`
    */
   static Ok<T, E = unknown>(value: T): Result<T, E> {
-    const self = new Result<T, E>(EType.Ok);
-    self[value_symbol] = value;
-    return self;
+    return new Result("Ok", value);
   }
 
   /**
    * Creates a `Err` type `Result`
    */
   static Err<E, T = unknown>(value: E): Result<T, E> {
-    const self = new Result<T, E>(EType.Err);
-    self[value_symbol] = value;
-    return self;
+    return new Result("Err", value);
   }
 
   /**
@@ -45,7 +31,7 @@ export class Result<T, E> {
    * expect(err.is_ok()).toBeFalse();
    */
   is_ok(): boolean {
-    return this[type_symbol] === EType.Ok;
+    return this.is("Ok");
   }
 
   /**
@@ -58,7 +44,7 @@ export class Result<T, E> {
    * expect(err.is_err()).toBeTrue();
    */
   is_err(): boolean {
-    return this[type_symbol] === EType.Err;
+    return this.is("Err");
   }
 
   /**
@@ -75,8 +61,7 @@ export class Result<T, E> {
    * });
    */
   inspect(func: (ok: T) => unknown): this {
-    if (this.is_err()) return this;
-    func(this[value_symbol] as T);
+    this.if_ok(func);
     return this;
   }
 
@@ -94,8 +79,7 @@ export class Result<T, E> {
    * });
    */
   inspect_err(func: (err: E) => unknown): this {
-    if (this.is_ok()) return this;
-    func(this[value_symbol] as E);
+    this.if_err(func);
     return this;
   }
 
@@ -119,10 +103,10 @@ export class Result<T, E> {
    * expect(val1.and(val2)).toEqual(Err(1));
    */
   and<U>(res: Result<U, E>): Result<U, E> {
-    if (this.is_err()) {
-      return Err(this[value_symbol] as E);
-    }
-    return res;
+    return this.match({
+      Ok: () => res,
+      Err: (e) => Err(e),
+    });
   }
 
   /**
@@ -142,10 +126,10 @@ export class Result<T, E> {
    * expect(result2).toEqual(Err(7));
    */
   and_then<U>(func: (value: T) => Result<U, E>): Result<U, E> {
-    if (this.is_err()) {
-      return Err(this[value_symbol] as E);
-    }
-    return func(this[value_symbol] as T);
+    return this.match({
+      Ok: (t) => func(t),
+      Err: (e) => Err(e),
+    });
   }
 
   /**
@@ -159,10 +143,10 @@ export class Result<T, E> {
    * expect(err.err()).toEqual(Some(new Error("EEEERRRROOORRRR")));
    */
   err(): Option<E> {
-    if (this.is_ok()) {
-      return None();
-    }
-    return Some(this[value_symbol] as E);
+    return this.match({
+      Ok: () => None(),
+      Err: (x) => Some(x),
+    });
   }
 
   /**
@@ -179,10 +163,10 @@ export class Result<T, E> {
    * expect(() => err.expect(msg)).toThrowError(msg);
    */
   expect(value: string): T {
-    if (this.is_ok()) {
-      return this[value_symbol] as T;
-    }
-    panic(value);
+    return this.match({
+      Ok: (t) => t,
+      Err: () => panic(value),
+    });
   }
 
   /**
@@ -199,10 +183,10 @@ export class Result<T, E> {
    * expect(err.expect_err(msg)).toBe("Also try Minecraft");
    */
   expect_err(value: string): E {
-    if (this.is_err()) {
-      return this[value_symbol] as E;
-    }
-    panic(value);
+    return this.match({
+      Ok: () => panic(value),
+      Err: (e) => e,
+    });
   }
 
   /**
@@ -223,10 +207,10 @@ export class Result<T, E> {
    * expect(err.is_err_and((val) => val === 8)).toBeFalse();
    */
   is_err_and(func: (err: E) => boolean): boolean {
-    if (this.is_ok()) {
-      return false;
-    }
-    return func(this[value_symbol] as E);
+    return this.match({
+      Ok: () => false,
+      Err: (e) => func(e),
+    });
   }
 
   /**
@@ -247,10 +231,10 @@ export class Result<T, E> {
    * expect(err.is_ok_and(r_false)).toBeFalse();
    */
   is_ok_and(func: (ok: T) => boolean): boolean {
-    if (this.is_err()) {
-      return false;
-    }
-    return func(this[value_symbol] as T);
+    return this.match({
+      Ok: (t) => func(t),
+      Err: () => false,
+    });
   }
 
   /**
@@ -267,10 +251,10 @@ export class Result<T, E> {
    * expect(result2).toEqual(Err(new Error("Hey")));
    */
   map<U>(func: (ok: T) => U): Result<U, E> {
-    if (this.is_err()) {
-      return Err(this[value_symbol] as E);
-    }
-    return Ok(func(this[value_symbol] as T));
+    return this.match({
+      Ok: (t) => Ok(func(t)),
+      Err: (e) => Err(e),
+    });
   }
 
   /**
@@ -287,10 +271,10 @@ export class Result<T, E> {
    * expect(return2).toEqual(Err(72));
    */
   map_err<F>(func: (err: E) => F): Result<T, F> {
-    if (this.is_ok()) {
-      return Ok(this[value_symbol] as T);
-    }
-    return Err(func(this[value_symbol] as E));
+    return this.match({
+      Ok: (t) => Ok(t),
+      Err: (e) => Err(func(e)),
+    });
   }
 
   /**
@@ -307,39 +291,17 @@ export class Result<T, E> {
    * expect(result2).toBe("Default value");
    */
   map_or<U>(def: U, func: (ok: T) => U): U {
-    if (this.is_err()) {
-      return def;
-    }
-    return func(this[value_symbol] as T);
+    return this.match({
+      Ok: (t) => func(t),
+      Err: () => def,
+    });
   }
 
-  /**
-   * If `Result` is `Ok` it will execute the `ok` function property
-   * and return its returned value. If is `Err` it will execute the
-   * `err` function property and return its returned value.
-   * @example
-   * const ok = Ok("egg_irl");
-   * const result1 = ok.map_or_else({
-   *   ok: (val) => `r/${val}`,
-   *   err: () => unreachable(),
-   * });
-   * expect(result1).toBe("r/egg_irl");
-   * 
-   * const err = Err("Celeste");
-   * const result2 = err.map_or_else({
-   *   ok: () => unreachable(),
-   *   err: (val) => `${val}: Madeline`,
-   * });
-   * expect(result2).toBe("Celeste: Madeline");
-   */
-  map_or_else<U>(arms: {
-    ok: (value: T) => U,
-    err: (value: E) => U,
-  }): U {
-    if (this.is_err()) {
-      return arms.err(this[value_symbol] as E);
-    }
-    return arms.ok(this[value_symbol] as T);
+  map_or_else<U>(def: (e: E) => U, f: (t: T) => U): U {
+    return this.match({
+      Ok: (t) => f(t),
+      Err: (e) => def(e),
+    });
   }
 
   /**
@@ -353,10 +315,10 @@ export class Result<T, E> {
    * expect(err.ok()).toEqual(None());
    */
   ok(): Option<T> {
-    if (this.is_err()) {
-      return None();
-    }
-    return Some(this[value_symbol] as T);
+    return this.match({
+      Ok: (t) => Some(t),
+      Err: () => None(),
+    });
   }
 
   /**
@@ -380,10 +342,10 @@ export class Result<T, E> {
    * expect(val1.or(val2)).toEqual(Err("-Error message enthusiast"));
    */
   or<F>(res: Result<T, F>): Result<T, F> {
-    if (this.is_ok()) {
-      return Ok(this[value_symbol] as T);
-    }
-    return res;
+    return this.match({
+      Ok: (v) => Ok(v),
+      Err: () => res,
+    });
   }
 
   /**
@@ -400,10 +362,10 @@ export class Result<T, E> {
    * expect(result2).toEqual(Err("Another Value"));
    */
   or_else<F>(op: (err: E) => Result<T, F>): Result<T, F> {
-    if (this.is_ok()) {
-      return Ok(this[value_symbol] as T);
-    }
-    return op(this[value_symbol] as E);
+    return this.match({
+      Ok: (t) => Ok(t),
+      Err: (e) => op(e),
+    });
   }
 
   /**
@@ -418,10 +380,10 @@ export class Result<T, E> {
    * expect(() => err.unwrap()).toThrowError("Called `unwrap` method on a `Err`");
    */
   unwrap(): T {
-    if (this.is_ok()) {
-      return this[value_symbol] as T;
-    }
-    panic("Called `unwrap` method on a `Err`");
+    return this.match({
+      Ok: (t) => t,
+      Err: () => panic("Called `unwrap` method on a `Err`"),
+    });
   }
 
   /**
@@ -436,10 +398,10 @@ export class Result<T, E> {
    * expect(err.unwrap_err()).toBe("Gonna");
    */
   unwrap_err(): E {
-    if (this.is_err()) {
-      return this[value_symbol] as E;
-    }
-    panic("Called `unwrap_err` method on a `Ok`");
+    return this.match({
+      Ok: () => panic("Called `unwrap_err` method on a `Ok`"),
+      Err: (e) => e,
+    });
   }
 
   /**
@@ -453,10 +415,10 @@ export class Result<T, E> {
    * expect(err.unwrap_or([4, 5, 6])).toEqual([4, 5, 6]);
    */
   unwrap_or(def: T): T {
-    if (this.is_ok()) {
-      return this[value_symbol] as T;
-    }
-    return def;
+    return this.match({
+      Ok: (t) => t,
+      Err: () => def,
+    });
   }
 
   /**
@@ -471,24 +433,10 @@ export class Result<T, E> {
    * expect(err.unwrap_or_else((val) => val*3)).toBe(15);
    */
   unwrap_or_else(func: (err: E) => T): T {
-    if (this.is_ok()) {
-      return this[value_symbol] as T;
-    }
-    return func(this[value_symbol] as E);
-  }
-
-  toString(): string {
-    if (this.is_ok()) {
-      return `Ok(${this[value_symbol]})`;
-    }
-    return `Err(${this[value_symbol]})`;
-  }
-
-  is_equal_to(other: Result<T, E>): boolean {
-    if (this[type_symbol] !== other[type_symbol]) {
-      return false;
-    }
-    return this[value_symbol] === other[value_symbol];
+    return this.match({
+      Ok: (t) => t,
+      Err: (e) => func(e),
+    });
   }
 
   /**
@@ -518,14 +466,11 @@ export class Result<T, E> {
    * });
    * expect(value).toBe(123);
    */
-  match<U>(arms: {
-    ok: (value: T) => U,
-    err: (err: E) => U,
-  }): U {
-    if (this.is_err()) {
-      return arms.err(this[value_symbol] as E);
-    }
-    return arms.ok(this[value_symbol] as T);
+  match<R>(arms: { Ok: (value: T) => R; Err: (value: E) => R; }): R;
+  match<R>(arms: { Ok?: ((value: T) => R); Err?: ((value: E) => R); }, def: () => R): R;
+  match<R>(arms: { Ok?: ((value: T) => R); Err?: ((value: E) => R); }, def?: () => R): R {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return super.match(arms as any, def as any);
   }
 
   /**
@@ -544,10 +489,7 @@ export class Result<T, E> {
    * });
    */
   if_ok(func: (value: T) => unknown): void {
-    if (this.is_err()) {
-      return;
-    }
-    func(this[value_symbol] as T);
+    this.if_is("Ok", (x) => func(x as T));
   }
 
   /**
@@ -566,10 +508,13 @@ export class Result<T, E> {
    * expect(value).toBe(39);
    */
   if_err(func: (value: E) => unknown): void {
-    if (this.is_ok()) {
-      return;
-    }
-    func(this[value_symbol] as E);
+    return this.if_is("Err", (x) => func(x as E));
+  }
+
+  change_to<T extends "Ok" | "Err">(type: "void" extends "void" ? T : never): void;
+  change_to<A extends "Ok" | "Err">(type: A, value: { Ok: T; Err: E; }[A]): void;
+  change_to<A extends "Ok" | "Err">(type: A, value?: unknown): void {
+    super.change_to(type as "Ok" | "Err", value);
   }
 }
 
