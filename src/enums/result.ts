@@ -21,14 +21,14 @@ export class Result<T, E> extends Enum({
   /**
    * Creates a `Ok` type `Result`
    */
-  static Ok<T, E = unknown>(value: T): Result<T, E> {
+  static Ok<T, E>(value: T): Result<T, E> {
     return new Result("Ok", value);
   }
 
   /**
    * Creates a `Err` type `Result`
    */
-  static Err<E, T = unknown>(value: E): Result<T, E> {
+  static Err<T, E>(value: E): Result<T, E> {
     return new Result("Err", value);
   }
 

@@ -52,7 +52,7 @@ test("inspect_err", () => {
 
 test("and", () => {
   let val1 = Ok<string, number>("Bill Cipher");
-  let val2 = Err<number, string>(10);
+  let val2 = Err<string, number>(10);
   expect(val1.and(val2)).toEqual(Err(10));
 
   val1 = Err(3);
@@ -180,7 +180,7 @@ test("ok", () => {
 
 test("or", () => {
   let val1 = Ok<number, string>(21);
-  let val2 = Err<string, number>("This should be an error message");
+  let val2 = Err<number, string>("This should be an error message");
   expect(val1.or(val2)).toEqual(Ok(21));
 
   val1 = Err("Another error message");
