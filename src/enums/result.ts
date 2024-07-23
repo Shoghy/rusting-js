@@ -1,11 +1,22 @@
 import { None, type Option, Some } from "./option";
 import { panic } from "../panic";
-import { Enum } from ".";
+import { ControlFlow, Enum } from ".";
+import type { Try } from "../traits/try_trait";
 
 export class Result<T, E> extends Enum({
   Ok: "unknown",
   Err: "unknown",
-}) {
+}) implements Try<T, Result<T, E>> {
+  from_output(output: T): Result<T, E> {
+    return Ok(output);
+  }
+
+  branch(): ControlFlow<Result<T, E>, T> {
+    return this.match({
+      Ok: (v) => ControlFlow.Continue(v),
+      Err: (e) => ControlFlow.Break(Err(e)),
+    });
+  }
 
   /**
    * Creates a `Ok` type `Result`
