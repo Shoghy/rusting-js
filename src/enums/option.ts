@@ -612,6 +612,12 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) implement
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return super.match(arms as any, def as any);
   }
+
+  change_to<A extends "None">(type: A): void;
+  change_to<A extends "Some">(type: A, value: T): void;
+  change_to<A extends "Some" | "None">(type: A, value?: unknown): void {
+    super.change_to(type as "Some", value);
+  }
 }
 
 /**
