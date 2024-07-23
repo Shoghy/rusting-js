@@ -1,7 +1,16 @@
-import { None, Option, Some } from "../enums";
+import { Err, None, Ok, Option, Result, Some } from "../enums";
 import { panic, unimplemented } from "../panic";
 
 export class RIterator<T> {
+  advance_by(n: number): Result<void, number>{
+    for(let i = 0; i < n; ++i){
+      if(this.next().is_none()){
+        return Err(n - i);
+      }
+    }
+    return Ok(undefined as void);
+  }
+
   next(): Option<T> {
     panic("This method should be override by any class that extends RIterator");
   }
@@ -11,11 +20,14 @@ export class RIterator<T> {
   }
 
   last(): Option<T> {
-    unimplemented("This method should return the last element in the RIterator");
+    return this.fold(None<T>(), (_, x) => Some(x));
   }
 
   nth(n: number): Option<T> {
-    unimplemented(`This method should call next the ${n} times`);
+    if(this.advance_by(n).is_err()){
+      return None();
+    }
+    return this.next();
   }
 
   step_by(step: number): never {
