@@ -1,7 +1,7 @@
 import { None, Option, Some } from "../enums/option";
 import { Err, Ok, Result } from "../enums/result";
 import { panic, unimplemented } from "../panic";
-import type { TryInstance, TryStatic } from "./try_trait";
+import type { TryInstance } from "./try_trait";
 import { ControlFlow } from "../enums/control_flow";
 
 export class RIterator<T> {
@@ -149,7 +149,11 @@ export class RIterator<T> {
     ).is_continue();
   }
 
-  try_fold<B, R extends TryInstance<B, unknown>>(type: TryStatic<B, unknown>, init: B, f: (acum: B, item: T) => R): R {
+  try_fold<B, R extends TryInstance<B, unknown>>(
+    type: { from_output(output: B): R },
+    init: B,
+    f: (acum: B, item: T) => R,
+  ): R {
     let acum = init;
 
     while (true) {
@@ -166,7 +170,7 @@ export class RIterator<T> {
       acum = flow.unwrap_continue();
     }
 
-    return type.from_output(acum) as R;
+    return type.from_output(acum);
   }
 }
 
