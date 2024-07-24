@@ -67,6 +67,18 @@
         "import": "./dist/traits/index.js"
       },
       "default": "./dist/traits/index.js"
+    },
+    "./iterators":{
+      "types": "./dist/iterators/index.d.ts",
+      "node": {
+        "require": "./dist/iterators/index.cjs",
+        "import": "./dist/iterators/index.js"
+      },
+      "browser": {
+        "require": "./dist/iterators/index.cjs",
+        "import": "./dist/iterators/index.js"
+      },
+      "default": "./dist/iterators/index.js"
     }
   }
 }
