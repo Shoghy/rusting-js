@@ -603,3 +603,41 @@ describe("Testing `match` method", () => {
     expect(val).toBe(-5);
   });
 });
+
+describe("Testing `map_or_else` method", () => {
+  test("`None` should call the function `def` parameter and return its returned value", () => {
+    const none = None();
+    let val = 1;
+
+    const result = none.map_or_else(
+      () => {
+        val = 2;
+        return "What should I put here?";
+      },
+      () => {
+        unreachable();
+      },
+    );
+
+    expect(val).toBe(2);
+    expect(result).toBe("What should I put here?");
+  });
+
+  test("`Some` should call the function `f` parameter and return its returned value", () => {
+    const some = Some([1, 9, 8, 4]);
+    let val = 1;
+
+    const result = some.map_or_else(
+      () => {
+        unreachable();
+      },
+      (value) => {
+        val = 2;
+        return value[2];
+      },
+    );
+
+    expect(val).toBe(2);
+    expect(result).toBe(8);
+  });
+});

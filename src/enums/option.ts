@@ -465,6 +465,33 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
     });
   }
 
+  /**
+   * If `Option` is `Some` it will call the `f` parameter
+   * and return its returned value. If `Option` is `None` it will call
+   * the `def` parameter and return its returned value.
+   * @example
+   * const none = None();
+   * const result1 = none.map_or_else(
+   *   () => {
+   *   return "It is None";
+   *   },
+   *   () => {
+   *     return "It is Some";
+   *   },
+   * );
+   * expect(result1).toBe("It is None");
+   * 
+   * const some = Some(17);
+   * const result2 = some.map_or_else(
+   *   () => {
+   *     return "It is None";
+   *   },
+   *   (value) => {
+   *     return value.toString();
+   *   },
+   * );
+   * expect(result2).toBe("17");
+   */
   map_or_else<U>(def: () => U, f: (value: T) => U): U {
     return this.match({
       Some: (x) => f(x),

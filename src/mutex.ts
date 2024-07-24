@@ -32,7 +32,7 @@ export class Mutex<T> {
 
   /**
    * Unlocks the Mutex, without needing the lockers.
-   * ## This function can be error prone its used is not recommended
+   * ## This function can be error prone. Its use is not recommended
    */
   forced_unlock() {
     const keys = Object.getOwnPropertySymbols(this.unlockers);
