@@ -524,7 +524,7 @@ export class Result<T, E> extends Enum({
     return this.if_is("Err", (x) => func(x as E));
   }
 
-  change_to<T extends "Ok" | "Err">(type: "void" extends "void" ? T : never): void;
+  change_to(type: never): void;
   change_to<A extends "Ok" | "Err">(type: A, value: { Ok: T; Err: E; }[A]): void;
   change_to<A extends "Ok" | "Err">(type: A, value?: unknown): void {
     super.change_to(type as "Ok" | "Err", value);
