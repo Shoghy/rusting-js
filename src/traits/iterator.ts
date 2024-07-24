@@ -5,6 +5,20 @@ import type { TryInstance } from "./try_trait";
 import { ControlFlow } from "../enums/control_flow";
 
 export class RIterator<T> {
+  [Symbol.iterator]!: () => Generator<T, void>;
+
+  constructor(){
+    this[Symbol.iterator] = function* () {
+      while(true){
+        const val = this.next();
+        if(val.is_none()){
+          return;
+        }
+        yield val.unwrap();
+      }
+    };
+  }
+
   advance_by(n: number): Result<void, number> {
     for (let i = 0; i < n; ++i) {
       if (this.next().is_none()) {
