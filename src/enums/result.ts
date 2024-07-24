@@ -100,7 +100,7 @@ export class Result<T, E> extends Enum({
    * Returns `this` if it is `Err`, otherwise return `res`
    * @example
    * let val1 = Ok<string, number>("Bill Cipher");
-   * let val2 = Err<number, string>(10);
+   * let val2 = Err<string, number>(10);
    * expect(val1.and(val2)).toEqual(Err(10));
    * 
    * val1 = Err(3);
@@ -310,6 +310,22 @@ export class Result<T, E> extends Enum({
     });
   }
 
+  /**
+   * @example
+   * const ok = Ok("egg_irl");
+   * const result1 = ok.map_or_else(
+   *   () => unreachable(),
+   *   (val) => `r/${val}`,
+   * );
+   * expect(result1).toBe("r/egg_irl");
+   * 
+   * const err = Err("Celeste");
+   * const result2 = err.map_or_else(
+   *   (val) => `${val}: Madeline`,
+   *   () => unreachable(),
+   * );
+   * expect(result2).toBe("Celeste: Madeline");
+   */
   map_or_else<U>(def: (e: E) => U, f: (t: T) => U): U {
     return this.match({
       Ok: (t) => f(t),
@@ -339,7 +355,7 @@ export class Result<T, E> extends Enum({
    * otherwise, returns the `res` parameter.
    * @example
    * let val1 = Ok<number, string>(21);
-   * let val2 = Err<string, number>("This should be an error message");
+   * let val2 = Err<number, string>("This should be an error message");
    * expect(val1.or(val2)).toEqual(Ok(21));
    * 
    * val1 = Err("Another error message");
@@ -462,18 +478,18 @@ export class Result<T, E> extends Enum({
    * let value = 0;
    * const ok = Ok(7);
    * ok.match({
-   *   ok: (val) => {
+   *   Ok: (val) => {
    *     value = val;
    *   },
-   *   err: () => unreachable(),
+   *   Err: () => unreachable(),
    * });
    * expect(value).toBe(7);
    * 
    * value = 0;
    * const err = Err(123);
    * err.match({
-   *   ok: () => unreachable(),
-   *   err: (val) => {
+   *   Ok: () => unreachable(),
+   *   Err: (val) => {
    *     value = val;
    *   }
    * });

@@ -563,3 +563,31 @@ describe("Testing `if_err` method", () => {
     done("`if_err` was not executed");
   });
 });
+
+describe("Testing `map_or_else` method", () => {
+  test("`Ok` should execute the `f` parameter and return its returned value", () => {
+    const str1 = RandomString(11);
+    const str2 = RandomString(11);
+    const ok = Ok(str1);
+
+    const result = ok.map_or_else(
+      () => unreachable(),
+      (value) => value + str2,
+    );
+
+    expect(result).toBe(str1 + str2);
+  });
+
+  test("`Err` should execute the `def` parameter and return its returned value", () => {
+    const str1 = RandomString(11);
+    const str2 = RandomString(11);
+    const err = Err(str1);
+
+    const result = err.map_or_else(
+      (value) => value + str2,
+      () => unreachable(),
+    );
+
+    expect(result).toBe(str1 + str2);
+  });
+});

@@ -287,3 +287,19 @@ test("if_err", () => {
   });
   expect(value).toBe(39);
 });
+
+test("map_or_else", () => {
+  const ok = Ok("egg_irl");
+  const result1 = ok.map_or_else(
+    () => unreachable(),
+    (val) => `r/${val}`,
+  );
+  expect(result1).toBe("r/egg_irl");
+
+  const err = Err("Celeste");
+  const result2 = err.map_or_else(
+    (val) => `${val}: Madeline`,
+    () => unreachable(),
+  );
+  expect(result2).toBe("Celeste: Madeline");
+});
