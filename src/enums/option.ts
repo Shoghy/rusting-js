@@ -1,7 +1,7 @@
 import { ControlFlow, Enum } from ".";
 import { panic } from "../panic";
 import { Err, Ok, type Result } from "./result";
-import { type Try } from "../traits/try_trait";
+import type { Try } from "../traits";
 
 
 export class Option<T> extends Enum({ Some: "unknown", None: "void" }) implements Try<T, Option<T>> {
