@@ -78,7 +78,7 @@ export function Enum<E extends IEnum>(evalues: E) {
 
   const type_symbol = Symbol("type");
   const value_symbol = Symbol("value");
-  const update_symbol = Symbol("pass");
+  const update_symbol = Symbol("update");
 
   return class EnumClass {
     constructor(
