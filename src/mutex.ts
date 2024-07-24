@@ -50,7 +50,7 @@ export class Mutex<T> {
 
     this[locker_symbol] = new Promise((resolve) => {
       const unlocker_key = Symbol();
-      this.unlockers[unlocker_key] = () => mutex_guard.unlock();
+      this.unlockers[unlocker_key] = () => unlock();
 
       resolve_promise = () => {
         this.lockers_count -= 1;
@@ -60,6 +60,7 @@ export class Mutex<T> {
     });
 
     const mutex_guard = new MutexGuard(this[get_symbol], this[set_symbol], resolve_promise);
+    const unlock = mutex_guard.unlock;
 
     await prev_locker;
 
@@ -71,21 +72,21 @@ export class MutexGuard<T> {
   get: () => T;
   set: (val: T) => void;
   unlock: () => void;
-  is_locked: () => boolean;
+  has_lock: () => boolean;
 
   constructor(get: () => T, set: (val: T) => void, resolver: () => void) {
     this.get = () => get();
     this.set = (val: T) => set(val);
 
-    let is_locked = true;
+    let has_lock = true;
 
-    this.is_locked = () => is_locked;
+    this.has_lock = () => has_lock;
 
     this.unlock = () => {
-      if (!is_locked) {
+      if (!has_lock) {
         panic("Calling `unlock` when `MutexGuard` has been unlocked");
       }
-      is_locked = false;
+      has_lock = false;
 
       get = () => panic("Calling `get` when `MutexGuard` has been unlocked");
       set = () => panic("Calling `set` when `MutexGuard` has been unlocked");
