@@ -1,4 +1,5 @@
 import { defineConfig } from "tsup";
+import { esbuildDecorators } from "@anatine/esbuild-decorators";
 
 export default defineConfig({
   entry: [
@@ -8,7 +9,8 @@ export default defineConfig({
   ],
   format: ["cjs", "esm"],
   dts: true,
-  splitting: false,
+  splitting: true,
   clean: true,
   minifyWhitespace: true,
+  esbuildPlugins: [esbuildDecorators()]
 });
