@@ -641,9 +641,9 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
     return super.match(arms as any, def as any);
   }
 
-  change_to<A extends "None">(type: A): void;
-  change_to<A extends "Some">(type: A, value: T): void;
-  change_to<A extends "Some" | "None">(type: A, value?: unknown): void {
+  change_to(type: "None"): void;
+  change_to(type: "Some", value: T): void;
+  change_to(type: "Some" | "None", value?: unknown): void {
     super.change_to(type as "Some", value);
   }
 }

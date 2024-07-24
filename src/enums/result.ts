@@ -542,8 +542,8 @@ export class Result<T, E> extends Enum({
 
   change_to(type: never): void;
   change_to<A extends "Ok" | "Err">(type: A, value: { Ok: T; Err: E; }[A]): void;
-  change_to<A extends "Ok" | "Err">(type: A, value?: unknown): void {
-    super.change_to(type as "Ok" | "Err", value);
+  change_to(type: "Ok" | "Err", value?: unknown): void {
+    super.change_to(type, value);
   }
 }
 

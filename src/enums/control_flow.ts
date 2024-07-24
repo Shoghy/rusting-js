@@ -36,8 +36,8 @@ export class ControlFlow<B, C> extends Enum({
 
   change_to(type: never): void;
   change_to<T extends "Continue" | "Break">(type: T, value: { Continue: C; Break: B; }[T]): void;
-  change_to<T extends "Continue" | "Break">(type: T, value?: unknown): void {
-    super.change_to(type as "Continue" | "Break", value);
+  change_to(type:  "Continue" | "Break", value?: unknown): void {
+    super.change_to(type, value);
   }
 
   is_continue(): boolean{
