@@ -19,11 +19,11 @@ export class ControlFlow<B, C> extends Enum({
     });
   }
 
-  static Continue<B, C>(value: C): ControlFlow<B, C>{
+  static Continue<B, C>(value: C): ControlFlow<B, C> {
     return new ControlFlow("Continue", value);
   }
 
-  static Break<B, C>(value: B): ControlFlow<B, C>{
+  static Break<B, C>(value: B): ControlFlow<B, C> {
     return new ControlFlow("Break", value);
   }
 
@@ -36,26 +36,26 @@ export class ControlFlow<B, C> extends Enum({
 
   change_to(type: never): void;
   change_to<T extends "Continue" | "Break">(type: T, value: { Continue: C; Break: B; }[T]): void;
-  change_to(type:  "Continue" | "Break", value?: unknown): void {
+  change_to(type: "Continue" | "Break", value?: unknown): void {
     super.change_to(type, value);
   }
 
-  is_continue(): boolean{
+  is_continue(): boolean {
     return this.is("Continue");
   }
 
-  is_break(): boolean{
+  is_break(): boolean {
     return this.is("Break");
   }
 
-  unwrap_continue(): C{
+  unwrap_continue(): C {
     return this.match({
       Continue: (c) => c,
       Break: () => panic("Called `unwrap_continue` method on a `Break`"),
     });
   }
 
-  unwrap_break(): B{
+  unwrap_break(): B {
     return this.match({
       Continue: () => panic("Called `unwrap_break` method on a `Continue`"),
       Break: (b) => b,

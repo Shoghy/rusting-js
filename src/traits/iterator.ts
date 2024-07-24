@@ -7,12 +7,12 @@ import { ControlFlow } from "../enums/control_flow";
 export class RIterator<T> {
   [Symbol.iterator]!: () => Generator<T, void>;
 
-  constructor(){
+  constructor() {
     this[Symbol.iterator] = function* () {
-      while(true){
+      while (true) {
         const val = this.next();
-        if(val.is_none()){
-          return;
+        if (val.is_none()) {
+          break;
         }
         yield val.unwrap();
       }
