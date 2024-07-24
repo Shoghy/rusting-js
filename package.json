@@ -1,14 +1,26 @@
 {
   "name": "rusting-js",
-  "version": "0.1.2",
+  "type": "module",
   "author": {
     "name": "Shoghy Martinez"
   },
+  "keywords": [
+    "typescript",
+    "rust"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/Shoghy/rusting-js"
   },
-  "main": "dist/index.js",
+  "files": [
+    "dist/**/*"
+  ],
+  "version": "0.1.2",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsup",
+    "test": "bun test"
+  },
   "devDependencies": {
     "@anatine/esbuild-decorators": "^0.2.19",
     "@eslint/js": "^9.4.0",
@@ -19,18 +31,42 @@
     "typescript": "^5.5.2",
     "typescript-eslint": "^7.13.0"
   },
-  "files": [
-    "dist/**/*"
-  ],
-  "keywords": [
-    "typescript",
-    "rust"
-  ],
-  "license": "MIT",
-  "scripts": {
-    "build": "tsup",
-    "test": "bun test"
-  },
-  "type": "module",
-  "types": "dist/index.d.ts"
+  "exports": {
+    ".":{
+      "types": "./dist/index.d.ts",
+      "node": {
+        "require": "./dist/index.cjs",
+        "import": "./dist/index.js"
+      },
+      "browser": {
+        "require": "./dist/index.cjs",
+        "import": "./dist/index.js"
+      },
+      "default": "./dist/index.js"
+    },
+    "./enums": {
+      "types": "./dist/enums/index.d.ts",
+      "node": {
+        "require": "./dist/enums/index.cjs",
+        "import": "./dist/enums/index.js"
+      },
+      "browser": {
+        "require": "./dist/enums/index.cjs",
+        "import": "./dist/enums/index.js"
+      },
+      "default": "./dist/enums/index.js"
+    },
+    "./traits": {
+      "types": "./dist/traits/index.d.ts",
+      "node": {
+        "require": "./dist/traits/index.cjs",
+        "import": "./dist/traits/index.js"
+      },
+      "browser": {
+        "require": "./dist/traits/index.cjs",
+        "import": "./dist/traits/index.js"
+      },
+      "default": "./dist/traits/index.js"
+    }
+  }
 }
