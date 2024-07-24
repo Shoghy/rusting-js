@@ -81,7 +81,7 @@ export function Enum<E extends IEnum>(evalues: E) {
   const update_symbol = Symbol("pass");
 
   return class EnumClass {
-    protected constructor(
+    constructor(
       type: ET,
       value: unknown,
     ) {

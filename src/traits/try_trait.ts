@@ -1,6 +1,9 @@
 import { ControlFlow } from "../enums";
 
-export interface Try<Output, Residual>{
-  from_output(output: Output): Try<Output, Residual>;
+export interface TryInstance<Output, Residual>{
   branch(): ControlFlow<Residual, Output>;
+}
+
+export interface TryStatic<Output, Residual>{
+  from_output(output: Output): TryInstance<Output, Residual>;
 }

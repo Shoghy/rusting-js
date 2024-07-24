@@ -1,11 +1,12 @@
 import { ControlFlow, Enum } from ".";
 import { panic } from "../panic";
 import { Err, Ok, type Result } from "./result";
-import type { Try } from "../traits";
+import type { TryStatic } from "../traits";
+import { staticImplements } from "../utils";
 
-
-export class Option<T> extends Enum({ Some: "unknown", None: "void" }) implements Try<T, Option<T>> {
-  from_output(output: T): Option<T> {
+@staticImplements<TryStatic<unknown, Option<unknown>>>()
+export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
+  static from_output<T>(output: T) {
     return Some(output);
   }
 
@@ -20,7 +21,7 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) implement
    * Creates a `Some` type `Option`
    */
   static Some<T>(value: T): Option<T> {
-    return new Option<T>("Some", value);
+    return new Option("Some", value);
   }
 
   /**
@@ -608,7 +609,7 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) implement
    */
   match<R>(arms: { Some: (value: T) => R; None: () => R; }): R;
   match<R>(arms: { Some?: ((value: T) => R); None?: (() => R); }, def: () => R): R;
-  match<R>(arms: {Some?: ((value: T) => R); None?: (() => R); }, def?: () => R): R {
+  match<R>(arms: { Some?: ((value: T) => R); None?: (() => R); }, def?: () => R): R {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return super.match(arms as any, def as any);
   }

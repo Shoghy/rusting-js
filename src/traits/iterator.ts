@@ -1,10 +1,11 @@
-import { Err, None, Ok, Option, Result, Some } from "../enums";
+import { None, Option, Some } from "../enums/option";
+import { Err, Ok, Result } from "../enums/result";
 import { panic, unimplemented } from "../panic";
 
 export class RIterator<T> {
-  advance_by(n: number): Result<void, number>{
-    for(let i = 0; i < n; ++i){
-      if(this.next().is_none()){
+  advance_by(n: number): Result<void, number> {
+    for (let i = 0; i < n; ++i) {
+      if (this.next().is_none()) {
         return Err(n - i);
       }
     }
@@ -16,7 +17,7 @@ export class RIterator<T> {
   }
 
   count(): number {
-    return this.fold(0, (count) => count+1);
+    return this.fold(0, (count) => count + 1);
   }
 
   last(): Option<T> {
@@ -24,7 +25,7 @@ export class RIterator<T> {
   }
 
   nth(n: number): Option<T> {
-    if(this.advance_by(n).is_err()){
+    if (this.advance_by(n).is_err()) {
       return None();
     }
     return this.next();

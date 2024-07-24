@@ -1,2 +1,2 @@
 export { RIterator, type FromIterator } from "./iterator";
-export { type Try } from "./try_trait";
+export type { TryStatic, TryInstance } from "./try_trait";

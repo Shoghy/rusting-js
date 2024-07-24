@@ -1,13 +1,15 @@
 import { None, type Option, Some } from "./option";
 import { panic } from "../panic";
 import { ControlFlow, Enum } from ".";
-import type { Try } from "../traits";
+import type { TryStatic } from "../traits";
+import { staticImplements } from "../utils";
 
+@staticImplements<TryStatic<unknown, Result<unknown, unknown>>>()
 export class Result<T, E> extends Enum({
   Ok: "unknown",
   Err: "unknown",
-}) implements Try<T, Result<T, E>> {
-  from_output(output: T): Result<T, E> {
+}) {
+  static from_output<T, E>(output: T): Result<T, E> {
     return Ok(output);
   }
 

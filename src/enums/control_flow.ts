@@ -1,11 +1,13 @@
 import { Enum } from ".";
-import type { Try } from "../traits/try_trait";
+import type { TryStatic } from "../traits/try_trait";
+import { staticImplements } from "../utils";
 
+@staticImplements<TryStatic<unknown, ControlFlow<unknown, unknown>>>()
 export class ControlFlow<B, C> extends Enum({
   Continue: "unknown",
   Break: "unknown",
-}) implements Try<C, ControlFlow<B, unknown>>{
-  from_output(output: C): ControlFlow<B, C> {
+}) {
+  static from_output<B, C>(output: C): ControlFlow<B, C> {
     return ControlFlow.Continue(output);
   }
 
