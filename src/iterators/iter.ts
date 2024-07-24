@@ -4,23 +4,23 @@ import { RIterator } from "../traits/iterator";
 const generator_symbol = Symbol("generator");
 const has_ended_symbol = Symbol("has_ended");
 
-export class Iter<T> extends RIterator<T>{
+export class Iter<T> extends RIterator<T> {
   private [generator_symbol]: Generator<T>;
   private [has_ended_symbol] = false;
 
-  constructor(generator: Generator<T>){
+  constructor(generator: Generator<T>) {
     super();
     this[generator_symbol] = generator;
   }
 
-  static from_slice<T>(arr: ArrayLike<T>): Iter<T>{
+  static from_slice<T>(arr: ArrayLike<T>): Iter<T> {
     const arr_clone: T[] = [];
-    for(let i = 0; i < arr.length; ++i){
+    for (let i = 0; i < arr.length; ++i) {
       arr_clone[i] = arr[i];
     }
 
-    function* gen(){
-      for(let i = 0; i < arr_clone.length; ++i){
+    function* gen() {
+      for (let i = 0; i < arr_clone.length; ++i) {
         yield arr_clone[i];
       }
     }
@@ -29,12 +29,12 @@ export class Iter<T> extends RIterator<T>{
   }
 
   next(): Option<T> {
-    if(this[has_ended_symbol]){
+    if (this[has_ended_symbol]) {
       return None();
     }
 
     const val = this[generator_symbol].next();
-    if(val.done){
+    if (val.done) {
       this[has_ended_symbol] = true;
       return None();
     }
