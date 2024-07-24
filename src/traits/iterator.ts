@@ -1,6 +1,8 @@
 import { None, Option, Some } from "../enums/option";
 import { Err, Ok, Result } from "../enums/result";
 import { panic, unimplemented } from "../panic";
+import type { TryInstance, TryStatic } from "./try_trait";
+import { ControlFlow } from "../enums/control_flow";
 
 export class RIterator<T> {
   advance_by(n: number): Result<void, number> {
@@ -134,7 +136,37 @@ export class RIterator<T> {
   }
 
   all(f: (item: T) => boolean): boolean {
-    unimplemented(`Implement this method. ${f}`);
+    return this.try_fold(
+      ControlFlow,
+      undefined as void,
+      (_, item) => {
+        if (f(item)) {
+          return ControlFlow.Continue(undefined as void);
+        } else {
+          return ControlFlow.Break<unknown, void>(undefined as unknown);
+        }
+      }
+    ).is_continue();
+  }
+
+  try_fold<B, R extends TryInstance<B, unknown>>(type: TryStatic<B, unknown>, init: B, f: (acum: B, item: T) => R): R {
+    let acum = init;
+
+    while (true) {
+      const val = this.next();
+      if (val.is_none()) {
+        break;
+      }
+
+      const result = f(acum, val.unwrap());
+      const flow = result.branch();
+      if (flow.is_break()) {
+        return result;
+      }
+      acum = flow.unwrap_continue();
+    }
+
+    return type.from_output(acum) as R;
   }
 }
 
