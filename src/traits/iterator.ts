@@ -3,8 +3,12 @@ import { Err, Ok, Result } from "../enums/result";
 import { panic, unimplemented } from "../panic";
 import type { TryInstance } from "./try_trait";
 import { ControlFlow } from "../enums/control_flow";
+import { StepBy } from "../iterators/step_by";
 
-export class RIterator<T> {
+/**
+ * ## This is a "trait". You should not create an instance directly.
+ */
+export abstract class RIterator<T> {
   [Symbol.iterator]!: () => Generator<T, void>;
 
   constructor() {
@@ -37,7 +41,7 @@ export class RIterator<T> {
   }
 
   last(): Option<T> {
-    return this.fold(None<T>(), (_, x) => Some(x));
+    return this.fold(None(), (_, x) => Some(x));
   }
 
   nth(n: number): Option<T> {
@@ -47,8 +51,8 @@ export class RIterator<T> {
     return this.next();
   }
 
-  step_by(step: number): never {
-    unimplemented(`The return type for this method should be a iterator that go through the elements ${step} by ${step}`);
+  step_by(step: number): StepBy<T> {
+    return new StepBy(this, step);
   }
 
   chain(other: RIterator<T>): never {
@@ -186,8 +190,24 @@ export class RIterator<T> {
 
     return type.from_output(acum);
   }
+
+  size_hint(): [number, Option<number>] {
+    return [0, None()];
+  }
 }
 
 export interface FromIterator<T, R> {
   from_iter(iter: RIterator<T>): R
+}
+
+export interface StepByImpl<I> {
+  spec_next(): Option<I>;
+  spec_size_hint(): [number, Option<number>];
+  spec_nth(n: number): Option<I>;
+  spec_try_fold<Acc, R extends TryInstance<Acc, unknown>>(
+    type: { from_output(output: Acc): R },
+    acc: Acc,
+    f: (acc: Acc, item: I) => R,
+  ): R;
+  spec_fold<Acc>(acc: Acc, f: (acc: Acc, item: I) => Acc): Acc;
 }
