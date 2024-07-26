@@ -67,6 +67,10 @@ export abstract class RIterator<T> {
     unimplemented(`The return type of this method should "add" ${separator} between each element in ${this}`);
   }
 
+  interperse_with(separator: () => T): never {
+    unimplemented(`${separator}`);
+  }
+
   map<B>(f: (value: T) => B): never {
     unimplemented(`The return type of this method should run the function ${f} for each element and return its returned value.`);
   }
@@ -115,8 +119,16 @@ export abstract class RIterator<T> {
     unimplemented(`Implement this method. ${initial_state} ${f}`);
   }
 
+  flat_map<U>(f: () => U) {
+    unimplemented(`I am not sure of how to implement this, or if it can be implemented. ${f}`);
+  }
+
+  flatten() {
+    unimplemented("I am not sure of how to implement this, or if it can be implemented");
+  }
+
   fuse(): never {
-    unimplemented();
+    unimplemented("An iterator that after finding a `None` will just return `None`");
   }
 
   inspect(f: (item: T) => unknown): never {
@@ -131,40 +143,8 @@ export abstract class RIterator<T> {
     unimplemented(`Implement this method. ${t} ${f}`);
   }
 
-  fold<B>(init: B, f: (acum: B, item: T) => B): B {
-    let acum = init;
-
-    while (true) {
-      const val = this.next();
-      if (val.is_none()) {
-        break;
-      }
-      acum = f(acum, val.unwrap());
-    }
-
-    return acum;
-  }
-
-  reduce(f: (item: T) => T): Option<T> {
-    const first = this.next();
-    if (first.is_none()) {
-      return None();
-    }
-    return Some(this.fold(first.unwrap(), f));
-  }
-
-  all(f: (item: T) => boolean): boolean {
-    return this.try_fold(
-      ControlFlow,
-      undefined as void,
-      (_, item) => {
-        if (f(item)) {
-          return ControlFlow.Continue(undefined as void);
-        } else {
-          return ControlFlow.Break<unknown, void>(undefined as unknown);
-        }
-      }
-    ).is_continue();
+  partition_in_place(predicate: (item: T) => boolean): number {
+    unimplemented(`I am not sure of how to implement this, or if it can be implemented. ${predicate}`);
   }
 
   try_fold<B, R extends TryInstance<B, unknown>>(
@@ -189,6 +169,86 @@ export abstract class RIterator<T> {
     }
 
     return type.from_output(acum);
+  }
+
+  try_foreach() {
+    unimplemented();
+  }
+
+  fold<B>(init: B, f: (acum: B, item: T) => B): B {
+    let acum = init;
+
+    while (true) {
+      const val = this.next();
+      if (val.is_none()) {
+        break;
+      }
+      acum = f(acum, val.unwrap());
+    }
+
+    return acum;
+  }
+
+  reduce(f: (item: T) => T): Option<T> {
+    const first = this.next();
+    if (first.is_none()) {
+      return None();
+    }
+    return Some(this.fold(first.unwrap(), f));
+  }
+
+  try_reduce() {
+    unimplemented();
+  }
+
+  all(f: (item: T) => boolean): boolean {
+    return this.try_fold(
+      ControlFlow,
+      undefined as void,
+      (_, item) => {
+        if (f(item)) {
+          return ControlFlow.Continue(undefined as void);
+        } else {
+          return ControlFlow.Break<unknown, void>(undefined as unknown);
+        }
+      }
+    ).is_continue();
+  }
+
+  any() {
+    unimplemented();
+  }
+
+  find() {
+    unimplemented();
+  }
+
+  find_map() {
+    unimplemented();
+  }
+
+  try_find() {
+    unimplemented();
+  }
+
+  position() {
+    unimplemented();
+  }
+
+  max_by() {
+    unimplemented();
+  }
+
+  min_by() {
+    unimplemented();
+  }
+
+  rev() {
+    unimplemented();
+  }
+
+  cycle() {
+    unimplemented();
   }
 
   size_hint(): [number, Option<number>] {
