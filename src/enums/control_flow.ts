@@ -2,6 +2,7 @@ import { Enum } from ".";
 import { panic } from "../panic";
 import type { TryStatic } from "../traits/try_trait";
 import { staticImplements } from "../utils";
+import { Some, None, Option } from "./option";
 
 @staticImplements<TryStatic<unknown, ControlFlow<unknown, unknown>>>()
 export class ControlFlow<B, C> extends Enum({
@@ -59,6 +60,34 @@ export class ControlFlow<B, C> extends Enum({
     return this.match({
       Continue: () => panic("Called `unwrap_break` method on a `Continue`"),
       Break: (b) => b,
+    });
+  }
+
+  break_value(): Option<B>{
+    return this.match({
+      Continue: () => None(),
+      Break: (b) => Some(b),
+    });
+  }
+
+  map_break<T>(f: (b: B) => T): ControlFlow<T, C>{
+    return this.match({
+      Continue: (c) => ControlFlow.Continue(c),
+      Break: (b) => ControlFlow.Break(f(b)),
+    });
+  }
+
+  continue_value(): Option<C>{
+    return this.match({
+      Continue: (c) => Some(c),
+      Break: () => None(),
+    });
+  }
+
+  map_continue<T>(f: (b: C) => T): ControlFlow<B, T>{
+    return this.match({
+      Continue: (c) => ControlFlow.Continue(f(c)),
+      Break: (b) => ControlFlow.Break(b),
     });
   }
 }
