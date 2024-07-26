@@ -28,6 +28,14 @@ class FromUtf8Error {
 }
 
 export function utf8_char_width(b: number): 0 | 1 | 2 | 3 | 4 {
+  if (b < 0) {
+    return 0;
+  }
+
+  if (isNaN(b)) {
+    return 0;
+  }
+
   if (b < 128) {
     return 1;
   }
