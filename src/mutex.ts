@@ -60,6 +60,12 @@ export class Mutex<T> {
     });
 
     const mutex_guard = new MutexGuard(this[get_symbol], this[set_symbol], resolve_promise);
+
+    /**
+     * I create this constant so if the user change the value of `unlock` in `mutex_guard`
+     * I will still have access to the original `unlock` function, so it can be used
+     * to maybe produce bugs with `forced_unlock`
+     */
     const unlock = mutex_guard.unlock;
 
     await prev_locker;

@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { None, Option, Some } from "../enums/option";
 import { Err, Ok, Result } from "../enums/result";
 import { panic, unimplemented } from "../panic";
 import type { TryInstance } from "./try_trait";
 import { ControlFlow } from "../enums/control_flow";
-import { StepBy } from "../iterators/step_by";
 
 /**
  * ## This is a "trait". You should not create an instance directly.
@@ -51,12 +51,12 @@ export abstract class RIterator<T> {
     return this.next();
   }
 
-  step_by(step: number): StepBy<T> {
+  step_by(step: number): import("../iterators/step_by").StepBy<T> {
     return new StepBy(this, step);
   }
 
-  chain(other: RIterator<T>): never {
-    unimplemented(`The return type for this method should join ${this} and ${other}. When the elements on ${this} end, it should consume the elements in ${other}`);
+  chain(other: RIterator<T>): import("../iterators/chain").Chain<T> {
+    return new Chain(this, other);
   }
 
   zip<U>(other: RIterator<U>): never {
@@ -211,3 +211,6 @@ export interface StepByImpl<I> {
   ): R;
   spec_fold<Acc>(acc: Acc, f: (acc: Acc, item: I) => Acc): Acc;
 }
+
+const StepBy = require("../iterators/step_by").StepBy as typeof import("../iterators/step_by").StepBy;
+const Chain = require("../iterators/chain").Chain as typeof import("../iterators/chain").Chain;
