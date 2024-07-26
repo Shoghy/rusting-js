@@ -22,6 +22,22 @@ interface IEnum {
   [key: string]: StrJSTypes | ClassConstructor | "void"
 }
 
+/**
+ * Creates a `enum` class
+ * @example
+ * class Option extends Enum({ Some: "unknown", None: "void" }) {
+ *   // Add your own methods
+ * }
+ * 
+ * //The next methods are all provided by the `Enum` returned class.
+ * const some = Option.create("Some", 1);
+ * expect(some.is("Some")).toBeTrue();
+ * 
+ * some.match({
+ *   Some: (x) => expect(x).toBe(1),
+ *   None: () => unreachable("Hardcoded `Some`"),
+ * });
+ */
 export function Enum<E extends IEnum>(evalues: E) {
   type ET = keyof E;
 
@@ -83,7 +99,7 @@ export function Enum<E extends IEnum>(evalues: E) {
   return class EnumClass {
     constructor(
       type: ET,
-      value: unknown,
+      value: Type2Value[typeof type],
     ) {
       this.update(update_symbol, type, value);
     }
@@ -131,7 +147,7 @@ export function Enum<E extends IEnum>(evalues: E) {
     static create<T extends ET>(type: E[T] extends "void" ? T : never): EnumClass;
     static create<T extends ET>(type: E[T] extends "void" ? never : T, value: Type2Value[T]): EnumClass;
     static create<T extends ET>(type: T, value?: Type2Value[T]): EnumClass {
-      return new this(type, value);
+      return new this(type, value as Type2Value[T]);
     }
 
     is(type: ET): boolean {

@@ -9,6 +9,20 @@ const ExampleEnum = Enum({
   Err: Error
 });
 
+describe("Testing `create` method", () => {
+  test("Should create successfully", () => {
+    const str = ExampleEnum.create("Str", "Hey");
+
+    expect(str).toBeInstanceOf(ExampleEnum);
+  });
+
+  test("Should panic if the incorrect type is passed", () => {
+    expect(
+      () => ExampleEnum.create("Number", "Hello" as never)
+    ).toThrowError("The value expected for the type Number of this Enum, is number");
+  });
+});
+
 describe("Testing `Enum` equality", () => {
   test("Two different enum arms should be different", () => {
     const str = ExampleEnum.create("Str", "Lo mismo");
