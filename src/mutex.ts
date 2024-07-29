@@ -1,4 +1,4 @@
-import { catch_unwind, panic } from "./panic";
+import { catch_unwind, panic, unreachable } from "./panic";
 import { type Result } from "./enums/result";
 
 const get_symbol = Symbol("get");
@@ -75,10 +75,19 @@ export class Mutex<T> {
 }
 
 export class MutexGuard<T> {
-  get: () => T;
-  set: (val: T) => void;
-  unlock: () => void;
-  has_lock: () => boolean;
+  get(): T {
+    unreachable("This method will be overide in the constructor");
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  set(val: T): void {
+    unreachable("This method will be overide in the constructor");
+  };
+  unlock(): void {
+    unreachable("This method will be overide in the constructor");
+  }
+  has_lock(): boolean {
+    unreachable("This method will be overide in the constructor");
+  }
 
   constructor(get: () => T, set: (val: T) => void, resolver: () => void) {
     this.get = () => get();
