@@ -15,7 +15,7 @@
   "files": [
     "dist/**/*"
   ],
-  "version": "0.1.3",
+  "version": "0.1.4",
   "license": "MIT",
   "scripts": {
     "build": "tsup",
@@ -32,7 +32,7 @@
     "typescript-eslint": "^7.13.0"
   },
   "exports": {
-    ".":{
+    ".": {
       "types": "./dist/index.d.ts",
       "node": {
         "require": "./dist/index.cjs",
@@ -68,7 +68,7 @@
       },
       "default": "./dist/traits/index.js"
     },
-    "./iterators":{
+    "./iterators": {
       "types": "./dist/iterators/index.d.ts",
       "node": {
         "require": "./dist/iterators/index.cjs",
