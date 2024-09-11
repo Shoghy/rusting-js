@@ -52,3 +52,31 @@ export function CloneValue<T>(obj: T): T {
 
   return arrClone as T;
 }
+
+/**
+ * The `func` parameter is executed when the
+ * function that called `defer` returns
+ * or throw an error.
+ * 
+ * To use it you just need to create a dummy
+ * variable with the `using` keyword.
+ * @example
+ * function example() {
+ *   using _d1 = defer(() => {
+ *     console.log("AEUGH");
+ *   });
+ * 
+ *   console.log("Hello young lady");
+ * }
+ * 
+ * example();
+ * //Hello young lady
+ * //AEUGH
+ */
+export function defer(func: () => unknown) {
+  return {
+    [Symbol.dispose]() {
+      func();
+    },
+  };
+}
