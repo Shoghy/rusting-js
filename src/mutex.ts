@@ -1,5 +1,6 @@
 import { catch_unwind, panic, unreachable } from "./panic";
 import { type Result } from "./enums/result";
+import { CloneValue } from "./utils";
 
 const get_symbol = Symbol("get");
 const set_symbol = Symbol("set");
@@ -16,7 +17,9 @@ export class Mutex<T> {
   protected lockers_count = 0;
 
   constructor(value: T) {
-    this[get_symbol] = () => value;
+    this[get_symbol] = () => {
+      return CloneValue(value);
+    };
     this[set_symbol] = (val: T) => {
       value = val;
     };

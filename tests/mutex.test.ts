@@ -2,6 +2,7 @@ import { test, describe, expect } from "bun:test";
 import { Mutex } from "../src/mutex";
 import { RandomInt } from "./random";
 import { Err, Ok } from "../src/enums/result";
+import { Some } from "../src/enums";
 
 
 // ----------------- Mutex methods -----------------
@@ -147,6 +148,16 @@ describe("Testing `get` method", () => {
     lock.unlock();
 
     expect(() => lock.get()).toThrowError("Calling `get` when `MutexGuard` has been unlocked");
+  });
+
+  test("`get` should return a clone of the object", async () => {
+    const m = new Mutex(Some({hey: "hello"}));
+    const lock = await m.lock();
+
+    expect(lock.get() === lock.get()).toBeFalse();
+
+    lock.get().unwrap();
+    expect(lock.get().is_some()).toBeTrue();
   });
 });
 
