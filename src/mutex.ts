@@ -75,6 +75,10 @@ export class Mutex<T> {
 }
 
 export class MutexGuard<T> {
+  [Symbol.dispose]() {
+    this.try_unlock();
+  }
+
   get(): T {
     unreachable("This method will be overide in the constructor");
   }
