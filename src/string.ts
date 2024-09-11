@@ -171,7 +171,7 @@ export class RString {
         const val = arr_like[i];
 
         if (typeof val !== "string") {
-          panic("`arr_like` contiene valores que no son `string`");
+          panic("`arr_like` contains values that are not of type `string`");
         }
         bytes.push(...text_encoder.encode(val));
       }
