@@ -211,7 +211,7 @@ export abstract class RIterator<T> {
         } else {
           return ControlFlow.Break<unknown, void>(undefined as unknown);
         }
-      }
+      },
     ).is_continue();
   }
 

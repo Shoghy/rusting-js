@@ -4,12 +4,12 @@ import tseslint from "typescript-eslint";
 
 
 export default [
-  {languageOptions: { globals: {...globals.browser, ...globals.node} }},
+  { languageOptions: { globals: { ...globals.browser, ...globals.node } } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
   {
     ignores: ["./dist/**/*"],
-    rules:{
+    rules: {
       semi: ["error", "always"],
       "linebreak-style": ["error", "unix"],
       "no-trailing-spaces": [
@@ -18,6 +18,8 @@ export default [
       ],
       "no-console": "warn",
       quotes: ["warn", "double"],
+      "@typescript-eslint/no-unused-vars": ["error", { "varsIgnorePattern": "^_" }],
+      "comma-dangle": ["error", "always-multiline"],
     },
   },
 ];

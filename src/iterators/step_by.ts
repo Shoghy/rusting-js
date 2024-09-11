@@ -77,7 +77,7 @@ export class StepBy<T> extends RIterator<T> implements StepByImpl<T> {
   spec_try_fold<Acc, R extends TryInstance<Acc, unknown>>(
     type: { from_output(output: Acc): R; },
     acc: Acc,
-    f: (acc: Acc, item: T) => R
+    f: (acc: Acc, item: T) => R,
   ): R {
     const iter = this[iter_symbol];
 

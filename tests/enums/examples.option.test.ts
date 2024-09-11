@@ -145,14 +145,14 @@ test("get_or_insert", () => {
 test("get_or_insert_with", () => {
   const option1 = None<string>();
   const result1 = option1.get_or_insert_with(
-    () => "Hello World!"
+    () => "Hello World!",
   );
   expect(result1).toEqual("Hello World!");
   expect(option1).toEqual(Some("Hello World!"));
 
   const option2 = Some("Cards Against Humanity");
   const result2 = option2.get_or_insert_with(
-    () => "Humanity"
+    () => "Humanity",
   );
   expect(result2).toEqual("Cards Against Humanity");
   expect(option2).toEqual(Some("Cards Against Humanity"));

@@ -13,5 +13,5 @@ export default defineConfig({
   splitting: true,
   clean: true,
   minifyWhitespace: true,
-  esbuildPlugins: [esbuildDecorators()]
+  esbuildPlugins: [esbuildDecorators()],
 });

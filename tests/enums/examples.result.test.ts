@@ -255,7 +255,7 @@ test("match", () => {
     Ok: () => unreachable(),
     Err: (val) => {
       value = val;
-    }
+    },
   });
   expect(value).toBe(123);
 });

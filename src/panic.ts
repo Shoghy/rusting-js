@@ -9,7 +9,7 @@ import { Err, Ok, type Result } from "./enums/result";
  */
 export function unreachable(message?: string): never {
   throw new Error(message, {
-    cause: "Code marked as unreachable was executed"
+    cause: "Code marked as unreachable was executed",
   });
 }
 
@@ -21,7 +21,7 @@ export function unreachable(message?: string): never {
  */
 export function panic(message?: string): never {
   throw new Error(message, {
-    cause: "Panic function call"
+    cause: "Panic function call",
   });
 }
 
@@ -33,7 +33,7 @@ export function panic(message?: string): never {
  */
 export function todo(message: string): never {
   throw new Error(message, {
-    cause: "Unfinished code was executed"
+    cause: "Unfinished code was executed",
   });
 }
 
@@ -45,7 +45,7 @@ export function todo(message: string): never {
  */
 export function unimplemented(message?: string): never {
   throw new Error(message, {
-    cause: "Unimplemented code was executed"
+    cause: "Unimplemented code was executed",
   });
 }
 

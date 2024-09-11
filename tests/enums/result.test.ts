@@ -495,7 +495,7 @@ describe("Testing `match` method", () => {
       },
       Err() {
         done("`err` arm was executed");
-      }
+      },
     });
     done("No arm was executed");
   });
@@ -510,7 +510,7 @@ describe("Testing `match` method", () => {
       },
       Ok() {
         done("`ok` arm was executed");
-      }
+      },
     });
     done("No arm was executed");
   });

@@ -6,7 +6,7 @@ const ExampleEnum = Enum({
   Str2: "string",
   Number: "number",
   Nothing: "void",
-  Err: Error
+  Err: Error,
 });
 
 describe("Testing `create` method", () => {
@@ -18,7 +18,7 @@ describe("Testing `create` method", () => {
 
   test("Should panic if the incorrect type is passed", () => {
     expect(
-      () => ExampleEnum.create("Number", "Hello" as never)
+      () => ExampleEnum.create("Number", "Hello" as never),
     ).toThrowError("The value expected for the type Number of this Enum, is number");
   });
 });

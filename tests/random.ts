@@ -2,7 +2,7 @@
 
 export function RandomInt(minInclusive: number, maxInclusive: number): number {
   return Math.floor(
-    Math.random() * (maxInclusive - minInclusive + 1)
+    Math.random() * (maxInclusive - minInclusive + 1),
   ) + minInclusive;
 }
 

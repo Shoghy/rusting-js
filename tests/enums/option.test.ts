@@ -264,7 +264,7 @@ describe("Testing `get_or_insert_with` method", () => {
   test("`get_or_insert_with` should change the value of `None`", () => {
     const option = None<string[]>();
     const result = option.get_or_insert_with(
-      () => Array.from("Hello World!")
+      () => Array.from("Hello World!"),
     );
     expect(result).toEqual(Array.from("Hello World!"));
     expect(option).toEqual(Some(Array.from("Hello World!")));
@@ -273,7 +273,7 @@ describe("Testing `get_or_insert_with` method", () => {
   test("`get_or_insert_with` should not change the value of `Some`", () => {
     const option = Some("Cards Against Humanity");
     const result = option.get_or_insert_with(
-      () => "Humanity"
+      () => "Humanity",
     );
     expect(result).toEqual("Cards Against Humanity");
     expect(option).toEqual(Some("Cards Against Humanity"));
