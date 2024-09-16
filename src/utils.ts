@@ -78,5 +78,8 @@ export function defer(func: () => unknown) {
     [Symbol.dispose]() {
       func();
     },
+    async [Symbol.asyncDispose]() {
+      await func();
+    },
   };
 }
