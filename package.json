@@ -13,12 +13,15 @@
     "url": "https://github.com/Shoghy/rusting-js"
   },
   "files": [
-    "dist/**/*"
+    "**"
   ],
-  "version": "0.1.4",
+  "version": "0.1.5",
   "license": "MIT",
+  "main": "./index.js",
+  "module": "./index.js",
+  "types": "./index.d.ts",
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && bun run move_files.ts",
     "test": "bun test"
   },
   "devDependencies": {
@@ -33,53 +36,62 @@
     "typescript-eslint": "^7.13.0"
   },
   "exports": {
+    "./package.json": "./package.json",
     ".": {
-      "types": "./dist/index.d.ts",
+      "import": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      },
       "node": {
-        "require": "./dist/index.cjs",
-        "import": "./dist/index.js"
+        "types": "./index.d.cts",
+        "default": "./index.cjs"
       },
-      "browser": {
-        "require": "./dist/index.cjs",
-        "import": "./dist/index.js"
-      },
-      "default": "./dist/index.js"
+      "default": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      }
     },
     "./enums": {
-      "types": "./dist/enums/index.d.ts",
+      "import": {
+        "types": "./enums/index.d.ts",
+        "default": "./enums/index.js"
+      },
       "node": {
-        "require": "./dist/enums/index.cjs",
-        "import": "./dist/enums/index.js"
+        "types": "./enums/index.d.cts",
+        "default": "./enums/index.cjs"
       },
-      "browser": {
-        "require": "./dist/enums/index.cjs",
-        "import": "./dist/enums/index.js"
-      },
-      "default": "./dist/enums/index.js"
+      "default": {
+        "types": "./enums/index.d.ts",
+        "default": "./enums/index.js"
+      }
     },
     "./traits": {
-      "types": "./dist/traits/index.d.ts",
+      "import": {
+        "types": "./traits/index.d.ts",
+        "default": "./traits/index.js"
+      },
       "node": {
-        "require": "./dist/traits/index.cjs",
-        "import": "./dist/traits/index.js"
+        "types": "./traits/index.d.cts",
+        "default": "./traits/index.cjs"
       },
-      "browser": {
-        "require": "./dist/traits/index.cjs",
-        "import": "./dist/traits/index.js"
-      },
-      "default": "./dist/traits/index.js"
+      "default": {
+        "types": "./traits/index.d.ts",
+        "default": "./traits/index.js"
+      }
     },
     "./iterators": {
-      "types": "./dist/iterators/index.d.ts",
+      "import": {
+        "types": "./iterators/index.d.ts",
+        "default": "./iterators/index.js"
+      },
       "node": {
-        "require": "./dist/iterators/index.cjs",
-        "import": "./dist/iterators/index.js"
+        "types": "./iterators/index.d.cts",
+        "default": "./iterators/index.cjs"
       },
-      "browser": {
-        "require": "./dist/iterators/index.cjs",
-        "import": "./dist/iterators/index.js"
-      },
-      "default": "./dist/iterators/index.js"
+      "default": {
+        "types": "./iterators/index.d.ts",
+        "default": "./iterators/index.js"
+      }
     }
   }
 }

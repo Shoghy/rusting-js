@@ -8,10 +8,13 @@ export default defineConfig({
     "src/traits/index.ts",
     "src/iterators/index.ts",
   ],
+  target: "es2017",
   format: ["cjs", "esm"],
   dts: true,
   splitting: true,
   clean: true,
   minifyWhitespace: true,
+  sourcemap: true,
   esbuildPlugins: [esbuildDecorators()],
+  noExternal: ["./package.json"],
 });
