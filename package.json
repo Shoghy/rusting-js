@@ -15,7 +15,7 @@
   "files": [
     "**"
   ],
-  "version": "0.1.5",
+  "version": "0.1.6",
   "license": "MIT",
   "main": "./index.js",
   "module": "./index.js",
@@ -91,6 +91,20 @@
       "default": {
         "types": "./iterators/index.d.ts",
         "default": "./iterators/index.js"
+      }
+    },
+    "./strings": {
+      "import": {
+        "types": "./strings/index.d.ts",
+        "default": "./strings/index.js"
+      },
+      "node": {
+        "types": "./strings/index.d.cts",
+        "default": "./strings/index.cjs"
+      },
+      "default": {
+        "types": "./strings/index.d.ts",
+        "default": "./strings/index.js"
       }
     }
   }

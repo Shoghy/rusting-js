@@ -1,30 +1,80 @@
-import { panic } from "./panic";
-import { None, Option, Some } from "./enums/option";
-import { Err, Ok, Result } from "./enums/result";
+import { Err, Ok, Result } from "../enums/result";
+import { None, Option, Some } from "../enums/option";
 
-const text_encoder = new TextEncoder();
-const text_decoder = new TextDecoder();
-
-const vec_symbol = Symbol("vec");
-
-class Utf8Error {
-  valid_up_to: number;
-  error_len: Option<number>;
-
-  constructor(valid_up_to: number, error_len: Option<number>) {
-    this.valid_up_to = valid_up_to;
-    this.error_len = error_len;
+/**
+ * @author https://stackoverflow.com/a/18729931
+ */
+export function string_to_utf8(str: string) {
+  const utf8: number[] = [];
+  for (let i = 0; i < str.length; i++) {
+    let charcode = str.charCodeAt(i);
+    if (charcode < 0x80) utf8.push(charcode);
+    else if (charcode < 0x800) {
+      utf8.push(0xc0 | (charcode >> 6),
+        0x80 | (charcode & 0x3f));
+    }
+    else if (charcode < 0xd800 || charcode >= 0xe000) {
+      utf8.push(0xe0 | (charcode >> 12),
+        0x80 | ((charcode >> 6) & 0x3f),
+        0x80 | (charcode & 0x3f));
+    }
+    // surrogate pair
+    else {
+      i++;
+      // UTF-16 encodes 0x10000-0x10FFFF by
+      // subtracting 0x10000 and splitting the
+      // 20 bits of 0x0-0xFFFFF into two halves
+      charcode = 0x10000 + (((charcode & 0x3ff) << 10)
+        | (str.charCodeAt(i) & 0x3ff));
+      utf8.push(0xf0 | (charcode >> 18),
+        0x80 | ((charcode >> 12) & 0x3f),
+        0x80 | ((charcode >> 6) & 0x3f),
+        0x80 | (charcode & 0x3f));
+    }
   }
+  return utf8;
 }
 
-class FromUtf8Error {
-  bytes: ArrayLike<number>;
-  error: Utf8Error;
+/**
+ * @author https://stackoverflow.com/a/42453251
+ */
+export function utf8_to_string(array: ArrayLike<number>) {
+  let c: number, char2: number, char3: number, char4: number;
+  let out = "";
+  const len = array.length;
+  let i = 0;
+  while (i < len) {
+    c = array[i++];
+    switch (c >> 4) {
+      case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+        // 0xxxxxxx
+        out += String.fromCharCode(c);
+        break;
+      case 12: case 13:
+        // 110x xxxx   10xx xxxx
+        char2 = array[i++];
+        out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
+        break;
+      case 14:
+        // 1110 xxxx  10xx xxxx  10xx xxxx
+        char2 = array[i++];
+        char3 = array[i++];
+        out += String.fromCharCode(((c & 0x0F) << 12) |
+          ((char2 & 0x3F) << 6) |
+          ((char3 & 0x3F) << 0));
+        break;
+      case 15:
+        // 1111 0xxx 10xx xxxx 10xx xxxx 10xx xxxx
+        char2 = array[i++];
+        char3 = array[i++];
+        char4 = array[i++];
+        out += String.fromCodePoint(((c & 0x07) << 18) | ((char2 & 0x3F) << 12) | ((char3 & 0x3F) << 6) | (char4 & 0x3F));
 
-  constructor(bytes: ArrayLike<number>, error: Utf8Error) {
-    this.bytes = bytes;
-    this.error = error;
+        break;
+    }
+
   }
+  return out;
 }
 
 export function utf8_char_width(b: number): 0 | 1 | 2 | 3 | 4 {
@@ -56,6 +106,16 @@ export function utf8_char_width(b: number): 0 | 1 | 2 | 3 | 4 {
   }
 
   return 0;
+}
+
+export class Utf8Error {
+  valid_up_to: number;
+  error_len: Option<number>;
+
+  constructor(valid_up_to: number, error_len: Option<number>) {
+    this.valid_up_to = valid_up_to;
+    this.error_len = error_len;
+  }
 }
 
 export function run_utf8_validation(v: ArrayLike<number>): Result<void, Utf8Error> {
@@ -151,85 +211,4 @@ export function run_utf8_validation(v: ArrayLike<number>): Result<void, Utf8Erro
   }
 
   return Ok(undefined as void);
-}
-
-export class RString {
-  private [vec_symbol]: Uint8Array & { buffer: ArrayBuffer };
-
-  constructor() {
-    const buffer = new ArrayBuffer(0, { maxByteLength: Math.pow(2, 31) - 1 });
-    this[vec_symbol] = new Uint8Array(buffer) as Uint8Array & { buffer: ArrayBuffer };
-  }
-
-  static from(arr_like: ArrayLike<string>) {
-    const bytes: number[] = [];
-
-    if (typeof arr_like === "string") {
-      bytes.push(...text_encoder.encode(arr_like));
-    } else {
-      for (let i = 0; i < arr_like.length; ++i) {
-        const val = arr_like[i];
-
-        if (typeof val !== "string") {
-          panic("`arr_like` contains values that are not of type `string`");
-        }
-        bytes.push(...text_encoder.encode(val));
-      }
-    }
-
-    const self = new RString();
-    self[vec_symbol].buffer.resize(bytes.length);
-    self[vec_symbol].set(bytes);
-
-    return self;
-  }
-
-  static from_utf8(vec: ArrayLike<number>): Result<RString, FromUtf8Error> {
-    return run_utf8_validation(vec).match({
-      Err: (e) => Err(new FromUtf8Error(vec, e)),
-      Ok: () => {
-        const self = new RString();
-        self[vec_symbol].buffer.resize(vec.length);
-        self[vec_symbol].set(vec);
-
-        return Ok(self);
-      },
-    });
-  }
-
-  len(): number {
-    return this[vec_symbol].length;
-  }
-
-  toString(): string {
-    return text_decoder.decode(this[vec_symbol]);
-  }
-
-  push_str(str: ArrayLike<string> | RString): void {
-    if (!(str instanceof RString)) {
-      str = RString.from(str);
-    }
-
-    const vec = this[vec_symbol];
-    const prev_length = vec.length;
-    vec.buffer.resize(prev_length + str.len());
-    vec.set(str[vec_symbol], prev_length);
-  }
-
-  as_bytes(): Uint8Array {
-    return this[vec_symbol].slice();
-  }
-
-  clear() {
-    const vec = this[vec_symbol];
-    vec.buffer.resize(0);
-  }
-
-  is_empty() {
-    return this[vec_symbol].length === 0;
-  }
-
-  capacity() {
-    return this[vec_symbol].byteLength;
-  }
 }

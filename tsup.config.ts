@@ -7,6 +7,7 @@ export default defineConfig({
     "src/enums/index.ts",
     "src/traits/index.ts",
     "src/iterators/index.ts",
+    "src/strings/index.ts",
   ],
   target: "es2017",
   format: ["cjs", "esm"],
