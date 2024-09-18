@@ -191,10 +191,10 @@ export abstract class RIterator<T> {
 
   reduce(f: (item: T) => T): Option<T> {
     const first = this.next();
-    if (first.is_none()) {
-      return None();
-    }
-    return Some(this.fold(first.unwrap(), f));
+    return first.match({
+      Some: (value) => Some(this.fold(value, f)),
+      None: () => None(),
+    });
   }
 
   try_reduce() {
