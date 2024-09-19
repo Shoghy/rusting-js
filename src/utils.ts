@@ -60,7 +60,7 @@ export function CloneValue<T>(obj: T): T {
  * 
  * To use it you just need to create a dummy
  * variable with the `using` keyword.
- * @example
+ * ```ts
  * function example() {
  *   using _d1 = defer(() => {
  *     console.log("AEUGH");
@@ -72,14 +72,41 @@ export function CloneValue<T>(obj: T): T {
  * example();
  * //Hello young lady
  * //AEUGH
+ * ```
+ * 
+ * If your current enviroment doesn't support the `using` keyword
+ * you can use the method `resolve` from the returned value.
+ * 
+ * ```ts
+ * function exemple() {
+ *   const d1 = defer(() => {
+ *     console.log("Sorry the machine isn't working.");
+ *   });
+ * 
+ *   console.log("I will like an Ice Cream.");
+ *   d1.resolve();
+ * }
+ * 
+ * exemple();
+ * //I will like an Ice Cream.
+ * //Sorry the machine isn't working.
+ * ```
  */
 export function defer(func: () => unknown) {
   return {
     [Symbol.dispose]() {
       func();
     },
+
     async [Symbol.asyncDispose]() {
       await func();
+    },
+
+    async resolve() {
+      const value = func();
+      if (value instanceof Promise) {
+        await value;
+      }
     },
   };
 }
