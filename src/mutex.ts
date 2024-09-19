@@ -13,24 +13,33 @@ interface Mutex<T> {
   lock(): Promise<MutexGuard<T>>;
 }
 
-export const Mutex = function <T>(this: Mutex<T>, value: T) {
+export const Mutex = function <T>(this: Mutex<T>, value: T, make_clones: boolean = true) {
   /**
    * This clone is created so, if the original value
    * is an object, it cannot be modified through the
    * reference.
    */
-  value = CloneValue(value);
+  if (make_clones) {
+    value = CloneValue(value);
+  }
 
   let lockers_count = 0;
   let locker: Promise<unknown> | undefined = undefined;
   const unlockers: Record<symbol, () => void> = {};
 
   const getFunc = () => {
-    return CloneValue(value);
+    if (make_clones) {
+      return CloneValue(value);
+    }
+    return value;
   };
 
   const setFunc = (val: T) => {
-    value = CloneValue(val);
+    if (make_clones) {
+      value = CloneValue(val);
+    } else {
+      value = val;
+    }
   };
 
   this.get_lockers_count = function () {
@@ -79,7 +88,7 @@ export const Mutex = function <T>(this: Mutex<T>, value: T) {
 
     return mutex_guard;
   };
-} as unknown as (new <T>(value: T) => Mutex<T>);
+} as unknown as (new <T>(value: T, make_clones?: boolean) => Mutex<T>);
 
 interface MutexGuard<T> {
   get(): T;
