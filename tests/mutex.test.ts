@@ -40,13 +40,13 @@ describe("Testing `get_lockers_count` method", () => {
 
 describe("Testing `is_locked` method", () => {
   test("No lockers", () => {
-    const m = new Mutex("F");
+    const m = new Mutex("Friday");
 
     expect(m.is_locked()).toBeFalse();
   });
 
   test("Locking and unlocking", async () => {
-    const m = new Mutex("N");
+    const m = new Mutex("Night");
     const lock = await m.lock();
 
     expect(m.is_locked()).toBeTrue();
@@ -56,7 +56,7 @@ describe("Testing `is_locked` method", () => {
   });
 
   test("Locking and unlocking (multiple)", async () => {
-    const m = new Mutex("F");
+    const m = new Mutex("Funkin'");
     const lock1 = await m.lock();
     const lock2 = m.lock();
 

@@ -1,68 +1,72 @@
-import { catch_unwind, panic, unreachable } from "./panic";
-import { type Result } from "./enums/result";
+import type { Result } from "./enums/result";
+import { catch_unwind, panic } from "./panic";
 import { CloneValue } from "./utils";
 
-const get_symbol = Symbol("get");
-const set_symbol = Symbol("set");
-const locker_symbol = Symbol("locker");
-
-export class Mutex<T> {
-  private readonly [get_symbol]: () => T;
-  private readonly [set_symbol]: (val: T) => void;
-  private [locker_symbol]!: Promise<unknown>;
-
-  protected unlockers: {
-    [key: symbol]: () => void
-  } = {};
-  protected lockers_count = 0;
-
-  constructor(value: T) {
-    this[get_symbol] = () => {
-      return CloneValue(value);
-    };
-    this[set_symbol] = (val: T) => {
-      value = val;
-    };
-  }
-
-  get_lockers_count(): number {
-    return this.lockers_count;
-  }
-
-  is_locked(): boolean {
-    return this.lockers_count > 0;
-  }
-
+interface Mutex<T> {
+  get_lockers_count(): number;
+  is_locked(): boolean;
   /**
    * Unlocks the Mutex, without needing the lockers.
    * ## This function can be error prone. Its use is not recommended
    */
-  forced_unlock() {
-    const keys = Object.getOwnPropertySymbols(this.unlockers);
+  forced_unlock(): void;
+  lock(): Promise<MutexGuard<T>>;
+}
+
+export const Mutex = function <T>(this: Mutex<T>, value: T) {
+  /**
+   * This clone is created so, if the original value
+   * is an object, it cannot be modified through the
+   * reference.
+   */
+  value = CloneValue(value);
+
+  let lockers_count = 0;
+  let locker: Promise<unknown> | undefined = undefined;
+  const unlockers: Record<symbol, () => void> = {};
+
+  const getFunc = () => {
+    return CloneValue(value);
+  };
+
+  const setFunc = (val: T) => {
+    value = CloneValue(val);
+  };
+
+  this.get_lockers_count = function () {
+    return lockers_count;
+  };
+
+  this.is_locked = function () {
+    return lockers_count > 0;
+  };
+
+  this.forced_unlock = function () {
+    const keys = Object.getOwnPropertySymbols(unlockers);
     for (const key of keys) {
-      this.unlockers[key]();
+      unlockers[key]();
     }
-  }
+  };
 
-  async lock(): Promise<MutexGuard<T>> {
-    this.lockers_count += 1;
+  this.lock = async function () {
+    lockers_count += 1;
 
-    const prev_locker = this[locker_symbol];
+    const prev_locker = locker;
 
-    let resolve_promise: () => void = () => { };
+    let resolve_promise = () => { };
 
-    this[locker_symbol] = new Promise((resolve) => {
+    locker = new Promise((resolve) => {
       const unlocker_key = Symbol();
-      this.unlockers[unlocker_key] = () => unlock();
+      unlockers[unlocker_key] = () => unlock();
 
       resolve_promise = () => {
-        this.lockers_count -= 1;
-        delete this.unlockers[unlocker_key];
+        lockers_count -= 1;
+        delete unlockers[unlocker_key];
         resolve(undefined);
       };
     });
 
-    const mutex_guard = new MutexGuard(this[get_symbol], this[set_symbol], resolve_promise);
+    const mutex_guard = new MutexGuard(getFunc, setFunc, resolve_promise);
 
     /**
      * I create this constant so if the user change the value of `unlock` in `mutex_guard`
@@ -74,57 +78,50 @@ export class Mutex<T> {
     await prev_locker;
 
     return mutex_guard;
-  }
-}
-
-export class MutexGuard<T> {
-  [Symbol.dispose]() {
-    this.try_unlock();
-  }
-
-  get(): T {
-    unreachable("This method will be overide in the constructor");
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  set(val: T): void {
-    unreachable("This method will be overide in the constructor");
   };
-  unlock(): void {
-    unreachable("This method will be overide in the constructor");
-  }
-  has_lock(): boolean {
-    unreachable("This method will be overide in the constructor");
-  }
+} as unknown as (new <T>(value: T) => Mutex<T>);
 
-  constructor(get: () => T, set: (val: T) => void, resolver: () => void) {
-    this.get = () => get();
-    this.set = (val: T) => set(val);
+interface MutexGuard<T> {
+  get(): T;
+  set(val: T): void;
+  unlock(): void;
+  has_lock(): boolean;
+  try_get(): Result<T, Error>;
+  try_set(val: T): Result<void, Error>;
+  try_unlock(): Result<void, Error>;
+};
 
-    let has_lock = true;
+export const MutexGuard = function <T>(
+  this: MutexGuard<T>,
+  get: () => T,
+  set: (val: T) => void,
+  resolver: () => void,
+) {
+  this.get = () => get();
+  this.set = (val) => set(val);
 
-    this.has_lock = () => has_lock;
+  let has_lock = true;
 
-    this.unlock = () => {
-      if (!has_lock) {
-        panic("Calling `unlock` when `MutexGuard` has been unlocked");
-      }
-      has_lock = false;
+  this.has_lock = () => has_lock;
 
-      get = () => panic("Calling `get` when `MutexGuard` has been unlocked");
-      set = () => panic("Calling `set` when `MutexGuard` has been unlocked");
-      resolver();
-    };
-  }
+  function unlock() {
+    if (!has_lock) {
+      panic("Calling `unlock` when `MutexGuard` has been unlocked");
+    }
+    has_lock = false;
 
-  try_get(): Result<T, Error> {
-    return catch_unwind(this.get);
-  }
+    get = () => panic("Calling `get` when `MutexGuard` has been unlocked");
+    set = () => panic("Calling `set` when `MutexGuard` has been unlocked");
+    resolver();
+  };
 
-  try_set(value: T): Result<void, Error> {
-    return catch_unwind(() => this.set(value));
-  }
+  this.unlock = () => unlock();
 
-  try_unlock(): Result<void, Error> {
-    return catch_unwind(this.unlock);
-  }
-}
+  this.try_get = () => catch_unwind(get);
+  this.try_set = (val) => catch_unwind(() => set(val));
+  this.try_unlock = () => catch_unwind(unlock);
+} as unknown as (new <T>(
+  get: () => T,
+  set: (val: T) => void,
+  resolver: () => void,
+) => MutexGuard<T>);
