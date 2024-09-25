@@ -1,7 +1,7 @@
-import { RIterator } from "../traits";
-import { None, Option, Some } from "../enums/option";
-import type { TryInstance } from "../traits/try_trait";
-import { Err, Result } from "../enums/result";
+import { RIterator } from "../traits/iterator.ts";
+import { None, Option, Some } from "../enums/option.ts";
+import type { TryInstance } from "../traits/try_trait.ts";
+import { Err, Result } from "../enums/result.ts";
 
 const a_symbol = Symbol("a");
 const b_symbol = Symbol("b");

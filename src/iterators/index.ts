@@ -1,3 +1,3 @@
-export { Iter } from "./iter";
-export { StepBy } from "./step_by";
-export { Chain } from "./chain";
+export { Iter } from "./iter.ts";
+export { StepBy } from "./step_by.ts";
+export { Chain } from "./chain.ts";

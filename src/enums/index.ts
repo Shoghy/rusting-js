@@ -1,4 +1,4 @@
-import { panic } from "../panic";
+import { panic } from "../panic.ts";
 
 interface JSTypes {
   string: string
@@ -196,6 +196,6 @@ export function Enum<E extends IEnum>(evalues: E) {
   };
 }
 
-export { Option, Some, None } from "./option";
-export { Result, Ok, Err } from "./result";
-export { ControlFlow } from "./control_flow";
+export { Option, Some, None } from "./option.ts";
+export { Result, Ok, Err } from "./result.ts";
+export { ControlFlow } from "./control_flow.ts";

@@ -1,4 +1,4 @@
-import { type ControlFlow } from "../enums/control_flow";
+import { type ControlFlow } from "../enums/control_flow.ts";
 
 export interface TryInstance<Output, Residual> {
   branch(): ControlFlow<Residual, Output>;
