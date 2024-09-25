@@ -3,7 +3,7 @@ export function staticImplements<T>() {
 }
 
 export function CloneValue<T>(obj: T): T {
-  if (typeof obj !== "object") {
+  if (typeof obj !== "object" || obj === null) {
     return obj;
   }
 

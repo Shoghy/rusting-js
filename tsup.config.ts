@@ -15,7 +15,6 @@ export default defineConfig({
   splitting: true,
   clean: true,
   minifyWhitespace: true,
-  sourcemap: true,
   esbuildPlugins: [esbuildDecorators()],
   noExternal: ["./package.json"],
 });
