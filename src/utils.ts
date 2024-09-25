@@ -53,6 +53,11 @@ export function CloneValue<T>(obj: T): T {
   return arrClone as T;
 }
 
+interface DeferObject {
+  [Symbol.dispose](): void;
+  [Symbol.asyncDispose](): Promise<void>;
+  resolve(): Promise<void>;
+}
 /**
  * The `func` parameter is executed when the
  * function that called `defer` returns
@@ -92,7 +97,7 @@ export function CloneValue<T>(obj: T): T {
  * //Sorry the machine isn't working.
  * ```
  */
-export function defer(func: () => unknown) {
+export function defer(func: () => unknown): DeferObject {
   return {
     [Symbol.dispose]() {
       func();
