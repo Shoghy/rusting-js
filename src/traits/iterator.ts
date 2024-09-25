@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { None, Option, Some } from "../enums/option";
-import { Err, Ok, Result } from "../enums/result";
+import { None, type Option, Some } from "../enums/option";
+import { Err, Ok, type Result } from "../enums/result";
 import { panic, unimplemented } from "../panic";
 import type { TryInstance } from "./try_trait";
 import { ControlFlow } from "../enums/control_flow";
