@@ -5,7 +5,7 @@ import type { TryStatic } from "../traits";
 import { staticImplements } from "../utils";
 
 @staticImplements<TryStatic<unknown, Option<unknown>>>()
-export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
+export class Option<T> extends Enum<{ Some: unknown, None: undefined }>({ Some: "unknown", None: "void" }) {
   static from_output<T>(output: T) {
     return Some(output);
   }
@@ -28,7 +28,7 @@ export class Option<T> extends Enum({ Some: "unknown", None: "void" }) {
    * Creates a `None` type `Option`
    */
   static None<T>(): Option<T> {
-    return new Option("None", undefined);
+    return Option.create("None") as Option<T>;
   }
 
   /**
