@@ -1,5 +1,5 @@
-import { Err, Ok, Result } from "../enums/result";
-import { None, Option, Some } from "../enums/option";
+import { Err, Ok, Result } from "../enums/result.ts";
+import { None, Option, Some } from "../enums/option.ts";
 
 /**
  * @author https://stackoverflow.com/a/18729931

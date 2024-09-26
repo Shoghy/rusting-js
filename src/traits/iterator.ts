@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { None, type Option, Some } from "../enums/option";
-import { Err, Ok, type Result } from "../enums/result";
-import { panic, unimplemented } from "../panic";
-import type { TryInstance } from "./try_trait";
-import { ControlFlow } from "../enums/control_flow";
+import { None, type Option, Some } from "../enums/option.ts";
+import { Err, Ok, type Result } from "../enums/result.ts";
+import { panic, unimplemented } from "../panic.ts";
+import type { TryInstance } from "./try_trait.ts";
+import { ControlFlow } from "../enums/control_flow.ts";
 
 /**
  * ## This is a "trait". You should not create an instance directly.

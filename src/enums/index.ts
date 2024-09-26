@@ -1,4 +1,4 @@
-export { Enum } from "./enum";
-export { Option, Some, None } from "./option";
-export { Result, Ok, Err } from "./result";
-export { ControlFlow } from "./control_flow";
+export { Enum } from "./enum.ts";
+export { Option, Some, None } from "./option.ts";
+export { Result, Ok, Err } from "./result.ts";
+export { ControlFlow } from "./control_flow.ts";

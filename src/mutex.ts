@@ -1,6 +1,6 @@
-import type { Result } from "./enums/result";
-import { catch_unwind, panic } from "./panic";
-import { CloneValue } from "./utils";
+import type { Result } from "./enums/result.ts";
+import { catch_unwind, panic } from "./panic.ts";
+import { CloneValue } from "./utils.ts";
 
 interface Mutex<T> {
   get_lockers_count(): number;

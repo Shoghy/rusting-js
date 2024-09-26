@@ -1,5 +1,5 @@
-import { None, type Option, Some } from "../enums/option";
-import { RIterator } from "../traits/iterator";
+import { None, type Option, Some } from "../enums/option.ts";
+import { RIterator } from "../traits/iterator.ts";
 
 const generator_symbol = Symbol("generator");
 const has_ended_symbol = Symbol("has_ended");

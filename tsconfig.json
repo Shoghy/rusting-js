@@ -11,10 +11,12 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
 
+    "allowImportingTsExtensions": true,
+
     // Bundler mode
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
-    "noEmit": false,
+    "emitDeclarationOnly": true,
     "outDir": "./dist",
     "declaration": true,
 

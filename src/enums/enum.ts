@@ -1,4 +1,4 @@
-import { panic } from "../panic";
+import { panic } from "../panic.ts";
 
 type ZeroParamFunc<T = unknown> = () => T;
 

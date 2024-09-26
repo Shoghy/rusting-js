@@ -1,8 +1,9 @@
-import { None, type Option, Some } from "./option";
-import { panic } from "../panic";
-import { ControlFlow, Enum } from ".";
-import type { TryStatic } from "../traits";
-import { staticImplements } from "../utils";
+import { None, type Option, Some } from "./option.ts";
+import { panic } from "../panic.ts";
+import { Enum } from "./index.ts";
+import { ControlFlow } from "./control_flow.ts";
+import type { TryStatic } from "../traits/try_trait.ts";
+import { staticImplements } from "../utils.ts";
 
 @staticImplements<TryStatic<unknown, Result<unknown, unknown>>>()
 export class Result<T, E> extends Enum<{ Ok: unknown, Err: unknown }>() {

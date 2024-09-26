@@ -1,8 +1,8 @@
-import { Enum } from ".";
-import { panic } from "../panic";
-import type { TryStatic } from "../traits/try_trait";
-import { staticImplements } from "../utils";
-import { Some, None, Option } from "./option";
+import { Enum } from "./index.ts";
+import { panic } from "../panic.ts";
+import type { TryStatic } from "../traits/try_trait.ts";
+import { staticImplements } from "../utils.ts";
+import { Some, None, Option } from "./option.ts";
 
 @staticImplements<TryStatic<unknown, ControlFlow<unknown, unknown>>>()
 export class ControlFlow<B, C> extends Enum<{ Continue: unknown, Break: unknown }>() {

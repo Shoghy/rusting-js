@@ -1,8 +1,8 @@
-import { type Option } from "../enums/option";
-import { panic, unimplemented } from "../panic";
-import type { TryInstance } from "../traits/try_trait";
-import { RIterator, type StepByImpl } from "../traits/iterator";
-import { Iter } from "./iter";
+import { type Option } from "../enums/option.ts";
+import { panic, unimplemented } from "../panic.ts";
+import type { TryInstance } from "../traits/try_trait.ts";
+import { RIterator, type StepByImpl } from "../traits/iterator.ts";
+import { Iter } from "./iter.ts";
 
 const iter_symbol = Symbol("iter");
 const step_minus_one_symbol = Symbol("step_minus_one");
