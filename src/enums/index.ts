@@ -2,16 +2,14 @@ import { panic } from "../panic";
 
 type ZeroParamFunc<T = unknown> = () => T;
 
-export function Enum<Structure extends object>(enum_structure: { [K in keyof Structure]: Structure[K] extends undefined | null ? "void" : "unknown" }) {
+export function Enum<Structure extends object>() {
   type EnumStates = keyof Structure;
-
-  enum_structure = Object.freeze(enum_structure);
 
   const type_symbol = Symbol("type");
   const value_symbol = Symbol("value");
   const update_symbol = Symbol("update");
 
-  type Func<T extends EnumStates, R> = Structure[T] extends undefined | null ? () => R : ((value: Structure[T]) => R);
+  type Func<T extends EnumStates, R> = Structure[T] extends void ? () => R : ((value: Structure[T]) => R);
 
   return class EnumClass {
     constructor(
@@ -28,12 +26,6 @@ export function Enum<Structure extends object>(enum_structure: { [K in keyof Str
     update(sym: symbol, type: EnumStates, value: unknown): void {
       if (sym !== update_symbol) {
         panic("`update` was called outside of `EnumClass`");
-      }
-
-      if (!(type in enum_structure)) {
-        panic(`\`${String(type)}\` is not a posible state of this Enum.`);
-      } else if (enum_structure[type] === "void" && (value !== undefined && value !== null)) {
-        panic(`\`${String(type)}\` doesn't expects a value.`);
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -59,14 +51,14 @@ export function Enum<Structure extends object>(enum_structure: { [K in keyof Str
       return (this as any)[sym];
     }
 
-    change_to<T extends EnumStates>(type: Structure[T] extends undefined | null ? T : never): void;
-    change_to<T extends EnumStates>(type: Structure[T] extends undefined | null ? never : T, value: Structure[T]): void;
+    change_to<T extends EnumStates>(type: Structure[T] extends void ? T : never): void;
+    change_to<T extends EnumStates>(type: Structure[T] extends void ? never : T, value: Structure[T]): void;
     change_to<T extends EnumStates>(type: T, value?: Structure[T]): void {
       this.update(update_symbol, type, value);
     }
 
-    static create<T extends EnumStates>(type: Structure[T] extends undefined | null ? T : never): EnumClass;
-    static create<T extends EnumStates>(type: Structure[T] extends undefined | null ? never : T, value: Structure[T]): EnumClass;
+    static create<T extends EnumStates>(type: Structure[T] extends void ? T : never): EnumClass;
+    static create<T extends EnumStates>(type: Structure[T] extends void ? never : T, value: Structure[T]): EnumClass;
     static create<T extends EnumStates>(type: T, value?: Structure[T]): EnumClass {
       return new this(type, value as Structure[T]);
     }
@@ -80,11 +72,6 @@ export function Enum<Structure extends object>(enum_structure: { [K in keyof Str
         return;
       }
 
-      if(enum_structure[type] === "void"){
-        (func as ZeroParamFunc)();
-        return;
-      }
-
       func(this.get(value_symbol));
     }
 
@@ -94,9 +81,6 @@ export function Enum<Structure extends object>(enum_structure: { [K in keyof Str
       const arm = arms[this.get(type_symbol) as EnumStates];
 
       if (arm !== undefined) {
-        if (enum_structure[this.get(type_symbol) as EnumStates] === "void") {
-          return (arm as ZeroParamFunc<T>)();
-        }
         return arm(this.get(value_symbol));
       }
 

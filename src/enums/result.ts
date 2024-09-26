@@ -5,7 +5,7 @@ import type { TryStatic } from "../traits";
 import { staticImplements } from "../utils";
 
 @staticImplements<TryStatic<unknown, Result<unknown, unknown>>>()
-export class Result<T, E> extends Enum({ Ok: "unknown", Err: "unknown" }) {
+export class Result<T, E> extends Enum<{ Ok: unknown, Err: unknown }>() {
   static from_output<T, E>(output: T): Result<T, E> {
     return Ok(output);
   }
