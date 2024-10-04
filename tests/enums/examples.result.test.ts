@@ -7,7 +7,7 @@
 
 import { expect, test } from "bun:test";
 import { Err, Ok } from "../../src/enums";
-import { unreachable } from "../../src/panic";
+import { catch_unwind, unreachable } from "../../src/panic";
 import { None, Some } from "../../src/enums";
 
 test("is_ok", () => {
@@ -302,4 +302,23 @@ test("map_or_else", () => {
     () => unreachable(),
   );
   expect(result2).toBe("Celeste: Madeline");
+});
+
+test("throw", (done) => {
+  const ok = Ok<string, Error>("Will not throw");
+  const result1 = catch_unwind(() => {
+    const val = ok.throw();
+    expect(val).toBe("Will not throw");
+    return val;
+  });
+  expect(result1).toEqual(ok);
+
+  const err = Err<string, Error>(new Error("Will throw"));
+  const result2 = catch_unwind(() => {
+    const val = err.throw();
+    done("This will never execute");
+    return val;
+  });
+  expect(result2).toEqual(err);
+  done();
 });

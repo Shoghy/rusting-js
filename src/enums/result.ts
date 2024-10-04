@@ -543,6 +543,38 @@ export class Result<T, E> extends Enum<{ Ok: unknown, Err: unknown }>() {
   change_to(type: "Ok" | "Err", value?: unknown): void {
     super.change_to(type, value);
   }
+
+  /**
+   * If `Ok` its wrapped value is returned.
+   * 
+   * If `Err` its wrapped value is thrown.
+   * 
+   * @example
+   * const ok = Ok<string, Error>("Will not throw");
+   * const result1 = catch_unwind(() => {
+   *   const val = ok.throw();
+   *   expect(val).toBe("Will not throw");
+   *   return val;
+   * });
+   * expect(result1).toEqual(ok);
+   * 
+   * const err = Err<string, Error>(new Error("Will throw"));
+   * const result2 = catch_unwind(() => {
+   *   const val = err.throw();
+   *   done("This will never execute");
+   *   return val;
+   * });
+   * expect(result2).toEqual(err);
+   * done();
+   */
+  throw(): T {
+    return this.match({
+      Ok: (value) => value,
+      Err: (error) => {
+        throw error;
+      },
+    });
+  }
 }
 
 /**
