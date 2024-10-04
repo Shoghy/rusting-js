@@ -1,10 +1,10 @@
-import { Enum } from "./index.ts";
+import { Enum } from "./enum.ts";
 import { panic } from "../panic.ts";
 import type { TryStatic } from "../traits/try_trait.ts";
-import { staticImplements } from "../utils.ts";
+import { StaticImplements } from "../utils.ts";
 import { Some, None, Option } from "./option.ts";
 
-@staticImplements<TryStatic<unknown, ControlFlow<unknown, unknown>>>()
+@StaticImplements<TryStatic<unknown, ControlFlow<unknown, unknown>>>()
 export class ControlFlow<B, C> extends Enum<{ Continue: unknown, Break: unknown }>() {
   static from_output<B, C>(output: C): ControlFlow<B, C> {
     return ControlFlow.Continue(output);

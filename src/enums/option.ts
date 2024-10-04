@@ -1,11 +1,11 @@
-import { Enum } from "./index.ts";
+import { Enum } from "./enum.ts";
 import { ControlFlow } from "./control_flow.ts";
 import { panic } from "../panic.ts";
 import { Err, Ok, type Result } from "./result.ts";
 import type { TryStatic } from "../traits/try_trait.ts";
-import { staticImplements } from "../utils.ts";
+import { StaticImplements } from "../utils.ts";
 
-@staticImplements<TryStatic<unknown, Option<unknown>>>()
+@StaticImplements<TryStatic<unknown, Option<unknown>>>()
 export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
   static from_output<T>(output: T) {
     return Some(output);
