@@ -2,7 +2,6 @@
   const filesPaths = [
     "package.json",
     "README.md",
-    "jsr.json",
   ];
   for(const filePath of filesPaths){
     const file = Bun.file(`./${filePath}`);
