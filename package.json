@@ -31,6 +31,7 @@
     "@types/bun": "latest",
     "eslint": "9.x",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
     "prettier": "3.3.3",
     "tslib": "^2.6.3",
     "tsup": "^8.1.0",
