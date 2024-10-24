@@ -9,13 +9,12 @@ export function Enum<Structure extends object>() {
   const value_symbol = Symbol("value");
   const update_symbol = Symbol("update");
 
-  type Func<T extends EnumStates, R> = Structure[T] extends void ? () => R : ((value: Structure[T]) => R);
+  type Func<T extends EnumStates, R> = Structure[T] extends void
+    ? () => R
+    : (value: Structure[T]) => R;
 
   return class EnumClass {
-    constructor(
-      type: EnumStates,
-      value: Structure[typeof type],
-    ) {
+    constructor(type: EnumStates, value: Structure[typeof type]) {
       this.update(update_symbol, type, value);
     }
 
@@ -51,15 +50,28 @@ export function Enum<Structure extends object>() {
       return (this as any)[sym];
     }
 
-    change_to<T extends EnumStates>(type: Structure[T] extends void ? T : never): void;
-    change_to<T extends EnumStates>(type: Structure[T] extends void ? never : T, value: Structure[T]): void;
+    change_to<T extends EnumStates>(
+      type: Structure[T] extends void ? T : never,
+    ): void;
+    change_to<T extends EnumStates>(
+      type: Structure[T] extends void ? never : T,
+      value: Structure[T],
+    ): void;
     change_to<T extends EnumStates>(type: T, value?: Structure[T]): void {
       this.update(update_symbol, type, value);
     }
 
-    static create<T extends EnumStates>(type: Structure[T] extends void ? T : never): EnumClass;
-    static create<T extends EnumStates>(type: Structure[T] extends void ? never : T, value: Structure[T]): EnumClass;
-    static create<T extends EnumStates>(type: T, value?: Structure[T]): EnumClass {
+    static create<T extends EnumStates>(
+      type: Structure[T] extends void ? T : never,
+    ): EnumClass;
+    static create<T extends EnumStates>(
+      type: Structure[T] extends void ? never : T,
+      value: Structure[T],
+    ): EnumClass;
+    static create<T extends EnumStates>(
+      type: T,
+      value?: Structure[T],
+    ): EnumClass {
       return new this(type, value as Structure[T]);
     }
 
@@ -76,8 +88,14 @@ export function Enum<Structure extends object>() {
     }
 
     match<T>(arms: { [K in EnumStates]: Func<K, T> }): T;
-    match<T>(arms: { [K in EnumStates]?: Func<K, T> }, def: ZeroParamFunc<T>): T;
-    match<T>(arms: { [K in EnumStates]?: Func<K, T> }, def?: ZeroParamFunc<T>): T {
+    match<T>(
+      arms: { [K in EnumStates]?: Func<K, T> },
+      def: ZeroParamFunc<T>,
+    ): T;
+    match<T>(
+      arms: { [K in EnumStates]?: Func<K, T> },
+      def?: ZeroParamFunc<T>,
+    ): T {
       const arm = arms[this.get(type_symbol) as EnumStates];
 
       if (arm !== undefined) {

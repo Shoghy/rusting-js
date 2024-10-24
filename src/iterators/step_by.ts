@@ -8,7 +8,10 @@ const iter_symbol = Symbol("iter");
 const step_minus_one_symbol = Symbol("step_minus_one");
 const first_take_symbol = Symbol("first_take");
 
-function* nth<T>(iter: RIterator<T>, step_minus_one: number): Generator<T, void, unknown> {
+function* nth<T>(
+  iter: RIterator<T>,
+  step_minus_one: number,
+): Generator<T, void, unknown> {
   while (true) {
     const val = iter.nth(step_minus_one);
     if (val.is_none()) {
@@ -75,7 +78,7 @@ export class StepBy<T> extends RIterator<T> implements StepByImpl<T> {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore. I don't even get why TS is throwing an error with this function
   spec_try_fold<Acc, R extends TryInstance<Acc, unknown>>(
-    type: { from_output(output: Acc): R; },
+    type: { from_output(output: Acc): R },
     acc: Acc,
     f: (acc: Acc, item: T) => R,
   ): R {
@@ -99,7 +102,11 @@ export class StepBy<T> extends RIterator<T> implements StepByImpl<T> {
       acc = flow.unwrap_continue();
     }
 
-    return new Iter(nth(iter, this[step_minus_one_symbol])).try_fold(type, acc, f);
+    return new Iter(nth(iter, this[step_minus_one_symbol])).try_fold(
+      type,
+      acc,
+      f,
+    );
   }
 
   spec_fold<Acc>(acc: Acc, f: (acc: Acc, item: T) => Acc): Acc {
@@ -130,7 +137,7 @@ export class StepBy<T> extends RIterator<T> implements StepByImpl<T> {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore. I don't even get why TS is throwing an error with this function
   try_fold<B, R extends TryInstance<B, unknown>>(
-    type: { from_output(output: B): R; },
+    type: { from_output(output: B): R },
     init: B,
     f: (acum: B, item: T) => R,
   ): R {

@@ -89,8 +89,8 @@ describe("Testing `inspect` method", () => {
     const ok = Ok("Original");
     const err = Err("Doppelganger");
 
-    expect(ok.inspect(() => { })).toBe(ok);
-    expect(err.inspect(() => { })).toBe(err);
+    expect(ok.inspect(() => {})).toBe(ok);
+    expect(err.inspect(() => {})).toBe(err);
   });
 });
 
@@ -118,8 +118,8 @@ describe("Testing `inspect_err` method", () => {
     const ok = Ok("C#"); //Microsoft flavored JAVA
     const err = Err("JAVA");
 
-    expect(ok.inspect_err(() => { })).toBe(ok);
-    expect(err.inspect_err(() => { })).toBe(err);
+    expect(ok.inspect_err(() => {})).toBe(ok);
+    expect(err.inspect_err(() => {})).toBe(err);
   });
 });
 
@@ -296,7 +296,7 @@ describe("Testing `map` method", () => {
   test("`Err` should return its value wrapped in a `Err`", () => {
     const str = RandomString(11);
     const err = Err(str);
-    const result = err.map(() => { });
+    const result = err.map(() => {});
 
     expect(result).toEqual(Err(str));
   });
@@ -330,7 +330,7 @@ describe("Testing `map_err` method", () => {
   test("`Ok` should return its value wrapped in a `Ok`", () => {
     const str = RandomString(11);
     const ok = Ok(str);
-    const result = ok.map_err(() => { });
+    const result = ok.map_err(() => {});
 
     expect(result).toEqual(Ok(str));
   });
@@ -430,19 +430,25 @@ describe("Testing `unwrap` method", () => {
 
   test("`Err` should panic", () => {
     const err = Err("This value will no be used :(");
-    expect(() => err.unwrap()).toThrowError("Called `unwrap` method on a `Err`");
+    expect(() => err.unwrap()).toThrowError(
+      "Called `unwrap` method on a `Err`",
+    );
   });
 });
 
 describe("Testing `unwrap_err` method", () => {
   test("`Ok` should panic", () => {
     const ok = Ok(["F", "e", "l", "p", "s"]); // ._.
-    expect(() => ok.unwrap_err()).toThrowError("Called `unwrap_err` method on a `Ok`");
+    expect(() => ok.unwrap_err()).toThrowError(
+      "Called `unwrap_err` method on a `Ok`",
+    );
   });
 
   test("`Err` should return its wrapped value", () => {
     const err = Err(new Error("Hey, this ain't a string or number"));
-    expect(err.unwrap_err()).toEqual(new Error("Hey, this ain't a string or number"));
+    expect(err.unwrap_err()).toEqual(
+      new Error("Hey, this ain't a string or number"),
+    );
   });
 });
 
@@ -465,7 +471,9 @@ describe("Testing `unwrap_or_else` method", () => {
     const ok = Ok(str);
 
     const result = ok.unwrap_or_else(() => {
-      unreachable("`unwrap_or_else` don't execute the `func` parameter if is called by an `Ok`");
+      unreachable(
+        "`unwrap_or_else` don't execute the `func` parameter if is called by an `Ok`",
+      );
     });
 
     expect(result).toBe(str);

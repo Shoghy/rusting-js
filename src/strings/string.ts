@@ -1,6 +1,11 @@
 import { panic } from "../panic.ts";
 import { Err, Ok, Result } from "../enums/result.ts";
-import { run_utf8_validation, string_to_utf8, utf8_to_string, Utf8Error } from "./utils.ts";
+import {
+  run_utf8_validation,
+  string_to_utf8,
+  utf8_to_string,
+  Utf8Error,
+} from "./utils.ts";
 
 const vec_symbol = Symbol("vec");
 
@@ -19,7 +24,9 @@ export class RString {
 
   constructor() {
     const buffer = new ArrayBuffer(0, { maxByteLength: Math.pow(2, 31) - 1 });
-    this[vec_symbol] = new Uint8Array(buffer) as Uint8Array & { buffer: ArrayBuffer };
+    this[vec_symbol] = new Uint8Array(buffer) as Uint8Array & {
+      buffer: ArrayBuffer;
+    };
   }
 
   static from(arr_like: ArrayLike<string>) {

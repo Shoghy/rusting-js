@@ -1,5 +1,7 @@
 export function StaticImplements<T>() {
-  return <U extends T>(constructor: U) => { constructor; };
+  return <U extends T>(constructor: U) => {
+    constructor;
+  };
 }
 
 export function CloneValue<T>(obj: T): T {
@@ -27,7 +29,10 @@ export function CloneValue<T>(obj: T): T {
 
     checkedObjs.push(value as object);
     if (!Array.isArray(value)) {
-      const clone = Object.assign(Object.create(Object.getPrototypeOf(value)), value);
+      const clone = Object.assign(
+        Object.create(Object.getPrototypeOf(value)),
+        value,
+      );
       clonedObjs.push(clone);
       return clone;
     }
@@ -35,9 +40,7 @@ export function CloneValue<T>(obj: T): T {
     const arrClone: unknown[] = [];
 
     for (const val of value) {
-      arrClone.push(
-        RecursiveChecker(val),
-      );
+      arrClone.push(RecursiveChecker(val));
     }
 
     clonedObjs.push(arrClone);
@@ -45,9 +48,7 @@ export function CloneValue<T>(obj: T): T {
   }
 
   for (const val of obj) {
-    arrClone.push(
-      RecursiveChecker(val),
-    );
+    arrClone.push(RecursiveChecker(val));
   }
 
   return arrClone as T;
@@ -62,7 +63,7 @@ interface DeferObject {
  * The `func` parameter is executed when the
  * function that called `defer` returns
  * or throw an error.
- * 
+ *
  * To use it you just need to create a dummy
  * variable with the `using` keyword.
  * ```ts
@@ -70,28 +71,28 @@ interface DeferObject {
  *   using _d1 = defer(() => {
  *     console.log("AEUGH");
  *   });
- * 
+ *
  *   console.log("Hello young lady");
  * }
- * 
+ *
  * example();
  * //Hello young lady
  * //AEUGH
  * ```
- * 
+ *
  * If your current enviroment doesn't support the `using` keyword
  * you can use the method `resolve` from the returned value.
- * 
+ *
  * ```ts
  * function exemple() {
  *   const d1 = defer(() => {
  *     console.log("Sorry the machine isn't working.");
  *   });
- * 
+ *
  *   console.log("I will like an Ice Cream.");
  *   d1.resolve();
  * }
- * 
+ *
  * exemple();
  * //I will like an Ice Cream.
  * //Sorry the machine isn't working.

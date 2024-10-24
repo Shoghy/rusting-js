@@ -6,7 +6,7 @@ import type { TryStatic } from "../traits/try_trait.ts";
 import { StaticImplements } from "../utils.ts";
 
 @StaticImplements<TryStatic<unknown, Option<unknown>>>()
-export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
+export class Option<T> extends Enum<{ Some: unknown; None: void }>() {
   static from_output<T>(output: T) {
     return Some(output);
   }
@@ -162,15 +162,15 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    * let val1 = Some("Español");
    * let val2 = None<string>();
    * expect(val1.and(val2)).toEqual(None());
-   * 
+   *
    * val1 = None();
    * val2 = Some("Português");
    * expect(val1.and(val2)).toEqual(None());
-   * 
+   *
    * val1 = Some("English");
    * val2 = Some("日本語");
    * expect(val1.and(val2)).toEqual(Some("日本語"));
-   * 
+   *
    * val1 = None();
    * val2 = None();
    * expect(val1.and(val2)).toEqual(None());
@@ -190,7 +190,7 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    *   return Some(value * value);
    * });
    * expect(result1).toEqual(None());
-   * 
+   *
    * const some = Some(5);
    * const result = some.and_then((value) => {
    *   return Some(value * value);
@@ -231,7 +231,7 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    * const result1 = option1.get_or_insert(3.1415);
    * expect(result1).toBe(3.1415);
    * expect(option1).toEqual(Some(3.1415));
-   * 
+   *
    * const option2 = Some(42);
    * const result2 = option2.get_or_insert(19);
    * expect(result2).toBe(42);
@@ -253,7 +253,7 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    * );
    * expect(result1).toEqual("Hello World!");
    * expect(option1).toEqual(Some("Hello World!"));
-   * 
+   *
    * const option2 = Some("Cards Against Humanity");
    * const result2 = option2.get_or_insert_with(
    *   () => "Humanity"
@@ -272,13 +272,13 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    * Insert the `value` parameter in `Option` and return it.
    * @example
    * const cool_song = "https://open.spotify.com/track/4S3dFI8Sx3UsKOUnoYFCg2";
-   * 
+   *
    * const option1 = None<string>();
    * const result1 = option1.insert(cool_song);
    * expect(result1).toBe(cool_song);
    * expect(option1).not.toEqual(None());
    * expect(option1).toEqual(Some(cool_song));
-   * 
+   *
    * const option2 = Some(1);
    * const result2 = option2.insert(2);
    * expect(result2).toBe(2);
@@ -295,11 +295,11 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    * @example
    * const r_true = () => true;
    * const r_false = () => false;
-   * 
+   *
    * const none = None();
    * expect(none.is_some_and(r_true)).toBe(false);
    * expect(none.is_some_and(r_false)).toBe(false);
-   * 
+   *
    * const some = Some(1);
    * expect(some.is_some_and(r_true)).toBe(true);
    * expect(some.is_some_and(r_false)).toBe(false);
@@ -318,10 +318,10 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    * @example
    * let option1 = Some(142857);
    * let option2 = option1.take();
-   * 
+   *
    * expect(option1).toEqual(None());
    * expect(option2).toEqual(Some(142857));
-   * 
+   *
    * option1 = None();
    * option2 = option1.take();
    * expect(option1).toEqual(None());
@@ -362,7 +362,7 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    * const none = None<string>();
    * const result1 = none.unwrap_or("31 minutos");
    * expect(result1).toBe("31 minutos");
-   * 
+   *
    * const some = Some("Mr. Trance");
    * const result2 = some.unwrap_or("Esteman");
    * expect(result2).toBe("Mr. Trance");
@@ -380,7 +380,7 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    * const none = None<number>();
    * const result1 = none.unwrap_or_else(() => 0xe0218a);
    * expect(result1).toBe(0xe0218a);
-   * 
+   *
    * const some = Some(0);
    * const result2 = some.unwrap_or_else(() => 1);
    * expect(result2).toBe(0);
@@ -398,15 +398,15 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    * let val1 = Some(1);
    * let val2 = None<string>();
    * expect(val1.zip(val2)).toEqual(None());
-   * 
+   *
    * val1 = None();
    * val2 = Some("thing");
    * expect(val1.zip(val2)).toEqual(None());
-   * 
+   *
    * val1 = Some(0+0+7);
    * val2 = Some("Agente");
    * expect(val1.zip(val2)).toEqual(Some([7, "Agente"]));
-   * 
+   *
    * val1 = None();
    * val2 = None();
    * expect(val1.zip(val2)).toEqual(None());
@@ -428,7 +428,7 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    *   return value.length;
    * });
    * expect(result1).toEqual(None());
-   * 
+   *
    * const some = Some("1234");
    * const result2 = some.map((value) => {
    *   return value.length;
@@ -452,7 +452,7 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    *   return "Hello";
    * });
    * expect(result1).toBe("Hola");
-   * 
+   *
    * const some = Some(356);
    * const result2 = some.map_or("NotAHexNumber", (value) => {
    *   return value.toString(16);
@@ -481,7 +481,7 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    *   },
    * );
    * expect(result1).toBe("It is None");
-   * 
+   *
    * const some = Some(17);
    * const result2 = some.map_or_else(
    *   () => {
@@ -508,7 +508,7 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    * const none = None();
    * const result1 = none.ok_or("The value was a None");
    * expect(result1).toEqual(Err("The value was a None"));
-   * 
+   *
    * const some = Some(9);
    * const result2 = some.ok_or("The value was a None");
    * expect(result2).toEqual(Ok(9));
@@ -528,7 +528,7 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    * const none = None();
    * const result1 = none.ok_or_else(() => 68);
    * expect(result1).toEqual(Err(68));
-   * 
+   *
    * const some = Some("DCLXVI");
    * const result2 = some.ok_or_else(() => "DCXVI");
    * expect(result2).toEqual(Ok("DCLXVI"));
@@ -547,7 +547,7 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    * const none = None();
    * const result1 = none.unwrap_unchecked();
    * expect(result1).toBe(undefined);
-   * 
+   *
    * const some = Some("Some");
    * const result2 = some.unwrap_unchecked();
    * expect(result2).toBe("Some");
@@ -572,7 +572,7 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    *   value = 1;
    * });
    * expect(value).toBe(0);
-   * 
+   *
    * value = 0;
    * const some = Some(1);
    * some.if_some((v) => {
@@ -593,7 +593,7 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    *   value = 1;
    * });
    * expect(value).toBe(1);
-   * 
+   *
    * value = 0;
    * const some = Some(1);
    * some.if_none(() => {
@@ -608,7 +608,7 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
   /**
    * If `Option` is `Some` call the function property `Some`.
    * If `Option` is `None` call the function property `None`.
-   * 
+   *
    * This function will return the returned value by the executed
    * @example
    * let value = 0;
@@ -622,7 +622,7 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    *   },
    * });
    * expect(value).toBe(2);
-   * 
+   *
    * value = 0;
    * const some = Some(1);
    * some.match({
@@ -635,9 +635,9 @@ export class Option<T> extends Enum<{ Some: unknown, None: void }>() {
    * });
    * expect(value).toBe(1);
    */
-  match<R>(arms: { Some: (value: T) => R; None: () => R; }): R;
-  match<R>(arms: { Some?: ((value: T) => R); None?: (() => R); }, def: () => R): R;
-  match<R>(arms: { Some?: ((value: T) => R); None?: (() => R); }, def?: () => R): R {
+  match<R>(arms: { Some: (value: T) => R; None: () => R }): R;
+  match<R>(arms: { Some?: (value: T) => R; None?: () => R }, def: () => R): R;
+  match<R>(arms: { Some?: (value: T) => R; None?: () => R }, def?: () => R): R {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return super.match(arms as any, def as any);
   }

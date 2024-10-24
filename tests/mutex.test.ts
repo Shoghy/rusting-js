@@ -5,7 +5,6 @@ import { Err, Ok } from "../src/enums/result";
 
 // ----------------- Mutex methods -----------------
 
-
 describe("Testing `get_lockers_count` method", () => {
   test("No lockers", () => {
     const m = new Mutex(1);
@@ -15,7 +14,7 @@ describe("Testing `get_lockers_count` method", () => {
   test("Multiple lockers", () => {
     const m = new Mutex(2);
     const num = RandomInt(10, 100);
-    for(let i = 0; i < num; ++i){
+    for (let i = 0; i < num; ++i) {
       m.lock();
     }
     expect(m.get_lockers_count()).toBe(num);
@@ -81,7 +80,7 @@ describe("Testing `forced_unlock` method", () => {
     const m = new Mutex(6);
     const num = RandomInt(69, 420);
 
-    for(let i = 0; i < num; ++i){
+    for (let i = 0; i < num; ++i) {
       m.lock();
     }
 
@@ -97,15 +96,21 @@ describe("Testing `forced_unlock` method", () => {
 
     m.forced_unlock();
 
-    expect(() => lock.get()).toThrowError("Calling `get` when `MutexGuard` has been unlocked");
-    expect(() => lock.set(1)).toThrowError("Calling `set` when `MutexGuard` has been unlocked");
-    expect(() => lock.unlock()).toThrowError("Calling `unlock` when `MutexGuard` has been unlocked");
+    expect(() => lock.get()).toThrowError(
+      "Calling `get` when `MutexGuard` has been unlocked",
+    );
+    expect(() => lock.set(1)).toThrowError(
+      "Calling `set` when `MutexGuard` has been unlocked",
+    );
+    expect(() => lock.unlock()).toThrowError(
+      "Calling `unlock` when `MutexGuard` has been unlocked",
+    );
   });
 });
 
 describe("Testing `lock` method", async () => {
   test("Testing order of execution", async () => {
-    async function notAwaitedAsync(){
+    async function notAwaitedAsync() {
       const lock2 = await m.lock();
       val = 2;
       lock2.unlock();
@@ -127,9 +132,7 @@ describe("Testing `lock` method", async () => {
   });
 });
 
-
 // ----------------- MutexGuard methods -----------------
-
 
 describe("Testing `get` method", () => {
   test("Should return the value hold by `Mutex`", async () => {
@@ -145,7 +148,9 @@ describe("Testing `get` method", () => {
 
     lock.unlock();
 
-    expect(() => lock.get()).toThrowError("Calling `get` when `MutexGuard` has been unlocked");
+    expect(() => lock.get()).toThrowError(
+      "Calling `get` when `MutexGuard` has been unlocked",
+    );
   });
 });
 
@@ -169,7 +174,9 @@ describe("Testing `set` method", () => {
     const lock = await m.lock();
     lock.unlock();
 
-    expect(() => lock.set("A nossa amizade num lindo romance?")).toThrowError("Calling `set` when `MutexGuard` has been unlocked");
+    expect(() => lock.set("A nossa amizade num lindo romance?")).toThrowError(
+      "Calling `set` when `MutexGuard` has been unlocked",
+    );
   });
 });
 
@@ -203,7 +210,9 @@ describe("Testing `try_get` method", () => {
     const lock = await m.lock();
     lock.unlock();
 
-    expect(lock.try_get()).toEqual(Err(new Error("Calling `get` when `MutexGuard` has been unlocked")));
+    expect(lock.try_get()).toEqual(
+      Err(new Error("Calling `get` when `MutexGuard` has been unlocked")),
+    );
   });
 });
 
@@ -227,7 +236,9 @@ describe("Testing `try_set` method", () => {
     lock1.unlock();
 
     const result = lock1.try_set("0|0");
-    expect(result).toEqual(Err(new Error("Calling `set` when `MutexGuard` has been unlocked")));
+    expect(result).toEqual(
+      Err(new Error("Calling `set` when `MutexGuard` has been unlocked")),
+    );
 
     const lock2 = await m.lock();
     expect(lock2.get()).toBe(":}");
@@ -251,6 +262,8 @@ describe("Testing `try_unlock` method", () => {
     lock.unlock();
 
     const result = lock.try_unlock();
-    expect(result).toEqual(Err(new Error("Calling `unlock` when `MutexGuard` has been unlocked")));
+    expect(result).toEqual(
+      Err(new Error("Calling `unlock` when `MutexGuard` has been unlocked")),
+    );
   });
 });

@@ -60,11 +60,15 @@ export abstract class RIterator<T> {
   }
 
   zip<U>(other: RIterator<U>): never {
-    unimplemented(`The return type by this method should, each time next is called, return an array of typeof [T, U] where T is an element in ${this} and U is an element in ${other}`);
+    unimplemented(
+      `The return type by this method should, each time next is called, return an array of typeof [T, U] where T is an element in ${this} and U is an element in ${other}`,
+    );
   }
 
   intersperse(separator: T): never {
-    unimplemented(`The return type of this method should "add" ${separator} between each element in ${this}`);
+    unimplemented(
+      `The return type of this method should "add" ${separator} between each element in ${this}`,
+    );
   }
 
   interperse_with(separator: () => T): never {
@@ -72,7 +76,9 @@ export abstract class RIterator<T> {
   }
 
   map<B>(f: (value: T) => B): never {
-    unimplemented(`The return type of this method should run the function ${f} for each element and return its returned value.`);
+    unimplemented(
+      `The return type of this method should run the function ${f} for each element and return its returned value.`,
+    );
   }
 
   for_each(f: (value: T) => unknown): void {
@@ -80,19 +86,27 @@ export abstract class RIterator<T> {
   }
 
   filter(predicate: (value: T) => boolean): never {
-    unimplemented(`The return type of this method should return only the values that return true after checking them with ${predicate} omiting the others`);
+    unimplemented(
+      `The return type of this method should return only the values that return true after checking them with ${predicate} omiting the others`,
+    );
   }
 
   filter_map<B>(f: (value: T) => Option<B>): never {
-    unimplemented(`The return type of this method should return only the values that return Some after checking them with ${f} omiting the others`);
+    unimplemented(
+      `The return type of this method should return only the values that return Some after checking them with ${f} omiting the others`,
+    );
   }
 
   enumerate(): never {
-    unimplemented("The return type of this method should return an Array with 2 items, the first one being the index of the element and the second one being the element");
+    unimplemented(
+      "The return type of this method should return an Array with 2 items, the first one being the index of the element and the second one being the element",
+    );
   }
 
   peekable(): never {
-    unimplemented("The return type of this method should let you \"peek\" which means it will return the next element of the iterator without consuming it.");
+    unimplemented(
+      'The return type of this method should let you "peek" which means it will return the next element of the iterator without consuming it.',
+    );
   }
 
   skip_while(predicate: () => boolean): never {
@@ -120,15 +134,21 @@ export abstract class RIterator<T> {
   }
 
   flat_map<U>(f: () => U) {
-    unimplemented(`I am not sure of how to implement this, or if it can be implemented. ${f}`);
+    unimplemented(
+      `I am not sure of how to implement this, or if it can be implemented. ${f}`,
+    );
   }
 
   flatten() {
-    unimplemented("I am not sure of how to implement this, or if it can be implemented");
+    unimplemented(
+      "I am not sure of how to implement this, or if it can be implemented",
+    );
   }
 
   fuse(): never {
-    unimplemented("An iterator that after finding a `None` will just return `None`");
+    unimplemented(
+      "An iterator that after finding a `None` will just return `None`",
+    );
   }
 
   inspect(f: (item: T) => unknown): never {
@@ -144,7 +164,9 @@ export abstract class RIterator<T> {
   }
 
   partition_in_place(predicate: (item: T) => boolean): number {
-    unimplemented(`I am not sure of how to implement this, or if it can be implemented. ${predicate}`);
+    unimplemented(
+      `I am not sure of how to implement this, or if it can be implemented. ${predicate}`,
+    );
   }
 
   try_fold<B, R extends TryInstance<B, unknown>>(
@@ -202,17 +224,13 @@ export abstract class RIterator<T> {
   }
 
   all(f: (item: T) => boolean): boolean {
-    return this.try_fold(
-      ControlFlow,
-      undefined as void,
-      (_, item) => {
-        if (f(item)) {
-          return ControlFlow.Continue(undefined as void);
-        } else {
-          return ControlFlow.Break<unknown, void>(undefined as unknown);
-        }
-      },
-    ).is_continue();
+    return this.try_fold(ControlFlow, undefined as void, (_, item) => {
+      if (f(item)) {
+        return ControlFlow.Continue(undefined as void);
+      } else {
+        return ControlFlow.Break<unknown, void>(undefined as unknown);
+      }
+    }).is_continue();
   }
 
   any() {
@@ -257,7 +275,7 @@ export abstract class RIterator<T> {
 }
 
 export interface FromIterator<T, R> {
-  from_iter(iter: RIterator<T>): R
+  from_iter(iter: RIterator<T>): R;
 }
 
 export interface StepByImpl<I> {
@@ -272,5 +290,7 @@ export interface StepByImpl<I> {
   spec_fold<Acc>(acc: Acc, f: (acc: Acc, item: I) => Acc): Acc;
 }
 
-const StepBy = require("../iterators/step_by").StepBy as typeof import("../iterators/step_by").StepBy;
-const Chain = require("../iterators/chain").Chain as typeof import("../iterators/chain").Chain;
+const StepBy = require("../iterators/step_by")
+  .StepBy as typeof import("../iterators/step_by").StepBy;
+const Chain = require("../iterators/chain")
+  .Chain as typeof import("../iterators/chain").Chain;

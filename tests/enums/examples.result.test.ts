@@ -142,7 +142,7 @@ test("is_ok_and", () => {
 
 test("map", () => {
   const ok = Ok("Hello ");
-  const result1 = ok.map((val) => val+"World!");
+  const result1 = ok.map((val) => val + "World!");
   expect(result1).toEqual(Ok("Hello World!"));
 
   const err = Err(new Error("Hey"));
@@ -156,7 +156,7 @@ test("map_err", () => {
   expect(result1).toEqual(Ok(99));
 
   const err = Err(8);
-  const return2 = err.map_err((val) => val*9);
+  const return2 = err.map_err((val) => val * 9);
   expect(return2).toEqual(Err(72));
 });
 
@@ -216,7 +216,9 @@ test("unwrap", () => {
 
 test("unwrap_err", () => {
   const ok = Ok("Never");
-  expect(() => ok.unwrap_err()).toThrowError("Called `unwrap_err` method on a `Ok`");
+  expect(() => ok.unwrap_err()).toThrowError(
+    "Called `unwrap_err` method on a `Ok`",
+  );
 
   const err = Err("Gonna");
   expect(err.unwrap_err()).toBe("Gonna");
@@ -232,10 +234,10 @@ test("unwrap_or", () => {
 
 test("unwrap_or_else", () => {
   const ok = Ok("Returned");
-  expect(ok.unwrap_or_else(() =>  "Not Returned")).toBe("Returned");
+  expect(ok.unwrap_or_else(() => "Not Returned")).toBe("Returned");
 
   const err = Err(5);
-  expect(err.unwrap_or_else((val) => val*3)).toBe(15);
+  expect(err.unwrap_or_else((val) => val * 3)).toBe(15);
 });
 
 test("match", () => {

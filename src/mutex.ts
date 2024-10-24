@@ -43,7 +43,7 @@ export const Mutex = function <T>(this: Mutex<T>, value: T) {
 
     const prev_locker = locker;
 
-    let resolve_promise = () => { };
+    let resolve_promise = () => {};
 
     locker = new Promise((resolve) => {
       const unlocker_key = Symbol();
@@ -69,7 +69,7 @@ export const Mutex = function <T>(this: Mutex<T>, value: T) {
 
     return mutex_guard;
   };
-} as unknown as (new <T>(value: T, make_clones?: boolean) => Mutex<T>);
+} as unknown as new <T>(value: T, make_clones?: boolean) => Mutex<T>;
 
 interface MutexGuard<T> {
   get(): T;
@@ -79,7 +79,7 @@ interface MutexGuard<T> {
   try_get(): Result<T, Error>;
   try_set(val: T): Result<void, Error>;
   try_unlock(): Result<void, Error>;
-};
+}
 
 export const MutexGuard = function <T>(
   this: MutexGuard<T>,
@@ -103,15 +103,15 @@ export const MutexGuard = function <T>(
     get = () => panic("Calling `get` when `MutexGuard` has been unlocked");
     set = () => panic("Calling `set` when `MutexGuard` has been unlocked");
     resolver();
-  };
+  }
 
   this.unlock = () => unlock();
 
   this.try_get = () => catch_unwind(get);
   this.try_set = (val) => catch_unwind(() => set(val));
   this.try_unlock = () => catch_unwind(unlock);
-} as unknown as (new <T>(
+} as unknown as new <T>(
   get: () => T,
   set: (val: T) => void,
   resolver: () => void,
-) => MutexGuard<T>);
+) => MutexGuard<T>;

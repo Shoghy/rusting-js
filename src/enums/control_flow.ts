@@ -5,7 +5,10 @@ import { StaticImplements } from "../utils.ts";
 import { Some, None, Option } from "./option.ts";
 
 @StaticImplements<TryStatic<unknown, ControlFlow<unknown, unknown>>>()
-export class ControlFlow<B, C> extends Enum<{ Continue: unknown, Break: unknown }>() {
+export class ControlFlow<B, C> extends Enum<{
+  Continue: unknown;
+  Break: unknown;
+}>() {
   static from_output<B, C>(output: C): ControlFlow<B, C> {
     return ControlFlow.Continue(output);
   }
@@ -25,15 +28,24 @@ export class ControlFlow<B, C> extends Enum<{ Continue: unknown, Break: unknown 
     return new ControlFlow("Break", value);
   }
 
-  match<T>(arms: { Continue: (value: C) => T; Break: (value: B) => T; }): T;
-  match<T>(arms: { Continue?: ((value: C) => T); Break?: ((value: B) => T); }, def: () => T): T;
-  match<T>(arms: { Continue?: ((value: C) => T); Break?: ((value: B) => T); }, def?: () => T): T {
+  match<T>(arms: { Continue: (value: C) => T; Break: (value: B) => T }): T;
+  match<T>(
+    arms: { Continue?: (value: C) => T; Break?: (value: B) => T },
+    def: () => T,
+  ): T;
+  match<T>(
+    arms: { Continue?: (value: C) => T; Break?: (value: B) => T },
+    def?: () => T,
+  ): T {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return super.match(arms as any, def as any);
   }
 
   change_to(type: never): void;
-  change_to<T extends "Continue" | "Break">(type: T, value: { Continue: C; Break: B; }[T]): void;
+  change_to<T extends "Continue" | "Break">(
+    type: T,
+    value: { Continue: C; Break: B }[T],
+  ): void;
   change_to(type: "Continue" | "Break", value?: unknown): void {
     super.change_to(type, value);
   }

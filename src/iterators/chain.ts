@@ -53,7 +53,7 @@ export class Chain<T> extends RIterator<T> {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore. Shut up TS
   try_fold<B, R extends TryInstance<B, unknown>>(
-    type: { from_output(output: B): R; },
+    type: { from_output(output: B): R },
     init: B,
     f: (acum: B, item: T) => R,
   ): R {

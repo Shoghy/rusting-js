@@ -109,10 +109,12 @@ describe("Testing `inspect` method", () => {
     const none = None<number>();
     let val = 275;
 
-    expect(() => none.inspect((value) => {
-      val = value;
-      unreachable();
-    })).not.toThrow();
+    expect(() =>
+      none.inspect((value) => {
+        val = value;
+        unreachable();
+      }),
+    ).not.toThrow();
 
     expect(val).toBe(275);
   });
@@ -121,10 +123,12 @@ describe("Testing `inspect` method", () => {
     const some = Some([1, 2, 3]);
     let val = [32, 15, 26];
 
-    expect(() => some.inspect((value) => {
-      val = value;
-      panic("This should be throwed");
-    })).toThrow();
+    expect(() =>
+      some.inspect((value) => {
+        val = value;
+        panic("This should be throwed");
+      }),
+    ).toThrow();
 
     expect(val).toEqual([1, 2, 3]);
   });
@@ -263,18 +267,14 @@ describe("Testing `get_or_insert` method", () => {
 describe("Testing `get_or_insert_with` method", () => {
   test("`get_or_insert_with` should change the value of `None`", () => {
     const option = None<string[]>();
-    const result = option.get_or_insert_with(
-      () => Array.from("Hello World!"),
-    );
+    const result = option.get_or_insert_with(() => Array.from("Hello World!"));
     expect(result).toEqual(Array.from("Hello World!"));
     expect(option).toEqual(Some(Array.from("Hello World!")));
   });
 
   test("`get_or_insert_with` should not change the value of `Some`", () => {
     const option = Some("Cards Against Humanity");
-    const result = option.get_or_insert_with(
-      () => "Humanity",
-    );
+    const result = option.get_or_insert_with(() => "Humanity");
     expect(result).toEqual("Cards Against Humanity");
     expect(option).toEqual(Some("Cards Against Humanity"));
   });

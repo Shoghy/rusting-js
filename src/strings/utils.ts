@@ -10,13 +10,13 @@ export function string_to_utf8(str: string) {
     let charcode = str.charCodeAt(i);
     if (charcode < 0x80) utf8.push(charcode);
     else if (charcode < 0x800) {
-      utf8.push(0xc0 | (charcode >> 6),
-        0x80 | (charcode & 0x3f));
-    }
-    else if (charcode < 0xd800 || charcode >= 0xe000) {
-      utf8.push(0xe0 | (charcode >> 12),
+      utf8.push(0xc0 | (charcode >> 6), 0x80 | (charcode & 0x3f));
+    } else if (charcode < 0xd800 || charcode >= 0xe000) {
+      utf8.push(
+        0xe0 | (charcode >> 12),
         0x80 | ((charcode >> 6) & 0x3f),
-        0x80 | (charcode & 0x3f));
+        0x80 | (charcode & 0x3f),
+      );
     }
     // surrogate pair
     else {
@@ -24,12 +24,14 @@ export function string_to_utf8(str: string) {
       // UTF-16 encodes 0x10000-0x10FFFF by
       // subtracting 0x10000 and splitting the
       // 20 bits of 0x0-0xFFFFF into two halves
-      charcode = 0x10000 + (((charcode & 0x3ff) << 10)
-        | (str.charCodeAt(i) & 0x3ff));
-      utf8.push(0xf0 | (charcode >> 18),
+      charcode =
+        0x10000 + (((charcode & 0x3ff) << 10) | (str.charCodeAt(i) & 0x3ff));
+      utf8.push(
+        0xf0 | (charcode >> 18),
         0x80 | ((charcode >> 12) & 0x3f),
         0x80 | ((charcode >> 6) & 0x3f),
-        0x80 | (charcode & 0x3f));
+        0x80 | (charcode & 0x3f),
+      );
     }
   }
   return utf8;
@@ -46,33 +48,45 @@ export function utf8_to_string(array: ArrayLike<number>) {
   while (i < len) {
     c = array[i++];
     switch (c >> 4) {
-      case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+      case 0:
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+      case 5:
+      case 6:
+      case 7:
         // 0xxxxxxx
         out += String.fromCharCode(c);
         break;
-      case 12: case 13:
+      case 12:
+      case 13:
         // 110x xxxx   10xx xxxx
         char2 = array[i++];
-        out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
+        out += String.fromCharCode(((c & 0x1f) << 6) | (char2 & 0x3f));
         break;
       case 14:
         // 1110 xxxx  10xx xxxx  10xx xxxx
         char2 = array[i++];
         char3 = array[i++];
-        out += String.fromCharCode(((c & 0x0F) << 12) |
-          ((char2 & 0x3F) << 6) |
-          ((char3 & 0x3F) << 0));
+        out += String.fromCharCode(
+          ((c & 0x0f) << 12) | ((char2 & 0x3f) << 6) | ((char3 & 0x3f) << 0),
+        );
         break;
       case 15:
         // 1111 0xxx 10xx xxxx 10xx xxxx 10xx xxxx
         char2 = array[i++];
         char3 = array[i++];
         char4 = array[i++];
-        out += String.fromCodePoint(((c & 0x07) << 18) | ((char2 & 0x3F) << 12) | ((char3 & 0x3F) << 6) | (char4 & 0x3F));
+        out += String.fromCodePoint(
+          ((c & 0x07) << 18) |
+            ((char2 & 0x3f) << 12) |
+            ((char3 & 0x3f) << 6) |
+            (char4 & 0x3f),
+        );
 
         break;
     }
-
   }
   return out;
 }
@@ -118,7 +132,9 @@ export class Utf8Error {
   }
 }
 
-export function run_utf8_validation(v: ArrayLike<number>): Result<void, Utf8Error> {
+export function run_utf8_validation(
+  v: ArrayLike<number>,
+): Result<void, Utf8Error> {
   let index = 0;
   let old_offset = 0;
   const len = v.length;
@@ -158,7 +174,7 @@ export function run_utf8_validation(v: ArrayLike<number>): Result<void, Utf8Erro
       switch (w) {
         case 2: {
           const val = next();
-          if (val < 0x80 || val > 0xBF) {
+          if (val < 0x80 || val > 0xbf) {
             throw Some(1);
           }
           break;
@@ -166,13 +182,13 @@ export function run_utf8_validation(v: ArrayLike<number>): Result<void, Utf8Erro
         case 3: {
           let val = next();
           if (
-            (first === 0xE0 && val >= 0xA0 && val <= 0xBF)
-            || (first >= 0xE1 && first <= 0xEC && val >= 0x80 && val <= 0xBF)
-            || (first === 0xED && val >= 0x80 && val <= 0x9F)
-            || (first >= 0xEE && first <= 0xEF && val >= 0x80 && val <= 0xBF)
+            (first === 0xe0 && val >= 0xa0 && val <= 0xbf) ||
+            (first >= 0xe1 && first <= 0xec && val >= 0x80 && val <= 0xbf) ||
+            (first === 0xed && val >= 0x80 && val <= 0x9f) ||
+            (first >= 0xee && first <= 0xef && val >= 0x80 && val <= 0xbf)
           ) {
             val = next();
-            if (val < 0x80 || val > 0xBF) {
+            if (val < 0x80 || val > 0xbf) {
               throw Some(2);
             }
             break;
@@ -183,16 +199,16 @@ export function run_utf8_validation(v: ArrayLike<number>): Result<void, Utf8Erro
         case 4: {
           let val = next();
           if (
-            (first === 0xF0 && val >= 0x90 && val <= 0xBF)
-            || (first >= 0xF1 && first <= 0xF3 && val >= 0x80 && val <= 0xBF)
-            || (first === 0xF4 && val >= 0x80 && val <= 0x8F)
+            (first === 0xf0 && val >= 0x90 && val <= 0xbf) ||
+            (first >= 0xf1 && first <= 0xf3 && val >= 0x80 && val <= 0xbf) ||
+            (first === 0xf4 && val >= 0x80 && val <= 0x8f)
           ) {
             val = next();
-            if (val < 0x80 || val > 0xBF) {
+            if (val < 0x80 || val > 0xbf) {
               throw Some(2);
             }
             val = next();
-            if (val < 0x80 || val > 0xBF) {
+            if (val < 0x80 || val > 0xbf) {
               throw Some(3);
             }
             break;
