@@ -1,6 +1,5 @@
 import type { Result } from "./enums/result.ts";
 import { catch_unwind, panic } from "./panic.ts";
-import { CloneValue } from "./utils.ts";
 
 interface Mutex<T> {
   get_lockers_count(): number;
@@ -13,33 +12,15 @@ interface Mutex<T> {
   lock(): Promise<MutexGuard<T>>;
 }
 
-export const Mutex = function <T>(this: Mutex<T>, value: T, make_clones: boolean = true) {
-  /**
-   * This clone is created so, if the original value
-   * is an object, it cannot be modified through the
-   * reference.
-   */
-  if (make_clones) {
-    value = CloneValue(value);
-  }
-
+export const Mutex = function <T>(this: Mutex<T>, value: T) {
   let lockers_count = 0;
   let locker: Promise<unknown> | undefined = undefined;
   const unlockers: Record<symbol, () => void> = {};
 
-  const getFunc = () => {
-    if (make_clones) {
-      return CloneValue(value);
-    }
-    return value;
-  };
+  const getFunc = () => value;
 
   const setFunc = (val: T) => {
-    if (make_clones) {
-      value = CloneValue(val);
-    } else {
-      value = val;
-    }
+    value = val;
   };
 
   this.get_lockers_count = function () {
