@@ -555,6 +555,7 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    *
    * If `Err` its wrapped value is thrown.
    *
+   * @throws {E}
    * @example
    * const ok = Ok<string, Error>("Will not throw");
    * const result1 = catch_unwind(() => {
