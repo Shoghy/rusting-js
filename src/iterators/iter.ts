@@ -28,6 +28,16 @@ export class Iter<T> extends RIterator<T> {
     return new Iter(gen());
   }
 
+  static from_iterable<T>(jsIter: Iterable<T>) {
+    function* gen() {
+      for (const value of jsIter) {
+        yield value;
+      }
+    }
+
+    return new Iter(gen());
+  }
+
   next(): Option<T> {
     if (this[has_ended_symbol]) {
       return None();
