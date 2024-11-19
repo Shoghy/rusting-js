@@ -37,14 +37,14 @@ export function CloneValue<T>(obj: T): T {
       return clone;
     }
 
-    const arrClone: unknown[] = [];
+    const rArrClone: unknown[] = [];
 
     for (const val of value) {
-      arrClone.push(RecursiveChecker(val));
+      rArrClone.push(RecursiveChecker(val));
     }
 
-    clonedObjs.push(arrClone);
-    return arrClone;
+    clonedObjs.push(rArrClone);
+    return rArrClone;
   }
 
   for (const val of obj) {
