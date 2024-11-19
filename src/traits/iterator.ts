@@ -266,26 +266,10 @@ export abstract class RIterator<T> {
   cycle() {
     unimplemented();
   }
-
-  size_hint(): [number, Option<number>] {
-    return [0, None()];
-  }
 }
 
 export interface FromIterator<T, R> {
   from_iter(iter: RIterator<T>): R;
-}
-
-export interface StepByImpl<I> {
-  spec_next(): Option<I>;
-  spec_size_hint(): [number, Option<number>];
-  spec_nth(n: number): Option<I>;
-  spec_try_fold<Acc, R extends TryInstance<Acc, unknown>>(
-    type: { from_output(output: Acc): R },
-    acc: Acc,
-    f: (acc: Acc, item: I) => R,
-  ): R;
-  spec_fold<Acc>(acc: Acc, f: (acc: Acc, item: I) => Acc): Acc;
 }
 
 const StepBy = require("../iterators/step_by")

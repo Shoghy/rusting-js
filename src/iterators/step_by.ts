@@ -1,7 +1,7 @@
 import { type Option } from "../enums/option.ts";
-import { panic, unimplemented } from "../panic.ts";
+import { panic } from "../panic.ts";
 import type { TryInstance } from "../traits/try_trait.ts";
-import { RIterator, type StepByImpl } from "../traits/iterator.ts";
+import { RIterator } from "../traits/iterator.ts";
 import { Iter } from "./iter.ts";
 
 const iter_symbol = Symbol("iter");
@@ -21,7 +21,7 @@ function* nth<T>(
   }
 }
 
-export class StepBy<T> extends RIterator<T> implements StepByImpl<T> {
+export class StepBy<T> extends RIterator<T> {
   private [iter_symbol]: RIterator<T>;
   private [step_minus_one_symbol]: number;
   private [first_take_symbol]: boolean;
@@ -40,7 +40,7 @@ export class StepBy<T> extends RIterator<T> implements StepByImpl<T> {
     this[first_take_symbol] = true;
   }
 
-  spec_next(): Option<T> {
+  protected spec_next(): Option<T> {
     let step_size: number;
     if (this[first_take_symbol]) {
       step_size = 0;
@@ -52,14 +52,7 @@ export class StepBy<T> extends RIterator<T> implements StepByImpl<T> {
     return this[iter_symbol].nth(step_size);
   }
 
-  /**
-   * @todo Find out if this can be implemented or not.
-   */
-  spec_size_hint(): [number, Option<number>] {
-    unimplemented();
-  }
-
-  spec_nth(n: number): Option<T> {
+  protected spec_nth(n: number): Option<T> {
     if (this[first_take_symbol]) {
       this[first_take_symbol] = false;
       const first = this[iter_symbol].next();
@@ -76,8 +69,8 @@ export class StepBy<T> extends RIterator<T> implements StepByImpl<T> {
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore. I don't even get why TS is throwing an error with this function
-  spec_try_fold<Acc, R extends TryInstance<Acc, unknown>>(
+  // @ts-ignore
+  protected spec_try_fold<Acc, R extends TryInstance<Acc, unknown>>(
     type: { from_output(output: Acc): R },
     acc: Acc,
     f: (acc: Acc, item: T) => R,
@@ -109,7 +102,7 @@ export class StepBy<T> extends RIterator<T> implements StepByImpl<T> {
     );
   }
 
-  spec_fold<Acc>(acc: Acc, f: (acc: Acc, item: T) => Acc): Acc {
+  protected spec_fold<Acc>(acc: Acc, f: (acc: Acc, item: T) => Acc): Acc {
     const iter = this[iter_symbol];
 
     if (this[first_take_symbol]) {
@@ -135,7 +128,7 @@ export class StepBy<T> extends RIterator<T> implements StepByImpl<T> {
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore. I don't even get why TS is throwing an error with this function
+  // @ts-ignore
   try_fold<B, R extends TryInstance<B, unknown>>(
     type: { from_output(output: B): R },
     init: B,
@@ -146,9 +139,5 @@ export class StepBy<T> extends RIterator<T> implements StepByImpl<T> {
 
   fold<B>(init: B, f: (acum: B, item: T) => B): B {
     return this.spec_fold(init, f);
-  }
-
-  size_hint(): [number, Option<number>] {
-    return this.spec_size_hint();
   }
 }
