@@ -57,10 +57,8 @@ export abstract class RIterator<T> {
     return new Chain(this, other);
   }
 
-  zip<U>(other: RIterator<U>): never {
-    unimplemented(
-      `The return type by this method should, each time next is called, return an array of typeof [T, U] where T is an element in ${this} and U is an element in ${other}`,
-    );
+  zip<U>(other: RIterator<U>): import("../iterators/zip").Zip<T, U> {
+    return new Zip(this, other);
   }
 
   intersperse(separator: T): never {
@@ -276,3 +274,5 @@ const StepBy = require("../iterators/step_by")
   .StepBy as typeof import("../iterators/step_by").StepBy;
 const Chain = require("../iterators/chain")
   .Chain as typeof import("../iterators/chain").Chain;
+const Zip = require("../iterators/zip")
+  .Zip as typeof import("../iterators/zip").Zip;
