@@ -228,3 +228,13 @@ export function run_utf8_validation(
 
   return Ok(undefined as void);
 }
+
+export class FromUtf8Error {
+  bytes: ArrayLike<number>;
+  error: Utf8Error;
+
+  constructor(bytes: ArrayLike<number>, error: Utf8Error) {
+    this.bytes = bytes;
+    this.error = error;
+  }
+}

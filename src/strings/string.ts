@@ -1,32 +1,26 @@
 import { panic } from "../panic.ts";
 import { Err, Ok, Result } from "../enums/result.ts";
 import {
+  FromUtf8Error,
   run_utf8_validation,
   string_to_utf8,
+  utf8_char_width,
   utf8_to_string,
-  Utf8Error,
 } from "./utils.ts";
+import { Char } from "./char.ts";
 
 const vec_symbol = Symbol("vec");
-
-class FromUtf8Error {
-  bytes: ArrayLike<number>;
-  error: Utf8Error;
-
-  constructor(bytes: ArrayLike<number>, error: Utf8Error) {
-    this.bytes = bytes;
-    this.error = error;
-  }
-}
+const buffer_symbol = Symbol("buffer");
 
 export class RString {
-  private [vec_symbol]: Uint8Array & { buffer: ArrayBuffer };
+  private [vec_symbol]: Uint8Array;
+  private [buffer_symbol]: ArrayBuffer;
 
   constructor() {
-    const buffer = new ArrayBuffer(0, { maxByteLength: Math.pow(2, 31) - 1 });
-    this[vec_symbol] = new Uint8Array(buffer) as Uint8Array & {
-      buffer: ArrayBuffer;
-    };
+    this[buffer_symbol] = new ArrayBuffer(0, {
+      maxByteLength: Math.pow(2, 31) - 1,
+    });
+    this[vec_symbol] = new Uint8Array(this[buffer_symbol]);
   }
 
   static from(arr_like: ArrayLike<string>) {
@@ -46,7 +40,7 @@ export class RString {
     }
 
     const self = new RString();
-    self[vec_symbol].buffer.resize(bytes.length);
+    self[buffer_symbol].resize(bytes.length);
     self[vec_symbol].set(bytes);
 
     return self;
@@ -57,7 +51,7 @@ export class RString {
       Err: (e) => Err(new FromUtf8Error(vec, e)),
       Ok: () => {
         const self = new RString();
-        self[vec_symbol].buffer.resize(vec.length);
+        self[buffer_symbol].resize(vec.length);
         self[vec_symbol].set(vec);
 
         return Ok(self);
@@ -78,10 +72,9 @@ export class RString {
       str = RString.from(str);
     }
 
-    const vec = this[vec_symbol];
-    const prev_length = vec.length;
-    vec.buffer.resize(prev_length + str.len());
-    vec.set(str[vec_symbol], prev_length);
+    const prev_length = this[vec_symbol].length;
+    this[buffer_symbol].resize(prev_length + str.len());
+    this[vec_symbol].set(str[vec_symbol], prev_length);
   }
 
   as_bytes(): Uint8Array {
@@ -89,8 +82,7 @@ export class RString {
   }
 
   clear() {
-    const vec = this[vec_symbol];
-    vec.buffer.resize(0);
+    this[buffer_symbol].resize(0);
   }
 
   is_empty() {
@@ -99,5 +91,25 @@ export class RString {
 
   capacity() {
     return this[vec_symbol].byteLength;
+  }
+
+  chars() {
+    const chars: Char[] = [];
+
+    for (let i = 0; i < this[vec_symbol].length; ++i) {
+      const first_byte = this[vec_symbol][i];
+      const final_byte_index = utf8_char_width(first_byte) + i;
+      const bytes: number[] = [];
+
+      bytes.push(...this[vec_symbol].slice(i, final_byte_index));
+      i = final_byte_index - 1;
+
+      const char = Char.from_utf8(bytes).expect(
+        "The bytes are separated before being sent",
+      );
+      chars.push(char);
+    }
+
+    return chars;
   }
 }

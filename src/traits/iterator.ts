@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { None, type Option, Some } from "../enums/option.ts";
 import { Err, Ok, type Result } from "../enums/result.ts";
-import { panic, unimplemented } from "../panic.ts";
+import { unimplemented } from "../panic.ts";
 import type { TryInstance } from "./try_trait.ts";
 import { ControlFlow } from "../enums/control_flow.ts";
 
@@ -32,9 +32,7 @@ export abstract class RIterator<T> {
     return Ok(undefined as void);
   }
 
-  next(): Option<T> {
-    panic("This method should be override by any class that extends RIterator");
-  }
+  abstract next(): Option<T>;
 
   count(): number {
     return this.fold(0, (count) => count + 1);
