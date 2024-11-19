@@ -1,22 +1,24 @@
 import { expect, test } from "bun:test";
 import { defer } from "../src/utils";
-import { panic } from "../src/panic";
+import { catch_unwind, panic } from "../src/panic";
 
-test("Sync defer", () => {
+test("Sync defer", (done) => {
   let i = 0;
 
   using _ = defer(() => {
     expect(i).toBe(1);
+    done();
   });
 
   i += 1;
 });
 
-test("Async defer", async () => {
+test("Async defer", async (done) => {
   let text = "🥺";
 
   await using _ = defer(async () => {
     expect(text).toBe("👉👈");
+    done();
   });
 
   text = "👉👈";
@@ -31,11 +33,11 @@ test("Sync throwing errors", (done) => {
     panic();
   }
 
-  try {
+  catch_unwind(() => {
     tester();
-  } catch (e) {
-    return;
-  }
+  });
+
+  done("Unreachable");
 });
 
 test("Async throwing errors", async (done) => {
@@ -47,9 +49,9 @@ test("Async throwing errors", async (done) => {
     panic();
   }
 
-  try {
+  await catch_unwind(async () => {
     await tester();
-  } catch (e) {
-    return;
-  }
+  });
+
+  done("Unreachable");
 });
