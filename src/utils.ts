@@ -62,7 +62,7 @@ export function CopyTo(dest: object, src: object): void {
   Object.setPrototypeOf(dest, Object.getPrototypeOf(src));
 }
 
-interface DeferObject {
+export interface DeferObject {
   [Symbol.dispose](): void;
   [Symbol.asyncDispose](): Promise<void>;
   resolve(): Promise<void>;

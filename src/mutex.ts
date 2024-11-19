@@ -1,7 +1,7 @@
 import type { Result } from "./enums/result.ts";
 import { catch_unwind, panic } from "./panic.ts";
 
-interface Mutex<T> {
+export interface Mutex<T> {
   get_lockers_count(): number;
   is_locked(): boolean;
   /**
@@ -69,9 +69,9 @@ export const Mutex = function <T>(this: Mutex<T>, value: T) {
 
     return mutex_guard;
   };
-} as unknown as new <T>(value: T, make_clones?: boolean) => Mutex<T>;
+} as unknown as new <T>(value: T) => Mutex<T>;
 
-interface MutexGuard<T> {
+export interface MutexGuard<T> {
   get(): T;
   set(val: T): void;
   unlock(): void;

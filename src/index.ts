@@ -5,5 +5,11 @@ export {
   unreachable,
   catch_unwind,
 } from "./panic.ts";
-export { Mutex, type MutexGuard } from "./mutex.ts";
-export { defer, CloneValue, CopyTo } from "./utils.ts";
+export { Mutex, MutexGuard } from "./mutex.ts";
+export {
+  defer,
+  CloneValue,
+  CopyTo,
+  type DeferObject,
+  StaticImplements,
+} from "./utils.ts";
