@@ -22,7 +22,7 @@ export class Option<T> extends Enum<{ Some: unknown; None: void }>() {
    * Creates a `Some` type `Option`
    */
   static Some<T>(value: T): Option<T> {
-    return new Option("Some", value);
+    return Option.create("Some", value) as Option<T>;
   }
 
   /**
