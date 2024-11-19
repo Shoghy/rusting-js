@@ -10,17 +10,12 @@ import {
 import { Char } from "./char.ts";
 
 const vec_symbol = Symbol("vec");
-const buffer_symbol = Symbol("buffer");
 
 export class RString {
   private [vec_symbol]: Uint8Array;
-  private [buffer_symbol]: ArrayBuffer;
 
   constructor() {
-    this[buffer_symbol] = new ArrayBuffer(0, {
-      maxByteLength: Math.pow(2, 31) - 1,
-    });
-    this[vec_symbol] = new Uint8Array(this[buffer_symbol]);
+    this[vec_symbol] = new Uint8Array();
   }
 
   static from(arr_like: ArrayLike<string>) {
@@ -40,8 +35,7 @@ export class RString {
     }
 
     const self = new RString();
-    self[buffer_symbol].resize(bytes.length);
-    self[vec_symbol].set(bytes);
+    self[vec_symbol] = new Uint8Array(bytes);
 
     return self;
   }
@@ -51,8 +45,7 @@ export class RString {
       Err: (e) => Err(new FromUtf8Error(vec, e)),
       Ok: () => {
         const self = new RString();
-        self[buffer_symbol].resize(vec.length);
-        self[vec_symbol].set(vec);
+        self[vec_symbol] = new Uint8Array(vec);
 
         return Ok(self);
       },
@@ -72,9 +65,11 @@ export class RString {
       str = RString.from(str);
     }
 
-    const prev_length = this[vec_symbol].length;
-    this[buffer_symbol].resize(prev_length + str.len());
-    this[vec_symbol].set(str[vec_symbol], prev_length);
+    const newVec = new Uint8Array(this.len() + str.len());
+    newVec.set(this[vec_symbol]);
+    newVec.set(str[vec_symbol], this.len());
+
+    this[vec_symbol] = newVec;
   }
 
   as_bytes(): Uint8Array {
@@ -82,7 +77,7 @@ export class RString {
   }
 
   clear() {
-    this[buffer_symbol].resize(0);
+    this[vec_symbol] = new Uint8Array(0);
   }
 
   is_empty() {
@@ -105,7 +100,7 @@ export class RString {
       i = final_byte_index - 1;
 
       const char = Char.from_utf8(bytes).expect(
-        "The bytes are separated before being sent",
+        `Invalid UTF-8 sequence at index ${i}`,
       );
       chars.push(char);
     }
