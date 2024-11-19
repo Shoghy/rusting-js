@@ -1,5 +1,6 @@
-import { Err, Ok, Result } from "../enums/result.ts";
+import { type Result } from "../enums/result.ts";
 import { None, Option, Some } from "../enums/option.ts";
+import { catch_unwind } from "../panic.ts";
 
 /**
  * @author https://stackoverflow.com/a/18729931
@@ -153,7 +154,7 @@ export function run_utf8_validation(
     return v[index];
   }
 
-  try {
+  const result = catch_unwind<void, Option<number>>(() => {
     for (; index < len; ++index) {
       const first = v[index];
 
@@ -222,11 +223,9 @@ export function run_utf8_validation(
 
       old_offset = index;
     }
-  } catch (e) {
-    return Err(new Utf8Error(old_offset, e as Option<number>));
-  }
+  });
 
-  return Ok(undefined as void);
+  return result.map_err((error) => new Utf8Error(old_offset, error));
 }
 
 export class FromUtf8Error {
