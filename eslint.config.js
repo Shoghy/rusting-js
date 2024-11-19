@@ -21,7 +21,7 @@ export default [
         { varsIgnorePattern: "^_" },
       ],
       "comma-dangle": ["error", "always-multiline"],
-      "no-shadow": "warn",
+      "@typescript-eslint/no-shadow": "warn",
     },
   },
 ];
