@@ -1,4 +1,5 @@
-import { catch_unwind } from "./panic";
+import type { Result } from "./enums/result";
+import { catch_unwind, panic } from "./panic";
 export function StaticImplements<T>() {
   return <U extends T>(constructor: U) => {
     constructor;
@@ -132,10 +133,37 @@ export class ManualPromise<T, E = Error> {
   private promise: Promise<T>;
 
   constructor() {
+    let resolve: (value: T | PromiseLike<T>) => void;
+    let reject: (value: E) => void;
+
     this.promise = new Promise((rsv, rjc) => {
-      this.resolve = rsv;
-      this.reject = rjc;
+      resolve = (value) => {
+        rsv(value);
+        resolve = () =>
+          panic("Calling `resolve` on an already resolved `ManualPromise`");
+        reject = () =>
+          panic("Calling `reject` on an already resolved `ManualPromise`");
+      };
+
+      reject = (value) => {
+        rjc(value);
+        resolve = () =>
+          panic("Calling `resolve` on an already rejected `ManualPromise`");
+        reject = () =>
+          panic("Calling `reject` on an already rejected `ManualPromise`");
+      };
     });
+
+    this.resolve = (value) => resolve!(value);
+    this.reject = (value) => reject!(value);
+  }
+
+  try_resolve(value: T | PromiseLike<T>): Result<void, Error> {
+    return catch_unwind(() => this.resolve(value));
+  }
+
+  try_reject(value: E): Result<void, Error> {
+    return catch_unwind(() => this.reject(value));
   }
 
   wait() {
