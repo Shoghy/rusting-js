@@ -1,3 +1,4 @@
+import { catch_unwind } from "./panic";
 export function StaticImplements<T>() {
   return <U extends T>(constructor: U) => {
     constructor;
@@ -123,4 +124,21 @@ export function defer(func: () => unknown): DeferObject {
       }
     },
   };
+}
+
+export class ManualPromise<T, E = Error> {
+  resolve!: (value: T | PromiseLike<T>) => void;
+  reject!: (value: E) => void;
+  private promise: Promise<T>;
+
+  constructor() {
+    this.promise = new Promise((rsv, rjc) => {
+      this.resolve = rsv;
+      this.reject = rjc;
+    });
+  }
+
+  wait() {
+    return catch_unwind<Promise<T>, E>(() => this.promise);
+  }
 }
