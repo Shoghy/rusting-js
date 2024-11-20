@@ -1,5 +1,6 @@
 import type { Result } from "./enums/result.ts";
 import { catch_unwind, panic } from "./panic.ts";
+import { ManualPromise } from "./utils.ts";
 
 export interface Mutex<T> {
   get_lockers_count(): number;
@@ -14,7 +15,7 @@ export interface Mutex<T> {
 
 export const Mutex = function <T>(this: Mutex<T>, value: T) {
   let lockers_count = 0;
-  let locker: Promise<unknown> | undefined = undefined;
+  let locker: ManualPromise<unknown> | undefined = undefined;
   const unlockers: Record<symbol, () => void> = {};
 
   const getFunc = () => value;
@@ -42,19 +43,14 @@ export const Mutex = function <T>(this: Mutex<T>, value: T) {
     lockers_count += 1;
 
     const prev_locker = locker;
+    const promise = new ManualPromise();
+    locker = promise;
 
-    let resolve_promise = () => {};
-
-    locker = new Promise((resolve) => {
-      const unlocker_key = Symbol();
-      unlockers[unlocker_key] = () => unlock();
-
-      resolve_promise = () => {
-        lockers_count -= 1;
-        delete unlockers[unlocker_key];
-        resolve(undefined);
-      };
-    });
+    const resolve_promise = () => {
+      lockers_count -= 1;
+      delete unlockers[unlocker_key];
+      promise.resolve(undefined);
+    };
 
     const mutex_guard = new MutexGuard(getFunc, setFunc, resolve_promise);
 
@@ -64,8 +60,10 @@ export const Mutex = function <T>(this: Mutex<T>, value: T) {
      * to maybe produce bugs with `forced_unlock`
      */
     const unlock = mutex_guard.unlock;
+    const unlocker_key = Symbol();
+    unlockers[unlocker_key] = () => unlock();
 
-    await prev_locker;
+    await prev_locker?.wait();
 
     return mutex_guard;
   };
