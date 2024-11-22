@@ -56,12 +56,9 @@ export function CloneValue<T>(obj: T): T {
   return arrClone as T;
 }
 
-/**
- * The current implentation doesn't work with `Array`, `Map`, `Set`, etc...
- */
 export function CopyTo(dest: object, src: object): void {
-  Object.assign(dest, src);
   Object.setPrototypeOf(dest, Object.getPrototypeOf(src));
+  Object.defineProperties(dest, Object.getOwnPropertyDescriptors(src));
 }
 
 export interface DeferObject {
