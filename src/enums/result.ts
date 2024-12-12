@@ -21,7 +21,9 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
   /**
    * Creates a `Ok` type `Result`
    */
-  static Ok<T, E>(value: T): Result<T, E> {
+  static Ok<E>(): Result<void, E>;
+  static Ok<T, E>(value: T): Result<T, E>;
+  static Ok<T, E>(value?: T): Result<T, E> {
     return new Result("Ok", value);
   }
 
