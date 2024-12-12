@@ -29,7 +29,7 @@ export abstract class RIterator<T> {
         return Err(n - i);
       }
     }
-    return Ok(undefined as void);
+    return Ok();
   }
 
   abstract next(): Option<T>;

@@ -222,7 +222,7 @@ describe("Testing `try_set` method", () => {
     const lock1 = await m.lock();
 
     const result = lock1.try_set("]:)");
-    expect(result).toEqual(Ok(undefined));
+    expect(result).toEqual(Ok());
     expect(lock1.get()).toBe("]:)");
 
     lock1.unlock();
@@ -252,7 +252,7 @@ describe("Testing `try_unlock` method", () => {
     const lock = await m.lock();
 
     const result = lock.try_unlock();
-    expect(result).toEqual(Ok(undefined));
+    expect(result).toEqual(Ok());
     expect(lock.has_lock()).toBeFalse();
   });
 
