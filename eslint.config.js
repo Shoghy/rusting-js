@@ -9,7 +9,7 @@ export default [
   ...tseslint.configs.recommended,
   eslintPluginPrettierRecommended,
   {
-    ignores: ["./dist/**/*"],
+    ignores: ["dist/"],
     rules: {
       semi: ["error", "always"],
       "linebreak-style": ["error", "unix"],

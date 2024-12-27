@@ -22,7 +22,9 @@
   "types": "./index.d.ts",
   "scripts": {
     "build": "tsup && bun run move_files.ts",
-    "test": "bun test"
+    "test": "bun test",
+    "eslint": "eslint . --ignore-pattern \"dist/\"",
+    "eslint:fix": "eslint . --ignore-pattern \"dist/\" --fix"
   },
   "devDependencies": {
     "@anatine/esbuild-decorators": "^0.2.19",
