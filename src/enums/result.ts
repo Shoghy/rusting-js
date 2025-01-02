@@ -6,13 +6,13 @@ import type { TryStatic } from "../traits/try_trait.ts";
 import { StaticImplements } from "../utils.ts";
 
 interface OkJSON<T> {
-  ok: true;
+  type: "Ok";
   value: T;
 }
 
 interface ErrJSON<E> {
-  ok: false;
-  error: E;
+  type: "Err";
+  value: E;
 }
 
 export type ResultJSON<T, E> = OkJSON<T> | ErrJSON<E>;
@@ -46,12 +46,15 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
     return new Result("Err", value);
   }
 
-  static from_json<T, E>(result: ResultJSON<T, E>) {
-    if (result.ok) {
-      return Ok<T, E>(result.value);
-    } else {
-      return Err<T, E>(result.error);
+  static from_json<T, E>(result: ResultJSON<T, E>): Result<T, E> {
+    switch (result.type) {
+      case "Ok":
+        return Ok(result.value);
+      case "Err":
+        return Err(result.value);
     }
+
+    panic("Not a valid `Result` JSON");
   }
 
   /**
@@ -608,13 +611,13 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
   toJSON() {
     return this.match<ResultJSON<T, E>>({
       Ok: (value) => ({
-        ok: true,
+        type: "Ok",
         value,
       }),
 
-      Err: (error) => ({
-        ok: false,
-        error,
+      Err: (value) => ({
+        type: "Err",
+        value,
       }),
     });
   }
