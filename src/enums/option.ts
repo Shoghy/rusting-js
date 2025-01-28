@@ -58,6 +58,13 @@ export class Option<T> extends Enum<{ Some: unknown; None: void }>() {
     return this.is("None");
   }
 
+  is_none_or(func: (val: T) => boolean): boolean {
+    return this.match({
+      Some: (value) => func(value),
+      None: () => true,
+    });
+  }
+
   /**
    * Execute the `func` parameter if `Option` is `Some`
    * @example
