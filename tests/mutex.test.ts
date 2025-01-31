@@ -267,3 +267,17 @@ describe("Testing `try_unlock` method", () => {
     );
   });
 });
+
+test("Mutex releases lock after using block", async () => {
+  const m = new Mutex("Hola");
+  let was_lock_executed = false;
+
+  await (async () => {
+    using lock = await m.lock();
+    was_lock_executed = true;
+    expect(lock.get()).toBe("Hola");
+  })();
+
+  expect(was_lock_executed).toBeTrue();
+  expect(m.get_lockers_count()).toBe(0);
+});
