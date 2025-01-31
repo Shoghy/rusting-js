@@ -77,6 +77,7 @@ export interface MutexGuard<T> {
   try_get(): Result<T, Error>;
   try_set(val: T): Result<void, Error>;
   try_unlock(): Result<void, Error>;
+  [Symbol.dispose](): void;
 }
 
 export const MutexGuard = function <T>(
@@ -108,6 +109,10 @@ export const MutexGuard = function <T>(
   this.try_get = () => catch_unwind(get);
   this.try_set = (val) => catch_unwind(() => set(val));
   this.try_unlock = () => catch_unwind(unlock);
+
+  this[Symbol.dispose] = () => {
+    this.try_unlock();
+  };
 } as unknown as new <T>(
   get: () => T,
   set: (val: T) => void,
