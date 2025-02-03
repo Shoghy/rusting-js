@@ -5,9 +5,6 @@ import { unimplemented } from "../panic.ts";
 import type { TryInstance } from "./try_trait.ts";
 import { ControlFlow } from "../enums/control_flow.ts";
 
-/**
- * ## This is a "trait". You should not create an instance directly.
- */
 export abstract class RIterator<T> {
   [Symbol.iterator]!: () => Generator<T, void>;
 
