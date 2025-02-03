@@ -14,14 +14,9 @@ export class Iter<T> extends RIterator<T> {
   }
 
   static from_slice<T>(arr: ArrayLike<T>): Iter<T> {
-    const arr_clone: T[] = [];
-    for (let i = 0; i < arr.length; ++i) {
-      arr_clone[i] = arr[i];
-    }
-
     function* gen() {
-      for (let i = 0; i < arr_clone.length; ++i) {
-        yield arr_clone[i];
+      for (let i = 0; i < arr.length; ++i) {
+        yield arr[i];
       }
     }
 
