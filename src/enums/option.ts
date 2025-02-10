@@ -560,14 +560,10 @@ export class Option<T> extends Enum<{ Some: unknown; None: void }>() {
    * expect(result2).toBe("Some");
    */
   unwrap_unchecked(): T | undefined {
-    const key_symbols = Object.getOwnPropertySymbols(this);
-    for (const key of key_symbols) {
-      if (key.description === "value") {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return (this as any)[key];
-      }
-    }
-    return undefined;
+    return this.match({
+      Some: (v) => v,
+      None: () => undefined,
+    });
   }
 
   /**
