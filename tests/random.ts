@@ -1,5 +1,3 @@
-// I am done writing literals XDXD
-
 export function RandomInt(minInclusive: number, maxInclusive: number): number {
   return (
     Math.floor(Math.random() * (maxInclusive - minInclusive + 1)) + minInclusive

@@ -126,7 +126,7 @@ describe("Testing `inspect` method", () => {
     expect(() =>
       some.inspect((value) => {
         val = value;
-        panic("This should be throwed");
+        panic("This should be thrown");
       }),
     ).toThrow();
 
@@ -513,7 +513,7 @@ describe("Testing `unwrap_unchecked` method", () => {
     expect(result).toBe(53);
   });
 
-  test("`Some` with its value taked should also return `undefined`", () => {
+  test("`Some` with its value taken should also return `undefined`", () => {
     const option = Some("Hello reader");
     option.take();
     const result = option.unwrap_unchecked();

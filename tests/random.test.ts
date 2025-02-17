@@ -16,8 +16,8 @@ describe("Testing `RandomInt` with fixed values", () => {
 });
 
 /**
- * There is a very small posibility for this test to fail,
- * but I belive I will not be alive when that happens
+ * There is a very small possibility for this test to fail,
+ * but I believe I will not be alive when that happens
  */
 test(
   "Testing `RandomString` function",

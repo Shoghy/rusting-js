@@ -64,7 +64,7 @@ export abstract class RIterator<T> {
     );
   }
 
-  interperse_with(separator: () => T): never {
+  intersperse_with(separator: () => T): never {
     unimplemented(`${separator}`);
   }
 
@@ -80,13 +80,13 @@ export abstract class RIterator<T> {
 
   filter(predicate: (value: T) => boolean): never {
     unimplemented(
-      `The return type of this method should return only the values that return true after checking them with ${predicate} omiting the others`,
+      `The return type of this method should return only the values that return true after checking them with ${predicate} omitting the others`,
     );
   }
 
   filter_map<B>(f: (value: T) => Option<B>): never {
     unimplemented(
-      `The return type of this method should return only the values that return Some after checking them with ${f} omiting the others`,
+      `The return type of this method should return only the values that return Some after checking them with ${f} omitting the others`,
     );
   }
 

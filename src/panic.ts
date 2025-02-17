@@ -60,7 +60,7 @@ async function catch_async<T extends Promise<unknown>, E>(
 }
 
 /**
- * The `func` parameter may panic, if it does, the error will be catched and wrapped in a `Err`,
+ * The `func` parameter may panic, if it does, the error will be caught and wrapped in a `Err`,
  * if it runs without any panics the return value of `func` will be wrapped in a `Ok`.
  */
 export function catch_unwind<T, E = Error>(

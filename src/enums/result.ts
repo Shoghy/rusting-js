@@ -316,7 +316,7 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
   /**
    * If `Result` is `Ok`, it will call the `func` parameter
    * and return its returned value, otherwise it will return
-   * the `def` paramater.
+   * the `def` parameter.
    * @example
    * const ok = Ok("Nih");
    * const result1 = ok.map_or("Python", (val) => `Knights who say ${val}`);
