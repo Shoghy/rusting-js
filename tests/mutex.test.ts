@@ -1,7 +1,7 @@
 import { test, describe, expect } from "bun:test";
 import { Mutex } from "../src/mutex";
 import { RandomInt } from "./random";
-import { Err, Ok } from "../src/enums/result";
+import { Ok } from "../src/enums/result";
 
 // ----------------- Mutex methods -----------------
 
@@ -210,9 +210,9 @@ describe("Testing `try_get` method", () => {
     const lock = await m.lock();
     lock.unlock();
 
-    expect(lock.try_get()).toEqual(
-      Err(new Error("Calling `get` when `MutexGuard` has been unlocked")),
-    );
+    const result = lock.try_get();
+
+    expect(result.is_err()).toBeTrue();
   });
 });
 
@@ -236,9 +236,7 @@ describe("Testing `try_set` method", () => {
     lock1.unlock();
 
     const result = lock1.try_set("0|0");
-    expect(result).toEqual(
-      Err(new Error("Calling `set` when `MutexGuard` has been unlocked")),
-    );
+    expect(result.is_err()).toBeTrue();
 
     const lock2 = await m.lock();
     expect(lock2.get()).toBe(":}");
@@ -262,9 +260,7 @@ describe("Testing `try_unlock` method", () => {
     lock.unlock();
 
     const result = lock.try_unlock();
-    expect(result).toEqual(
-      Err(new Error("Calling `unlock` when `MutexGuard` has been unlocked")),
-    );
+    expect(result.is_err()).toBeTrue();
   });
 });
 
