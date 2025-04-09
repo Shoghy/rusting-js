@@ -1,5 +1,5 @@
 import type { Result } from "./enums/result";
-import { catch_unwind, panic } from "./panic";
+import { catch_unwind, catch_unwind_async, panic } from "./panic";
 
 export function StaticImplements<T>() {
   return <U extends T>(constructor: U) => {
@@ -49,18 +49,31 @@ export function defer(func: () => unknown): DeferObject {
   };
 }
 
+export enum PromiseState {
+  AWAITING,
+  RESOLVED,
+  REJECTED,
+}
+
 export class ManualPromise<T, E = Error> {
   resolve!: (value: T | PromiseLike<T>) => void;
   reject!: (value: E) => void;
+  get state() {
+    return this._state;
+  }
+
+  private _state: PromiseState;
   private promise: Promise<T>;
 
   constructor() {
     let resolve: (value: T | PromiseLike<T>) => void;
     let reject: (value: E) => void;
+    this._state = PromiseState.AWAITING;
 
     this.promise = new Promise((rsv, rjc) => {
       resolve = (value) => {
         rsv(value);
+        this._state = PromiseState.RESOLVED;
         resolve = () =>
           panic("Calling `resolve` on an already resolved `ManualPromise`");
         reject = () =>
@@ -69,6 +82,7 @@ export class ManualPromise<T, E = Error> {
 
       reject = (value) => {
         rjc(value);
+        this._state = PromiseState.REJECTED;
         resolve = () =>
           panic("Calling `resolve` on an already rejected `ManualPromise`");
         reject = () =>
@@ -89,6 +103,6 @@ export class ManualPromise<T, E = Error> {
   }
 
   wait() {
-    return catch_unwind<Promise<T>, E>(() => this.promise);
+    return catch_unwind_async<Promise<T>, E>(() => this.promise);
   }
 }
