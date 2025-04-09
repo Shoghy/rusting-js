@@ -49,11 +49,15 @@ export function unimplemented(message?: string): never {
   });
 }
 
-async function catch_async<T extends Promise<unknown>, E>(
-  promise: T,
+/**
+ * The `func` parameter may panic, if it does, the error will be caught and wrapped in a `Err`,
+ * if it runs without any panics the return value of `func` will be wrapped in a `Ok`.
+ */
+export async function catch_unwind_async<T extends PromiseLike<unknown>, E>(
+  func: () => T,
 ): Promise<Result<Awaited<T>, E>> {
   try {
-    return Ok(await promise);
+    return Ok(await func());
   } catch (e) {
     return Err(e as E);
   }
@@ -63,19 +67,9 @@ async function catch_async<T extends Promise<unknown>, E>(
  * The `func` parameter may panic, if it does, the error will be caught and wrapped in a `Err`,
  * if it runs without any panics the return value of `func` will be wrapped in a `Ok`.
  */
-export function catch_unwind<T, E = Error>(
-  func: T extends Promise<unknown> ? () => T : never,
-): Promise<Result<Awaited<T>, E>>;
-export function catch_unwind<T, E = Error>(func: () => T): Result<T, E>;
-export function catch_unwind<T, E = Error>(
-  func: () => T,
-): Result<T, E> | Promise<Result<Awaited<T>, E>> {
+export function catch_unwind<T, E = Error>(func: () => T): Result<T, E> {
   try {
-    const value = func();
-    if (value instanceof Promise) {
-      return catch_async<Promise<T>, E>(value);
-    }
-    return Ok(value);
+    return Ok(func());
   } catch (e) {
     return Err(e as E);
   }
