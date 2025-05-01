@@ -4,10 +4,6 @@ import type { TryInstance } from "../traits/try_trait.ts";
 import { RIterator } from "../traits/iterator.ts";
 import { Iter } from "./iter.ts";
 
-const iter_symbol = Symbol("iter");
-const step_minus_one_symbol = Symbol("step_minus_one");
-const first_take_symbol = Symbol("first_take");
-
 function* nth<T>(
   iter: RIterator<T>,
   step_minus_one: number,
@@ -22,9 +18,9 @@ function* nth<T>(
 }
 
 export class StepBy<T> extends RIterator<T> {
-  private [iter_symbol]: RIterator<T>;
-  private [step_minus_one_symbol]: number;
-  private [first_take_symbol]: boolean;
+  #iter: RIterator<T>;
+  #step_minus_one: number;
+  #first_take: boolean;
 
   constructor(iter: RIterator<T>, step: number) {
     super();
@@ -35,37 +31,37 @@ export class StepBy<T> extends RIterator<T> {
       panic("`step` should be an integer");
     }
 
-    this[iter_symbol] = iter;
-    this[step_minus_one_symbol] = step - 1;
-    this[first_take_symbol] = true;
+    this.#iter = iter;
+    this.#step_minus_one = step - 1;
+    this.#first_take = true;
   }
 
   protected spec_next(): Option<T> {
     let step_size: number;
-    if (this[first_take_symbol]) {
+    if (this.#first_take) {
       step_size = 0;
-      this[first_take_symbol] = false;
+      this.#first_take = false;
     } else {
-      step_size = this[step_minus_one_symbol];
+      step_size = this.#step_minus_one;
     }
 
-    return this[iter_symbol].nth(step_size);
+    return this.#iter.nth(step_size);
   }
 
   protected spec_nth(n: number): Option<T> {
-    if (this[first_take_symbol]) {
-      this[first_take_symbol] = false;
-      const first = this[iter_symbol].next();
+    if (this.#first_take) {
+      this.#first_take = false;
+      const first = this.#iter.next();
       if (n === 0) {
         return first;
       }
       n -= 1;
     }
 
-    const step = this[step_minus_one_symbol] + 1;
+    const step = this.#step_minus_one + 1;
     const mul = step * n;
 
-    return this[iter_symbol].nth(mul - 1);
+    return this.#iter.nth(mul - 1);
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -75,10 +71,10 @@ export class StepBy<T> extends RIterator<T> {
     acc: Acc,
     f: (acc: Acc, item: T) => R,
   ): R {
-    const iter = this[iter_symbol];
+    const iter = this.#iter;
 
-    if (this[first_take_symbol]) {
-      this[first_take_symbol] = false;
+    if (this.#first_take) {
+      this.#first_take = false;
       const val = iter.next();
 
       if (val.is_none()) {
@@ -95,18 +91,14 @@ export class StepBy<T> extends RIterator<T> {
       acc = flow.unwrap_continue();
     }
 
-    return new Iter(nth(iter, this[step_minus_one_symbol])).try_fold(
-      type,
-      acc,
-      f,
-    );
+    return new Iter(nth(iter, this.#step_minus_one)).try_fold(type, acc, f);
   }
 
   protected spec_fold<Acc>(acc: Acc, f: (acc: Acc, item: T) => Acc): Acc {
-    const iter = this[iter_symbol];
+    const iter = this.#iter;
 
-    if (this[first_take_symbol]) {
-      this[first_take_symbol] = false;
+    if (this.#first_take) {
+      this.#first_take = false;
       const val = iter.next();
 
       if (val.is_none()) {
@@ -116,7 +108,7 @@ export class StepBy<T> extends RIterator<T> {
       acc = f(acc, val.unwrap());
     }
 
-    return new Iter(nth(iter, this[step_minus_one_symbol])).fold(acc, f);
+    return new Iter(nth(iter, this.#step_minus_one)).fold(acc, f);
   }
 
   next(): Option<T> {

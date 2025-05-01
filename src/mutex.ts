@@ -1,58 +1,56 @@
-import type { Result } from "./enums/result.ts";
-import { catch_unwind, panic } from "./panic.ts";
-import { ManualPromise } from "./utils.ts";
+import { catch_unwind, panic } from "./panic";
+import { type Result } from "./enums/result";
+import { ManualPromise } from "./utils";
 
-export interface Mutex<T> {
-  get_lockers_count(): number;
-  is_locked(): boolean;
+export class Mutex<T> {
+  #value: T;
+
+  #locker?: ManualPromise<unknown>;
+  #unlockers: Record<symbol, () => void> = {};
+  #lockers_count = 0;
+
+  constructor(value: T) {
+    this.#value = value;
+  }
+
+  get_lockers_count(): number {
+    return this.#lockers_count;
+  }
+
+  is_locked(): boolean {
+    return this.#lockers_count > 0;
+  }
+
   /**
    * Unlocks the Mutex, without needing the lockers.
    * ## This function can be error prone. Its use is not recommended
    */
-  forced_unlock(): void;
-  lock(): Promise<MutexGuard<T>>;
-}
-
-export const Mutex = function <T>(this: Mutex<T>, value: T) {
-  let lockers_count = 0;
-  let locker: ManualPromise<unknown> | undefined = undefined;
-  const unlockers: Record<symbol, () => void> = {};
-
-  const getFunc = () => value;
-
-  const setFunc = (val: T) => {
-    value = val;
-  };
-
-  this.get_lockers_count = function () {
-    return lockers_count;
-  };
-
-  this.is_locked = function () {
-    return lockers_count > 0;
-  };
-
-  this.forced_unlock = function () {
-    const keys = Object.getOwnPropertySymbols(unlockers);
+  forced_unlock() {
+    const keys = Object.getOwnPropertySymbols(this.#unlockers);
     for (const key of keys) {
-      unlockers[key]();
+      this.#unlockers[key]();
     }
-  };
+  }
 
-  this.lock = async function () {
-    lockers_count += 1;
+  async lock(): Promise<MutexGuard<T>> {
+    this.#lockers_count += 1;
 
-    const prev_locker = locker;
+    const prev_locker = this.#locker;
     const promise = new ManualPromise();
-    locker = promise;
 
     const resolve_promise = () => {
-      lockers_count -= 1;
-      delete unlockers[unlocker_key];
+      this.#lockers_count -= 1;
+      delete this.#unlockers[unlocker_key];
       promise.resolve(undefined);
     };
 
-    const mutex_guard = new MutexGuard(getFunc, setFunc, resolve_promise);
+    const mutex_guard = new MutexGuard(
+      () => this.#value,
+      (value) => {
+        this.#value = value;
+      },
+      resolve_promise,
+    );
 
     /**
      * I create this constant so if the user change the value of `unlock` in `mutex_guard`
@@ -61,60 +59,53 @@ export const Mutex = function <T>(this: Mutex<T>, value: T) {
      */
     const unlock = mutex_guard.unlock;
     const unlocker_key = Symbol();
-    unlockers[unlocker_key] = () => unlock();
+    this.#unlockers[unlocker_key] = () => unlock();
 
     await prev_locker?.wait();
 
     return mutex_guard;
-  };
-} as unknown as new <T>(value: T) => Mutex<T>;
-
-export interface MutexGuard<T> {
-  get(): T;
-  set(val: T): void;
-  unlock(): void;
-  has_lock(): boolean;
-  try_get(): Result<T, Error>;
-  try_set(val: T): Result<void, Error>;
-  try_unlock(): Result<void, Error>;
-  [Symbol.dispose](): void;
+  }
 }
 
-export const MutexGuard = function <T>(
-  this: MutexGuard<T>,
-  get: () => T,
-  set: (val: T) => void,
-  resolver: () => void,
-) {
-  this.get = () => get();
-  this.set = (val) => set(val);
-
-  let has_lock = true;
-
-  this.has_lock = () => has_lock;
-
-  function unlock() {
-    if (!has_lock) {
-      panic("Calling `unlock` when `MutexGuard` has been unlocked");
-    }
-    has_lock = false;
-
-    get = () => panic("Calling `get` when `MutexGuard` has been unlocked");
-    set = () => panic("Calling `set` when `MutexGuard` has been unlocked");
-    resolver();
+export class MutexGuard<T> {
+  [Symbol.dispose]() {
+    this.try_unlock();
   }
 
-  this.unlock = () => unlock();
+  get: () => T;
+  set: (val: T) => void;
+  unlock: () => void;
+  has_lock: () => boolean;
 
-  this.try_get = () => catch_unwind(get);
-  this.try_set = (val) => catch_unwind(() => set(val));
-  this.try_unlock = () => catch_unwind(unlock);
+  constructor(get: () => T, set: (val: T) => void, resolver: () => void) {
+    this.get = () => get();
+    this.set = (val: T) => set(val);
 
-  this[Symbol.dispose] = () => {
-    this.try_unlock();
-  };
-} as unknown as new <T>(
-  get: () => T,
-  set: (val: T) => void,
-  resolver: () => void,
-) => MutexGuard<T>;
+    let has_lock = true;
+
+    this.has_lock = () => has_lock;
+
+    this.unlock = () => {
+      if (!has_lock) {
+        panic("Calling `unlock` when `MutexGuard` has been unlocked");
+      }
+      has_lock = false;
+
+      get = () => panic("Calling `get` when `MutexGuard` has been unlocked");
+      set = () => panic("Calling `set` when `MutexGuard` has been unlocked");
+      resolver();
+    };
+  }
+
+  try_get(): Result<T, Error> {
+    return catch_unwind(this.get);
+  }
+
+  try_set(value: T): Result<void, Error> {
+    return catch_unwind(() => this.set(value));
+  }
+
+  try_unlock(): Result<void, Error> {
+    return catch_unwind(this.unlock);
+  }
+}

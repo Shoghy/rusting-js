@@ -6,13 +6,11 @@ import {
   utf8_to_string,
 } from "./utils";
 
-const bytes_symbol = Symbol("bytes");
-
 export class Char {
-  private [bytes_symbol]: Uint8Array;
+  #bytes: Uint8Array;
 
   private constructor(bytes: ArrayLike<number>) {
-    this[bytes_symbol] = new Uint8Array(bytes);
+    this.#bytes = new Uint8Array(bytes);
   }
 
   static from_utf8(bytes: ArrayLike<number>): Option<Char> {
@@ -49,6 +47,6 @@ export class Char {
   }
 
   toString(): string {
-    return utf8_to_string(this[bytes_symbol]);
+    return utf8_to_string(this.#bytes);
   }
 }

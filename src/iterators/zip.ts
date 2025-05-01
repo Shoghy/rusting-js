@@ -1,25 +1,22 @@
 import { None, Option, Some } from "../enums/option";
 import { RIterator } from "../traits/iterator";
 
-const a_symbol = Symbol("a");
-const b_symbol = Symbol("b");
-
 export class Zip<A, B> extends RIterator<[A, B]> {
-  [a_symbol]: RIterator<A>;
-  [b_symbol]: RIterator<B>;
+  #a: RIterator<A>;
+  #b: RIterator<B>;
 
   constructor(a: RIterator<A>, b: RIterator<B>) {
     super();
 
-    this[a_symbol] = a;
-    this[b_symbol] = b;
+    this.#a = a;
+    this.#b = b;
   }
 
   next(): Option<[A, B]> {
-    return this[a_symbol]
+    return this.#a
       .next()
       .and_then((aValue) =>
-        this[b_symbol].next().and_then((bValue) => Some([aValue, bValue])),
+        this.#b.next().and_then((bValue) => Some([aValue, bValue])),
       );
   }
 

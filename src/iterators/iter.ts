@@ -1,16 +1,13 @@
 import { None, type Option, Some } from "../enums/option.ts";
 import { RIterator } from "../traits/iterator.ts";
 
-const generator_symbol = Symbol("generator");
-const has_ended_symbol = Symbol("has_ended");
-
 export class Iter<T> extends RIterator<T> {
-  private [generator_symbol]: Generator<T>;
-  private [has_ended_symbol] = false;
+  #generator: Generator<T>;
+  #has_ended = false;
 
   constructor(generator: Generator<T>) {
     super();
-    this[generator_symbol] = generator;
+    this.#generator = generator;
   }
 
   static from_slice<T>(arr: ArrayLike<T>): Iter<T> {
@@ -34,13 +31,13 @@ export class Iter<T> extends RIterator<T> {
   }
 
   next(): Option<T> {
-    if (this[has_ended_symbol]) {
+    if (this.#has_ended) {
       return None();
     }
 
-    const val = this[generator_symbol].next();
+    const val = this.#generator.next();
     if (val.done) {
-      this[has_ended_symbol] = true;
+      this.#has_ended = true;
       return None();
     }
 

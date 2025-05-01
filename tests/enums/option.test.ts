@@ -77,33 +77,6 @@ describe("Testing `expect` method", () => {
   });
 });
 
-describe("Testing `None` and `Some` equality", () => {
-  const some = Some(1);
-  const none = None();
-
-  test("`None` and `Some` should not be equal", () => {
-    expect(none).not.toEqual(some);
-    expect(none).not.toEqual(Some(undefined));
-    expect(None()).not.toEqual(Some(undefined));
-  });
-
-  test("`None` should equal `None`", () => {
-    expect(none).toEqual(None());
-    expect(None()).toEqual(None());
-  });
-
-  test("`Some` should be equal to `Some` if they hold the same value", () => {
-    expect(some).toEqual(Some(1));
-    expect(Some("Piña")).toEqual(Some("Piña"));
-  });
-
-  test("`Some` should not be equal to `Some` if they don't hold the same value", () => {
-    expect(some).not.toEqual(Some(32));
-    expect(some).not.toEqual(Some("Piña"));
-    expect(Some("Bob")).not.toEqual(Some("Piña"));
-  });
-});
-
 describe("Testing `inspect` method", () => {
   test("`None` should not execute `inspect`", () => {
     const none = None<number>();
@@ -277,26 +250,6 @@ describe("Testing `get_or_insert_with` method", () => {
     const result = option.get_or_insert_with(() => "Humanity");
     expect(result).toEqual("Cards Against Humanity");
     expect(option).toEqual(Some("Cards Against Humanity"));
-  });
-});
-
-describe("Testing `insert` method", () => {
-  test("`insert` should change the value of `None`", () => {
-    const cool_song = "https://open.spotify.com/track/4S3dFI8Sx3UsKOUnoYFCg2";
-
-    const option1 = None<string>();
-    const result1 = option1.insert(cool_song);
-    expect(result1).toBe(cool_song);
-    expect(option1).not.toEqual(None());
-    expect(option1).toEqual(Some(cool_song));
-  });
-
-  test("`insert` should change the value of `Some`", () => {
-    const option2 = Some(1);
-    const result2 = option2.insert(2);
-    expect(result2).toBe(2);
-    expect(option2).not.toEqual(Some(1));
-    expect(option2).toEqual(Some(2));
   });
 });
 

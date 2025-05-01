@@ -5,49 +5,17 @@ type ZeroParamFunc<T = unknown> = () => T;
 export function Enum<Structure extends object>() {
   type EnumStates = keyof Structure;
 
-  const type_symbol = Symbol("type");
-  const value_symbol = Symbol("value");
-  const update_symbol = Symbol("update");
-
   type Func<T extends EnumStates, R> = Structure[T] extends void
     ? () => R
     : (value: Structure[T]) => R;
 
   return class EnumClass {
+    #type: EnumStates;
+    #value?: Structure[EnumStates];
+
     constructor(type: EnumStates, value: Structure[typeof type]) {
-      this.update(update_symbol, type, value);
-    }
-
-    /**
-     * Don't call this method. This method is for internal use of the class.
-     * If called it will panic.
-     */
-    update(sym: symbol, type: EnumStates, value: unknown): void {
-      if (sym !== update_symbol) {
-        panic("`update` was called outside of `EnumClass`");
-      }
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this as any)[type_symbol] = type;
-      if (value === undefined) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        delete (this as any)[value_symbol];
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (this as any)[value_symbol] = value;
-      }
-    }
-
-    /**
-     * Don't call this method. This method is for internal use of the class.
-     * If called it will panic.
-     */
-    get(sym: symbol) {
-      if (sym !== type_symbol && sym !== value_symbol) {
-        panic("`get` was called outside of `EnumClass`");
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (this as any)[sym];
+      this.#type = type;
+      this.#value = value;
     }
 
     change_to<T extends EnumStates>(
@@ -58,7 +26,8 @@ export function Enum<Structure extends object>() {
       value: Structure[T],
     ): void;
     change_to<T extends EnumStates>(type: T, value?: Structure[T]): void {
-      this.update(update_symbol, type, value);
+      this.#type = type;
+      this.#value = value;
     }
 
     static create<T extends EnumStates>(
@@ -76,15 +45,15 @@ export function Enum<Structure extends object>() {
     }
 
     is(type: EnumStates): boolean {
-      return this.get(type_symbol) === type;
+      return this.#type === type;
     }
 
     if_is<T extends EnumStates>(type: T, func: Func<T, unknown>): void {
-      if (type !== this.get(type_symbol)) {
+      if (this.#type !== type) {
         return;
       }
 
-      func(this.get(value_symbol));
+      func(this.#value as Structure[T]);
     }
 
     match<T>(arms: { [K in EnumStates]: Func<K, T> }): T;
@@ -96,10 +65,10 @@ export function Enum<Structure extends object>() {
       arms: { [K in EnumStates]?: Func<K, T> },
       def?: ZeroParamFunc<T>,
     ): T {
-      const arm = arms[this.get(type_symbol) as EnumStates];
+      const arm = arms[this.#type];
 
       if (arm !== undefined) {
-        return arm(this.get(value_symbol));
+        return arm(this.#value as Structure[EnumStates]);
       }
 
       if (def !== undefined) {
@@ -110,10 +79,10 @@ export function Enum<Structure extends object>() {
     }
 
     toString(): string {
-      if (this.get(value_symbol) === undefined) {
-        return this.get(type_symbol);
+      if (this.#value === undefined) {
+        return String(this.#type);
       }
-      return `${this.get(type_symbol)}(${this.get(value_symbol)})`;
+      return `${String(this.#type)}(${this.#value})`;
     }
   };
 }
