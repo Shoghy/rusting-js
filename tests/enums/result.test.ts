@@ -4,27 +4,27 @@ import { unreachable } from "../../src/panic";
 import { None, Some } from "../../src/enums";
 import { RandomInt, RandomString } from "../random";
 
-describe("Testing `is_ok` method", () => {
+describe("Testing `isOk` method", () => {
   test("`Ok` should return true", () => {
     const ok = Ok(1);
-    expect(ok.is_ok()).toBeTrue();
+    expect(ok.isOk()).toBeTrue();
   });
 
   test("`Err` should return false", () => {
     const err = Err(1);
-    expect(err.is_ok()).toBeFalse();
+    expect(err.isOk()).toBeFalse();
   });
 });
 
-describe("Testing `is_err` method", () => {
+describe("Testing `isErr` method", () => {
   test("`Ok` should return false", () => {
     const ok = Ok(1);
-    expect(ok.is_err()).toBeFalse();
+    expect(ok.isErr()).toBeFalse();
   });
 
   test("`Err` should return true", () => {
     const err = Err(1);
-    expect(err.is_err()).toBeTrue();
+    expect(err.isErr()).toBeTrue();
   });
 });
 
@@ -58,11 +58,11 @@ describe("Testing `inspect` method", () => {
   });
 });
 
-describe("Testing `inspect_err` method", () => {
+describe("Testing `inspectErr` method", () => {
   test("`Ok` should not run the `func` parameter", (done) => {
     const ok = Ok([1, 2, 3]);
-    ok.inspect_err(() => {
-      done("`inspect_err` was executed");
+    ok.inspectErr(() => {
+      done("`inspectErr` was executed");
     });
 
     done();
@@ -71,7 +71,7 @@ describe("Testing `inspect_err` method", () => {
   test("`Err` should run the `func` parameter", () => {
     let val = "System is working";
     const err = Err("System is not working");
-    err.inspect_err((value) => {
+    err.inspectErr((value) => {
       val = value;
     });
 
@@ -82,8 +82,8 @@ describe("Testing `inspect_err` method", () => {
     const ok = Ok("C#"); //Microsoft flavored JAVA
     const err = Err("JAVA");
 
-    expect(ok.inspect_err(() => {})).toBe(ok);
-    expect(err.inspect_err(() => {})).toBe(err);
+    expect(ok.inspectErr(() => {})).toBe(ok);
+    expect(err.inspectErr(() => {})).toBe(err);
   });
 });
 
@@ -117,10 +117,10 @@ describe("Testing `and` method", () => {
   });
 });
 
-describe("Testing `and_then` method", () => {
+describe("Testing `andThen` method", () => {
   test("`Ok` should run the `func` parameter and return its value", () => {
     const ok = Ok("Hello");
-    const result = ok.and_then((value) => {
+    const result = ok.andThen((value) => {
       return Ok(value + " World");
     });
     expect(result).toEqual(Ok("Hello World"));
@@ -128,8 +128,8 @@ describe("Testing `and_then` method", () => {
 
   test("`Err` should not run the `func` parameter", (done) => {
     const err = Err(new Error());
-    err.and_then(() => {
-      done("`and_then` function was executed");
+    err.andThen(() => {
+      done("`andThen` function was executed");
       unreachable();
     });
     done();
@@ -160,33 +160,33 @@ describe("Testing `expect` method", () => {
   });
 });
 
-describe("Testing `expect_err` method", () => {
+describe("Testing `expectErr` method", () => {
   test("`Ok` should panic", () => {
     const ok = Ok(23);
-    expect(() => ok.expect_err("EEEEEERRRRROOOOORRR")).toThrow();
+    expect(() => ok.expectErr("EEEEEERRRRROOOOORRR")).toThrow();
   });
 
   test("`Err` should return its wrapped value", () => {
     const err = Err(12);
-    expect(err.expect_err("YOLO")).toBe(12);
+    expect(err.expectErr("YOLO")).toBe(12);
   });
 });
 
-describe("Testing `is_err_and` method", () => {
-  const r_true = () => true;
-  const r_false = () => false;
+describe("Testing `isErrAnd` method", () => {
+  const rTrue = () => true;
+  const rFalse = () => false;
 
   test("`Ok` should always return false", () => {
     const ok = Ok({ hola: "mundo" });
 
-    expect(ok.is_err_and(r_true)).toBeFalse();
-    expect(ok.is_err_and(r_false)).toBeFalse();
+    expect(ok.isErrAnd(rTrue)).toBeFalse();
+    expect(ok.isErrAnd(rFalse)).toBeFalse();
   });
 
   test("`Ok` should not execute the `func` parameter", (done) => {
     const ok = Ok("This is an `Ok`");
-    ok.is_err_and(() => {
-      done("`is_err_and` method was executed");
+    ok.isErrAnd(() => {
+      done("`isErrAnd` method was executed");
       unreachable();
     });
     done();
@@ -195,28 +195,28 @@ describe("Testing `is_err_and` method", () => {
   test("`Err` should execute the `func` parameter and return its returned value", () => {
     const err = Err(55);
 
-    expect(err.is_err_and(r_true)).toBeTrue();
-    expect(err.is_err_and(r_false)).toBeFalse();
-    expect(err.is_err_and((val) => val === 55)).toBeTrue();
-    expect(err.is_err_and((val) => val === 77)).toBeFalse();
+    expect(err.isErrAnd(rTrue)).toBeTrue();
+    expect(err.isErrAnd(rFalse)).toBeFalse();
+    expect(err.isErrAnd((val) => val === 55)).toBeTrue();
+    expect(err.isErrAnd((val) => val === 77)).toBeFalse();
   });
 });
 
-describe("Testing `is_ok_and` method", () => {
-  const r_true = () => true;
-  const r_false = () => false;
+describe("Testing `isOkAnd` method", () => {
+  const rTrue = () => true;
+  const rFalse = () => false;
 
   test("`Err` should always return false", () => {
     const err = Err("Copy + Paste");
 
-    expect(err.is_ok_and(r_true)).toBeFalse();
-    expect(err.is_ok_and(r_false)).toBeFalse();
+    expect(err.isOkAnd(rTrue)).toBeFalse();
+    expect(err.isOkAnd(rFalse)).toBeFalse();
   });
 
   test("`Err` should not execute the `func` parameter", (done) => {
     const err = Err("This is an `Err`");
-    err.is_ok_and(() => {
-      done("`is_ok_and` method was executed");
+    err.isOkAnd(() => {
+      done("`isOkAnd` method was executed");
       unreachable();
     });
     done();
@@ -225,10 +225,10 @@ describe("Testing `is_ok_and` method", () => {
   test("`Ok` should execute the `func` parameter and return its returned value", () => {
     const ok = Ok(77);
 
-    expect(ok.is_ok_and(r_true)).toBeTrue();
-    expect(ok.is_ok_and(r_false)).toBeFalse();
-    expect(ok.is_ok_and((val) => val === 55)).toBeFalse();
-    expect(ok.is_ok_and((val) => val === 77)).toBeTrue();
+    expect(ok.isOkAnd(rTrue)).toBeTrue();
+    expect(ok.isOkAnd(rFalse)).toBeFalse();
+    expect(ok.isOkAnd((val) => val === 55)).toBeFalse();
+    expect(ok.isOkAnd((val) => val === 77)).toBeTrue();
   });
 });
 
@@ -266,27 +266,27 @@ describe("Testing `map` method", () => {
   });
 });
 
-describe("Testing `map_err` method", () => {
+describe("Testing `mapErr` method", () => {
   test("`Err` should execute the `func` parameter and return its returned value wrapped in a `Err`", () => {
     const num1 = RandomInt(1, 100);
     const num2 = RandomInt(1, 100);
     const err = Err(num1);
-    const result1 = err.map_err((value) => value * num2);
+    const result1 = err.mapErr((value) => value * num2);
 
     expect(result1).toEqual(Err(num1 * num2));
 
     const str1 = RandomString(7);
     const str2 = RandomString(7);
     const err2 = Err(str1);
-    const result2 = err2.map_err((value) => value + str2);
+    const result2 = err2.mapErr((value) => value + str2);
 
     expect(result2).toEqual(Err(str1 + str2));
   });
 
   test("`Ok` should not execute the `func` parameter", (done) => {
     const ok = Ok(RandomInt(1, 100));
-    ok.map_err(() => {
-      done("`map_err` method was executed");
+    ok.mapErr(() => {
+      done("`mapErr` method was executed");
     });
     done();
   });
@@ -294,18 +294,18 @@ describe("Testing `map_err` method", () => {
   test("`Ok` should return its value wrapped in a `Ok`", () => {
     const str = RandomString(11);
     const ok = Ok(str);
-    const result = ok.map_err(() => {});
+    const result = ok.mapErr(() => {});
 
     expect(result).toEqual(Ok(str));
   });
 });
 
-describe("Testing `map_or` method", () => {
+describe("Testing `mapOr` method", () => {
   test("`Ok` should execute the func parameter and return its returned value", () => {
     const def = RandomInt(1, 100);
     const num = RandomInt(101, 200);
     const ok = Ok(num);
-    const result = ok.map_or(def, (value) => {
+    const result = ok.mapOr(def, (value) => {
       return (value * value + value) / 2;
     });
 
@@ -316,8 +316,8 @@ describe("Testing `map_or` method", () => {
     const def = RandomString(11);
     const err = Err([7, 7, 7]);
 
-    const result = err.map_or(def, () => {
-      done("`map_or` was executed");
+    const result = err.mapOr(def, () => {
+      done("`mapOr` was executed");
       unreachable();
     });
 
@@ -400,43 +400,43 @@ describe("Testing `unwrap` method", () => {
   });
 });
 
-describe("Testing `unwrap_err` method", () => {
+describe("Testing `unwrapErr` method", () => {
   test("`Ok` should panic", () => {
     const ok = Ok(["F", "e", "l", "p", "s"]); // ._.
-    expect(() => ok.unwrap_err()).toThrowError(
-      "Called `unwrap_err` method on a `Ok`",
+    expect(() => ok.unwrapErr()).toThrowError(
+      "Called `unwrapErr` method on a `Ok`",
     );
   });
 
   test("`Err` should return its wrapped value", () => {
     const err = Err(new Error("Hey, this ain't a string or number"));
-    expect(err.unwrap_err()).toEqual(
+    expect(err.unwrapErr()).toEqual(
       new Error("Hey, this ain't a string or number"),
     );
   });
 });
 
-describe("Testing `unwrap_or` method", () => {
+describe("Testing `unwrapOr` method", () => {
   test("`Ok` should return its wrapped value", () => {
     const ok = Ok(Some(1));
-    expect(ok.unwrap_or(None())).toEqual(Some(1));
+    expect(ok.unwrapOr(None())).toEqual(Some(1));
   });
 
   test("`Err` should return the `def` parameter", () => {
     const str = RandomString(11);
     const err = Err(new TypeError("11"));
-    expect(err.unwrap_or(str)).toEqual(str);
+    expect(err.unwrapOr(str)).toEqual(str);
   });
 });
 
-describe("Testing `unwrap_or_else` method", () => {
+describe("Testing `unwrapOrElse` method", () => {
   test("`Ok` should return its wrapped value", () => {
     const str = RandomString(11);
     const ok = Ok(str);
 
-    const result = ok.unwrap_or_else(() => {
+    const result = ok.unwrapOrElse(() => {
       unreachable(
-        "`unwrap_or_else` don't execute the `func` parameter if is called by an `Ok`",
+        "`unwrapOrElse` don't execute the `func` parameter if is called by an `Ok`",
       );
     });
 
@@ -448,7 +448,7 @@ describe("Testing `unwrap_or_else` method", () => {
     const str2 = RandomString(11);
     const err = Err(str1);
 
-    const result = err.unwrap_or_else((value) => {
+    const result = err.unwrapOrElse((value) => {
       return value + str2;
     });
 
@@ -488,36 +488,36 @@ describe("Testing `match` method", () => {
   });
 });
 
-describe("Testing `if_ok` method", () => {
+describe("Testing `ifOk` method", () => {
   test("`Ok` should execute the `func` parameter", (done) => {
     const num = RandomInt(1, 100);
     const ok = Ok(num);
 
-    ok.if_ok((value) => {
+    ok.ifOk((value) => {
       expect(value).toBe(num);
       done();
     });
 
-    done("`if_ok` was not executed");
+    done("`ifOk` was not executed");
   });
 
   test("`Err` should not execute the `func` parameter`", (done) => {
     const err = Err(new Error("Hey another unused value"));
 
-    err.if_ok(() => {
-      done("`if_ok` was executed");
+    err.ifOk(() => {
+      done("`ifOk` was executed");
     });
 
     done();
   });
 });
 
-describe("Testing `if_err` method", () => {
+describe("Testing `ifErr` method", () => {
   test("`Ok` should not execute the `func` parameter", (done) => {
     const ok = Ok(None());
 
-    ok.if_err(() => {
-      done("`if_err` was executed");
+    ok.ifErr(() => {
+      done("`ifErr` was executed");
     });
 
     done();
@@ -527,22 +527,22 @@ describe("Testing `if_err` method", () => {
     const str = RandomString(11);
     const err = Err(str);
 
-    err.if_err((value) => {
+    err.ifErr((value) => {
       expect(value).toBe(str);
       done();
     });
 
-    done("`if_err` was not executed");
+    done("`ifErr` was not executed");
   });
 });
 
-describe("Testing `map_or_else` method", () => {
+describe("Testing `mapOrElse` method", () => {
   test("`Ok` should execute the `f` parameter and return its returned value", () => {
     const str1 = RandomString(11);
     const str2 = RandomString(11);
     const ok = Ok(str1);
 
-    const result = ok.map_or_else(
+    const result = ok.mapOrElse(
       () => unreachable(),
       (value) => value + str2,
     );
@@ -555,7 +555,7 @@ describe("Testing `map_or_else` method", () => {
     const str2 = RandomString(11);
     const err = Err(str1);
 
-    const result = err.map_or_else(
+    const result = err.mapOrElse(
       (value) => value + str2,
       () => unreachable(),
     );

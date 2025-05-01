@@ -14,17 +14,17 @@ export class Chain<T> extends RIterator<T> {
   }
 
   next(): Option<T> {
-    if (this.#a.is_some()) {
+    if (this.#a.isSome()) {
       const val = this.#a.unwrap().next();
-      if (val.is_some()) {
+      if (val.isSome()) {
         return val;
       }
       this.#a = None();
     }
 
-    if (this.#b.is_some()) {
+    if (this.#b.isSome()) {
       const val = this.#b.unwrap().next();
-      if (val.is_some()) {
+      if (val.isSome()) {
         return val;
       }
       this.#b = None();
@@ -34,104 +34,104 @@ export class Chain<T> extends RIterator<T> {
   }
 
   count(): number {
-    const a_count = this.#a.match({
+    const aCount = this.#a.match({
       Some: (a) => a.count(),
       None: () => 0,
     });
 
-    const b_count = this.#b.match({
+    const bCount = this.#b.match({
       Some: (b) => b.count(),
       None: () => 0,
     });
 
-    return a_count + b_count;
+    return aCount + bCount;
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  try_fold<B, R extends TryInstance<B, unknown>>(
-    type: { from_output(output: B): R },
+  tryFold<B, R extends TryInstance<B, unknown>>(
+    type: { fromOutput(output: B): R },
     init: B,
     f: (acum: B, item: T) => R,
   ): R {
     let acc = init;
     try {
-      this.#a.if_some((a) => {
-        const result = a.try_fold(type, acc, f);
+      this.#a.ifSome((a) => {
+        const result = a.tryFold(type, acc, f);
         const flow = result.branch();
-        if (flow.is_break()) {
+        if (flow.isBreak()) {
           throw result;
         }
-        acc = flow.unwrap_continue();
+        acc = flow.unwrapContinue();
         this.#a = None();
       });
 
-      this.#b.if_some((b) => {
-        const result = b.try_fold(type, acc, f);
+      this.#b.ifSome((b) => {
+        const result = b.tryFold(type, acc, f);
         const flow = result.branch();
-        if (flow.is_break()) {
+        if (flow.isBreak()) {
           throw result;
         }
-        acc = flow.unwrap_continue();
+        acc = flow.unwrapContinue();
       });
     } catch (e) {
       return e as R;
     }
 
-    return type.from_output(acc);
+    return type.fromOutput(acc);
   }
 
   fold<B>(init: B, f: (acum: B, item: T) => B): B {
     let acc = init;
-    this.#a.if_some((a) => {
+    this.#a.ifSome((a) => {
       acc = a.fold(acc, f);
     });
 
-    this.#b.if_some((b) => {
+    this.#b.ifSome((b) => {
       acc = b.fold(acc, f);
     });
 
     return acc;
   }
 
-  advance_by(n: number): Result<void, number> {
-    if (this.#a.is_some()) {
+  advanceBy(n: number): Result<void, number> {
+    if (this.#a.isSome()) {
       const a = this.#a.unwrap();
-      const result = a.advance_by(n);
+      const result = a.advanceBy(n);
 
-      if (result.is_ok()) {
+      if (result.isOk()) {
         return result;
       }
 
-      n = result.unwrap_err();
+      n = result.unwrapErr();
       this.#a = None();
     }
 
-    if (this.#b.is_none()) {
+    if (this.#b.isNone()) {
       return Err(n);
     }
 
-    return this.#b.unwrap().advance_by(n);
+    return this.#b.unwrap().advanceBy(n);
   }
 
   nth(n: number): Option<T> {
-    if (this.#a.is_some()) {
+    if (this.#a.isSome()) {
       const a = this.#a.unwrap();
-      const result = a.advance_by(n);
+      const result = a.advanceBy(n);
 
-      if (result.is_ok()) {
+      if (result.isOk()) {
         const val = a.next();
-        if (val.is_some()) {
+        if (val.isSome()) {
           return val;
         }
 
         n = 0;
       } else {
-        n = result.unwrap_err();
+        n = result.unwrapErr();
       }
     }
 
-    if (this.#b.is_none()) {
+    if (this.#b.isNone()) {
       return None();
     }
 

@@ -9,7 +9,7 @@ export class ControlFlow<B, C> extends Enum<{
   Continue: unknown;
   Break: unknown;
 }>() {
-  static from_output<B, C>(output: C): ControlFlow<B, C> {
+  static fromOutput<B, C>(output: C): ControlFlow<B, C> {
     return ControlFlow.Continue(output);
   }
 
@@ -41,59 +41,59 @@ export class ControlFlow<B, C> extends Enum<{
     return super.match(arms as any, def as any);
   }
 
-  change_to(type: never): void;
-  change_to<T extends "Continue" | "Break">(
+  changeTo(type: never): void;
+  changeTo<T extends "Continue" | "Break">(
     type: T,
     value: { Continue: C; Break: B }[T],
   ): void;
-  change_to(type: "Continue" | "Break", value?: unknown): void {
-    super.change_to(type, value);
+  changeTo(type: "Continue" | "Break", value?: unknown): void {
+    super.changeTo(type, value);
   }
 
-  is_continue(): boolean {
+  isContinue(): boolean {
     return this.is("Continue");
   }
 
-  is_break(): boolean {
+  isBreak(): boolean {
     return this.is("Break");
   }
 
-  unwrap_continue(): C {
+  unwrapContinue(): C {
     return this.match({
       Continue: (c) => c,
-      Break: () => panic("Called `unwrap_continue` method on a `Break`"),
+      Break: () => panic("Called `unwrapContinue` method on a `Break`"),
     });
   }
 
-  unwrap_break(): B {
+  unwrapBreak(): B {
     return this.match({
-      Continue: () => panic("Called `unwrap_break` method on a `Continue`"),
+      Continue: () => panic("Called `unwrapBreak` method on a `Continue`"),
       Break: (b) => b,
     });
   }
 
-  break_value(): Option<B> {
+  breakValue(): Option<B> {
     return this.match({
       Continue: () => None(),
       Break: (b) => Some(b),
     });
   }
 
-  map_break<T>(f: (b: B) => T): ControlFlow<T, C> {
+  mapBreak<T>(f: (b: B) => T): ControlFlow<T, C> {
     return this.match({
       Continue: (c) => ControlFlow.Continue(c),
       Break: (b) => ControlFlow.Break(f(b)),
     });
   }
 
-  continue_value(): Option<C> {
+  continueValue(): Option<C> {
     return this.match({
       Continue: (c) => Some(c),
       Break: () => None(),
     });
   }
 
-  map_continue<T>(f: (b: C) => T): ControlFlow<B, T> {
+  mapContinue<T>(f: (b: C) => T): ControlFlow<B, T> {
     return this.match({
       Continue: (c) => ControlFlow.Continue(f(c)),
       Break: (b) => ControlFlow.Break(b),

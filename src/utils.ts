@@ -1,5 +1,5 @@
 import type { Result } from "./enums/result";
-import { catch_unwind, catch_unwind_async, panic } from "./panic";
+import { catchUnwind, catchUnwindAsync, panic } from "./panic";
 
 export function StaticImplements<T>() {
   return <U extends T>(constructor: U) => {
@@ -94,15 +94,15 @@ export class ManualPromise<T, E = Error> {
     this.reject = (value) => reject!(value);
   }
 
-  try_resolve(value: T | PromiseLike<T>): Result<void, Error> {
-    return catch_unwind(() => this.resolve(value));
+  tryResolve(value: T | PromiseLike<T>): Result<void, Error> {
+    return catchUnwind(() => this.resolve(value));
   }
 
-  try_reject(value: E): Result<void, Error> {
-    return catch_unwind(() => this.reject(value));
+  tryReject(value: E): Result<void, Error> {
+    return catchUnwind(() => this.reject(value));
   }
 
   wait() {
-    return catch_unwind_async<Promise<T>, E>(() => this.promise);
+    return catchUnwindAsync<Promise<T>, E>(() => this.promise);
   }
 }

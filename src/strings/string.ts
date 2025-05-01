@@ -2,10 +2,10 @@ import { panic } from "../panic.ts";
 import { Err, Ok, Result } from "../enums/result.ts";
 import {
   FromUtf8Error,
-  run_utf8_validation,
-  string_to_utf8,
-  utf8_char_width,
-  utf8_to_string,
+  runUtf8Validation,
+  stringToUtf8,
+  utf8CharWidth,
+  utf8ToString,
 } from "./utils.ts";
 import { Char } from "./char.ts";
 
@@ -16,19 +16,19 @@ export class RString {
     this.#vec = new Uint8Array();
   }
 
-  static from(arr_like: ArrayLike<string>) {
+  static from(arrLike: ArrayLike<string>) {
     const bytes: number[] = [];
 
-    if (typeof arr_like === "string") {
-      bytes.push(...string_to_utf8(arr_like));
+    if (typeof arrLike === "string") {
+      bytes.push(...stringToUtf8(arrLike));
     } else {
-      for (let i = 0; i < arr_like.length; ++i) {
-        const val = arr_like[i];
+      for (let i = 0; i < arrLike.length; ++i) {
+        const val = arrLike[i];
 
         if (typeof val !== "string") {
-          panic("`arr_like` contains values that are not of type `string`");
+          panic("`arrLike` contains values that are not of type `string`");
         }
-        bytes.push(...string_to_utf8(val));
+        bytes.push(...stringToUtf8(val));
       }
     }
 
@@ -38,8 +38,8 @@ export class RString {
     return self;
   }
 
-  static from_utf8(vec: ArrayLike<number>): Result<RString, FromUtf8Error> {
-    return run_utf8_validation(vec).match({
+  static fromUtf8(vec: ArrayLike<number>): Result<RString, FromUtf8Error> {
+    return runUtf8Validation(vec).match({
       Err: (e) => Err(new FromUtf8Error(vec, e)),
       Ok: () => {
         const self = new RString();
@@ -55,10 +55,10 @@ export class RString {
   }
 
   toString(): string {
-    return utf8_to_string(this.#vec);
+    return utf8ToString(this.#vec);
   }
 
-  push_str(str: ArrayLike<string> | RString): void {
+  pushStr(str: ArrayLike<string> | RString): void {
     if (!(str instanceof RString)) {
       str = RString.from(str);
     }
@@ -70,7 +70,7 @@ export class RString {
     this.#vec = newVec;
   }
 
-  as_bytes(): Uint8Array {
+  asBytes(): Uint8Array {
     return this.#vec.slice();
   }
 
@@ -78,7 +78,7 @@ export class RString {
     this.#vec = new Uint8Array(0);
   }
 
-  is_empty() {
+  isEmpty() {
     return this.#vec.length === 0;
   }
 
@@ -90,14 +90,14 @@ export class RString {
     const chars: Char[] = [];
 
     for (let i = 0; i < this.#vec.length; ++i) {
-      const first_byte = this.#vec[i];
-      const final_byte_index = utf8_char_width(first_byte) + i;
+      const firstByte = this.#vec[i];
+      const finalByteIndex = utf8CharWidth(firstByte) + i;
       const bytes: number[] = [];
 
-      bytes.push(...this.#vec.slice(i, final_byte_index));
-      i = final_byte_index - 1;
+      bytes.push(...this.#vec.slice(i, finalByteIndex));
+      i = finalByteIndex - 1;
 
-      const char = Char.from_utf8(bytes).expect(
+      const char = Char.fromUtf8(bytes).expect(
         `Invalid UTF-8 sequence at index ${i}`,
       );
       chars.push(char);

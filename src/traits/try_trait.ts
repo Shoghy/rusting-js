@@ -5,5 +5,5 @@ export interface TryInstance<Output, Residual> {
 }
 
 export interface TryStatic<Output, Residual> {
-  from_output(output: Output): TryInstance<Output, Residual>;
+  fromOutput(output: Output): TryInstance<Output, Residual>;
 }

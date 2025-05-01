@@ -18,14 +18,14 @@ export function Enum<Structure extends object>() {
       this.#value = value;
     }
 
-    change_to<T extends EnumStates>(
+    changeTo<T extends EnumStates>(
       type: Structure[T] extends void ? T : never,
     ): void;
-    change_to<T extends EnumStates>(
+    changeTo<T extends EnumStates>(
       type: Structure[T] extends void ? never : T,
       value: Structure[T],
     ): void;
-    change_to<T extends EnumStates>(type: T, value?: Structure[T]): void {
+    changeTo<T extends EnumStates>(type: T, value?: Structure[T]): void {
       this.#type = type;
       this.#value = value;
     }
@@ -48,7 +48,7 @@ export function Enum<Structure extends object>() {
       return this.#type === type;
     }
 
-    if_is<T extends EnumStates>(type: T, func: Func<T, unknown>): void {
+    ifIs<T extends EnumStates>(type: T, func: Func<T, unknown>): void {
       if (this.#type !== type) {
         return;
       }

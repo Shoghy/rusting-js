@@ -15,14 +15,14 @@ export class Zip<A, B> extends RIterator<[A, B]> {
   next(): Option<[A, B]> {
     return this.#a
       .next()
-      .and_then((aValue) =>
-        this.#b.next().and_then((bValue) => Some([aValue, bValue])),
+      .andThen((aValue) =>
+        this.#b.next().andThen((bValue) => Some([aValue, bValue])),
       );
   }
 
-  protected super_nth(n: number): Option<[A, B]> {
+  protected superNth(n: number): Option<[A, B]> {
     let value = this.next();
-    while (value.is_some()) {
+    while (value.isSome()) {
       if (n === 0) {
         return value;
       }
@@ -32,12 +32,12 @@ export class Zip<A, B> extends RIterator<[A, B]> {
     return None();
   }
 
-  protected spec_fold<Acc>(init: Acc, f: (acc: Acc, item: [A, B]) => Acc): Acc {
+  protected specFold<Acc>(init: Acc, f: (acc: Acc, item: [A, B]) => Acc): Acc {
     let acum = init;
 
     while (true) {
       const val = this.next();
-      if (val.is_none()) {
+      if (val.isNone()) {
         break;
       }
       acum = f(acum, val.unwrap());
@@ -47,10 +47,10 @@ export class Zip<A, B> extends RIterator<[A, B]> {
   }
 
   fold<Acc>(init: Acc, f: (acc: Acc, item: [A, B]) => Acc): Acc {
-    return this.spec_fold(init, f);
+    return this.specFold(init, f);
   }
 
   nth(n: number): Option<[A, B]> {
-    return this.super_nth(n);
+    return this.superNth(n);
   }
 }

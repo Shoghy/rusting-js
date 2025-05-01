@@ -12,7 +12,7 @@ export abstract class RIterator<T> {
     this[Symbol.iterator] = function* () {
       while (true) {
         const val = this.next();
-        if (val.is_none()) {
+        if (val.isNone()) {
           break;
         }
         yield val.unwrap();
@@ -20,9 +20,9 @@ export abstract class RIterator<T> {
     };
   }
 
-  advance_by(n: number): Result<void, number> {
+  advanceBy(n: number): Result<void, number> {
     for (let i = 0; i < n; ++i) {
-      if (this.next().is_none()) {
+      if (this.next().isNone()) {
         return Err(n - i);
       }
     }
@@ -40,13 +40,13 @@ export abstract class RIterator<T> {
   }
 
   nth(n: number): Option<T> {
-    if (this.advance_by(n).is_err()) {
+    if (this.advanceBy(n).isErr()) {
       return None();
     }
     return this.next();
   }
 
-  step_by(step: number): import("../iterators/step_by").StepBy<T> {
+  stepBy(step: number): import("../iterators/step_by").StepBy<T> {
     return new StepBy(this, step);
   }
 
@@ -64,7 +64,7 @@ export abstract class RIterator<T> {
     );
   }
 
-  intersperse_with(separator: () => T): never {
+  intersperseWith(separator: () => T): never {
     unimplemented(`${separator}`);
   }
 
@@ -74,7 +74,7 @@ export abstract class RIterator<T> {
     );
   }
 
-  for_each(f: (value: T) => unknown): void {
+  forEach(f: (value: T) => unknown): void {
     this.fold(undefined as void, (_, item) => f(item));
   }
 
@@ -84,7 +84,7 @@ export abstract class RIterator<T> {
     );
   }
 
-  filter_map<B>(f: (value: T) => Option<B>): never {
+  filterMap<B>(f: (value: T) => Option<B>): never {
     unimplemented(
       `The return type of this method should return only the values that return Some after checking them with ${f} omitting the others`,
     );
@@ -102,15 +102,15 @@ export abstract class RIterator<T> {
     );
   }
 
-  skip_while(predicate: () => boolean): never {
+  skipWhile(predicate: () => boolean): never {
     unimplemented(`Implement this method. ${predicate}`);
   }
 
-  take_while(predicate: () => boolean): never {
+  takeWhile(predicate: () => boolean): never {
     unimplemented(`Implement this method. ${predicate}`);
   }
 
-  map_while(predicate: () => boolean): never {
+  mapWhile(predicate: () => boolean): never {
     unimplemented(`Implement this method. ${predicate}`);
   }
 
@@ -122,11 +122,11 @@ export abstract class RIterator<T> {
     unimplemented(`Implement this method. ${n}`);
   }
 
-  scan<ST, B>(initial_state: ST, f: (st: ST, item: T) => Option<B>): never {
-    unimplemented(`Implement this method. ${initial_state} ${f}`);
+  scan<ST, B>(initialState: ST, f: (st: ST, item: T) => Option<B>): never {
+    unimplemented(`Implement this method. ${initialState} ${f}`);
   }
 
-  flat_map<U>(f: () => U) {
+  flatMap<U>(f: () => U) {
     unimplemented(
       `I am not sure of how to implement this, or if it can be implemented. ${f}`,
     );
@@ -149,21 +149,21 @@ export abstract class RIterator<T> {
   }
 
   collect<R, T2 extends FromIterator<T, R>>(t: T2): R {
-    return t.from_iter(this);
+    return t.fromIter(this);
   }
 
   partition<T2, R>(t: T2, f: (item: T) => boolean): [R, R] {
     unimplemented(`Implement this method. ${t} ${f}`);
   }
 
-  partition_in_place(predicate: (item: T) => boolean): number {
+  partitionInPlace(predicate: (item: T) => boolean): number {
     unimplemented(
       `I am not sure of how to implement this, or if it can be implemented. ${predicate}`,
     );
   }
 
-  try_fold<B, R extends TryInstance<B, unknown>>(
-    type: { from_output(output: B): R },
+  tryFold<B, R extends TryInstance<B, unknown>>(
+    type: { fromOutput(output: B): R },
     init: B,
     f: (acum: B, item: T) => R,
   ): R {
@@ -171,22 +171,22 @@ export abstract class RIterator<T> {
 
     while (true) {
       const val = this.next();
-      if (val.is_none()) {
+      if (val.isNone()) {
         break;
       }
 
       const result = f(acum, val.unwrap());
       const flow = result.branch();
-      if (flow.is_break()) {
+      if (flow.isBreak()) {
         return result;
       }
-      acum = flow.unwrap_continue();
+      acum = flow.unwrapContinue();
     }
 
-    return type.from_output(acum);
+    return type.fromOutput(acum);
   }
 
-  try_foreach() {
+  tryForeach() {
     unimplemented();
   }
 
@@ -195,7 +195,7 @@ export abstract class RIterator<T> {
 
     while (true) {
       const val = this.next();
-      if (val.is_none()) {
+      if (val.isNone()) {
         break;
       }
       acum = f(acum, val.unwrap());
@@ -212,18 +212,18 @@ export abstract class RIterator<T> {
     });
   }
 
-  try_reduce() {
+  tryReduce() {
     unimplemented();
   }
 
   all(f: (item: T) => boolean): boolean {
-    return this.try_fold(ControlFlow, undefined as void, (_, item) => {
+    return this.tryFold(ControlFlow, undefined as void, (_, item) => {
       if (f(item)) {
         return ControlFlow.Continue(undefined as void);
       } else {
         return ControlFlow.Break<unknown, void>(undefined as unknown);
       }
-    }).is_continue();
+    }).isContinue();
   }
 
   any() {
@@ -234,11 +234,11 @@ export abstract class RIterator<T> {
     unimplemented();
   }
 
-  find_map() {
+  findMap() {
     unimplemented();
   }
 
-  try_find() {
+  tryFind() {
     unimplemented();
   }
 
@@ -246,11 +246,11 @@ export abstract class RIterator<T> {
     unimplemented();
   }
 
-  max_by() {
+  maxBy() {
     unimplemented();
   }
 
-  min_by() {
+  minBy() {
     unimplemented();
   }
 
@@ -264,7 +264,7 @@ export abstract class RIterator<T> {
 }
 
 export interface FromIterator<T, R> {
-  from_iter(iter: RIterator<T>): R;
+  fromIter(iter: RIterator<T>): R;
 }
 
 const StepBy = require("../iterators/step_by")

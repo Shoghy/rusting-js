@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { defer } from "../src/utils";
-import { catch_unwind, catch_unwind_async, panic } from "../src/panic";
+import { catchUnwind, catchUnwindAsync, panic } from "../src/panic";
 
 test("Sync defer", (done) => {
   let i = 0;
@@ -33,7 +33,7 @@ test("Sync throwing errors", (done) => {
     panic();
   }
 
-  catch_unwind(() => {
+  catchUnwind(() => {
     tester();
   });
 
@@ -49,7 +49,7 @@ test("Async throwing errors", async (done) => {
     panic();
   }
 
-  await catch_unwind_async(async () => {
+  await catchUnwindAsync(async () => {
     await tester();
   });
 

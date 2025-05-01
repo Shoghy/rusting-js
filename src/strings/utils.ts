@@ -1,22 +1,22 @@
 import { type Result } from "../enums/result.ts";
 import { None, Option, Some } from "../enums/option.ts";
-import { catch_unwind } from "../panic.ts";
+import { catchUnwind } from "../panic.ts";
 
 /**
  * @author https://stackoverflow.com/a/18729931
  */
-export function string_to_utf8(str: string) {
+export function stringToUtf8(str: string) {
   const utf8: number[] = [];
   for (let i = 0; i < str.length; i++) {
-    let char_code = str.charCodeAt(i);
-    if (char_code < 0x80) utf8.push(char_code);
-    else if (char_code < 0x800) {
-      utf8.push(0xc0 | (char_code >> 6), 0x80 | (char_code & 0x3f));
-    } else if (char_code < 0xd800 || char_code >= 0xe000) {
+    let charCode = str.charCodeAt(i);
+    if (charCode < 0x80) utf8.push(charCode);
+    else if (charCode < 0x800) {
+      utf8.push(0xc0 | (charCode >> 6), 0x80 | (charCode & 0x3f));
+    } else if (charCode < 0xd800 || charCode >= 0xe000) {
       utf8.push(
-        0xe0 | (char_code >> 12),
-        0x80 | ((char_code >> 6) & 0x3f),
-        0x80 | (char_code & 0x3f),
+        0xe0 | (charCode >> 12),
+        0x80 | ((charCode >> 6) & 0x3f),
+        0x80 | (charCode & 0x3f),
       );
     }
     // surrogate pair
@@ -25,13 +25,13 @@ export function string_to_utf8(str: string) {
       // UTF-16 encodes 0x10000-0x10FFFF by
       // subtracting 0x10000 and splitting the
       // 20 bits of 0x0-0xFFFFF into two halves
-      char_code =
-        0x10000 + (((char_code & 0x3ff) << 10) | (str.charCodeAt(i) & 0x3ff));
+      charCode =
+        0x10000 + (((charCode & 0x3ff) << 10) | (str.charCodeAt(i) & 0x3ff));
       utf8.push(
-        0xf0 | (char_code >> 18),
-        0x80 | ((char_code >> 12) & 0x3f),
-        0x80 | ((char_code >> 6) & 0x3f),
-        0x80 | (char_code & 0x3f),
+        0xf0 | (charCode >> 18),
+        0x80 | ((charCode >> 12) & 0x3f),
+        0x80 | ((charCode >> 6) & 0x3f),
+        0x80 | (charCode & 0x3f),
       );
     }
   }
@@ -41,7 +41,7 @@ export function string_to_utf8(str: string) {
 /**
  * @author https://stackoverflow.com/a/42453251
  */
-export function utf8_to_string(array: ArrayLike<number>) {
+export function utf8ToString(array: ArrayLike<number>) {
   let c: number, char2: number, char3: number, char4: number;
   let out = "";
   const len = array.length;
@@ -92,7 +92,7 @@ export function utf8_to_string(array: ArrayLike<number>) {
   return out;
 }
 
-export function utf8_char_width(b: number): 0 | 1 | 2 | 3 | 4 {
+export function utf8CharWidth(b: number): 0 | 1 | 2 | 3 | 4 {
   if (b < 0) {
     return 0;
   }
@@ -124,20 +124,20 @@ export function utf8_char_width(b: number): 0 | 1 | 2 | 3 | 4 {
 }
 
 export class Utf8Error {
-  valid_up_to: number;
-  error_len: Option<number>;
+  validUpTo: number;
+  errorLen: Option<number>;
 
-  constructor(valid_up_to: number, error_len: Option<number>) {
-    this.valid_up_to = valid_up_to;
-    this.error_len = error_len;
+  constructor(validUpTo: number, errorLen: Option<number>) {
+    this.validUpTo = validUpTo;
+    this.errorLen = errorLen;
   }
 }
 
-export function run_utf8_validation(
+export function runUtf8Validation(
   v: ArrayLike<number>,
 ): Result<void, Utf8Error> {
   let index = 0;
-  let old_offset = 0;
+  let oldOffset = 0;
   const len = v.length;
 
   function next() {
@@ -154,7 +154,7 @@ export function run_utf8_validation(
     return v[index];
   }
 
-  const result = catch_unwind<void, Option<number>>(() => {
+  const result = catchUnwind<void, Option<number>>(() => {
     for (; index < len; ++index) {
       const first = v[index];
 
@@ -170,7 +170,7 @@ export function run_utf8_validation(
         continue;
       }
 
-      const w = utf8_char_width(first);
+      const w = utf8CharWidth(first);
 
       switch (w) {
         case 2: {
@@ -221,11 +221,11 @@ export function run_utf8_validation(
         }
       }
 
-      old_offset = index;
+      oldOffset = index;
     }
   });
 
-  return result.map_err((error) => new Utf8Error(old_offset, error));
+  return result.mapErr((error) => new Utf8Error(oldOffset, error));
 }
 
 export class FromUtf8Error {

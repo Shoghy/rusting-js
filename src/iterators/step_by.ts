@@ -6,11 +6,11 @@ import { Iter } from "./iter.ts";
 
 function* nth<T>(
   iter: RIterator<T>,
-  step_minus_one: number,
+  stepMinusOne: number,
 ): Generator<T, void, unknown> {
   while (true) {
-    const val = iter.nth(step_minus_one);
-    if (val.is_none()) {
+    const val = iter.nth(stepMinusOne);
+    if (val.isNone()) {
       break;
     }
     yield val.unwrap();
@@ -19,8 +19,8 @@ function* nth<T>(
 
 export class StepBy<T> extends RIterator<T> {
   #iter: RIterator<T>;
-  #step_minus_one: number;
-  #first_take: boolean;
+  #stepMinusOne: number;
+  #firstTake: boolean;
 
   constructor(iter: RIterator<T>, step: number) {
     super();
@@ -32,25 +32,25 @@ export class StepBy<T> extends RIterator<T> {
     }
 
     this.#iter = iter;
-    this.#step_minus_one = step - 1;
-    this.#first_take = true;
+    this.#stepMinusOne = step - 1;
+    this.#firstTake = true;
   }
 
-  protected spec_next(): Option<T> {
-    let step_size: number;
-    if (this.#first_take) {
-      step_size = 0;
-      this.#first_take = false;
+  protected specNext(): Option<T> {
+    let stepSize: number;
+    if (this.#firstTake) {
+      stepSize = 0;
+      this.#firstTake = false;
     } else {
-      step_size = this.#step_minus_one;
+      stepSize = this.#stepMinusOne;
     }
 
-    return this.#iter.nth(step_size);
+    return this.#iter.nth(stepSize);
   }
 
-  protected spec_nth(n: number): Option<T> {
-    if (this.#first_take) {
-      this.#first_take = false;
+  protected specNth(n: number): Option<T> {
+    if (this.#firstTake) {
+      this.#firstTake = false;
       const first = this.#iter.next();
       if (n === 0) {
         return first;
@@ -58,7 +58,7 @@ export class StepBy<T> extends RIterator<T> {
       n -= 1;
     }
 
-    const step = this.#step_minus_one + 1;
+    const step = this.#stepMinusOne + 1;
     const mul = step * n;
 
     return this.#iter.nth(mul - 1);
@@ -66,70 +66,70 @@ export class StepBy<T> extends RIterator<T> {
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  protected spec_try_fold<Acc, R extends TryInstance<Acc, unknown>>(
-    type: { from_output(output: Acc): R },
+  protected specTryFold<Acc, R extends TryInstance<Acc, unknown>>(
+    type: { fromOutput(output: Acc): R },
     acc: Acc,
     f: (acc: Acc, item: T) => R,
   ): R {
     const iter = this.#iter;
 
-    if (this.#first_take) {
-      this.#first_take = false;
+    if (this.#firstTake) {
+      this.#firstTake = false;
       const val = iter.next();
 
-      if (val.is_none()) {
-        return type.from_output(acc);
+      if (val.isNone()) {
+        return type.fromOutput(acc);
       }
 
       const result = f(acc, val.unwrap());
       const flow = result.branch();
 
-      if (flow.is_break()) {
+      if (flow.isBreak()) {
         return result;
       }
 
-      acc = flow.unwrap_continue();
+      acc = flow.unwrapContinue();
     }
 
-    return new Iter(nth(iter, this.#step_minus_one)).try_fold(type, acc, f);
+    return new Iter(nth(iter, this.#stepMinusOne)).tryFold(type, acc, f);
   }
 
-  protected spec_fold<Acc>(acc: Acc, f: (acc: Acc, item: T) => Acc): Acc {
+  protected specFold<Acc>(acc: Acc, f: (acc: Acc, item: T) => Acc): Acc {
     const iter = this.#iter;
 
-    if (this.#first_take) {
-      this.#first_take = false;
+    if (this.#firstTake) {
+      this.#firstTake = false;
       const val = iter.next();
 
-      if (val.is_none()) {
+      if (val.isNone()) {
         return acc;
       }
 
       acc = f(acc, val.unwrap());
     }
 
-    return new Iter(nth(iter, this.#step_minus_one)).fold(acc, f);
+    return new Iter(nth(iter, this.#stepMinusOne)).fold(acc, f);
   }
 
   next(): Option<T> {
-    return this.spec_next();
+    return this.specNext();
   }
 
   nth(n: number): Option<T> {
-    return this.spec_nth(n);
+    return this.specNth(n);
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  try_fold<B, R extends TryInstance<B, unknown>>(
-    type: { from_output(output: B): R },
+  tryFold<B, R extends TryInstance<B, unknown>>(
+    type: { fromOutput(output: B): R },
     init: B,
     f: (acum: B, item: T) => R,
   ): R {
-    return this.spec_try_fold(type, init, f);
+    return this.specTryFold(type, init, f);
   }
 
   fold<B>(init: B, f: (acum: B, item: T) => B): B {
-    return this.spec_fold(init, f);
+    return this.specFold(init, f);
   }
 }

@@ -3,27 +3,27 @@ import { None, Some } from "../../src/enums";
 import { Err, Ok } from "../../src/enums";
 import { panic, unreachable } from "../../src/panic";
 
-describe("Testing `is_none` method", () => {
+describe("Testing `isNone` method", () => {
   test("`None` should return true", () => {
     const val = None();
-    expect(val.is_none()).toBe(true);
+    expect(val.isNone()).toBe(true);
   });
 
   test("`Some` should return false", () => {
     const val = Some(0);
-    expect(val.is_none()).toBe(false);
+    expect(val.isNone()).toBe(false);
   });
 });
 
-describe("Testing `is_some` method", () => {
+describe("Testing `isSome` method", () => {
   test("`None` should return false", () => {
     const val = None();
-    expect(val.is_some()).toBe(false);
+    expect(val.isSome()).toBe(false);
   });
 
   test("`Some` should return true", () => {
     const val = Some(0);
-    expect(val.is_some()).toBe(true);
+    expect(val.isSome()).toBe(true);
   });
 });
 
@@ -133,18 +133,18 @@ describe("Testing `or` method", () => {
   });
 });
 
-describe("Testing `or_else` method", () => {
-  test("`None` should execute `or_else`", () => {
+describe("Testing `orElse` method", () => {
+  test("`None` should execute `orElse`", () => {
     const none = None<number[]>();
-    const result = none.or_else(() => {
+    const result = none.orElse(() => {
       return Some([4, 20]);
     });
     expect(result).toEqual(Some([4, 20]));
   });
 
-  test("`Some` should not execute `or_else`", () => {
+  test("`Some` should not execute `orElse`", () => {
     const some = Some(69);
-    const result = some.or_else(() => {
+    const result = some.orElse(() => {
       return Some(13);
     });
     expect(result).toEqual(Some(69));
@@ -203,10 +203,10 @@ describe("Testing `and` method", () => {
   });
 });
 
-describe("Testing `and_then` method", () => {
+describe("Testing `andThen` method", () => {
   test("`None` should not execute", () => {
     const none = None<number>();
-    const result = none.and_then((value) => {
+    const result = none.andThen((value) => {
       return Some(value * value);
     });
     expect(result).toEqual(None());
@@ -214,63 +214,63 @@ describe("Testing `and_then` method", () => {
 
   test("`Some` should execute", () => {
     const some = Some(5);
-    const result = some.and_then((value) => {
+    const result = some.andThen((value) => {
       return Some(value * value);
     });
     expect(result).toEqual(Some(25));
   });
 });
 
-describe("Testing `get_or_insert` method", () => {
+describe("Testing `getOrInsert` method", () => {
   test("`None` should insert the value", () => {
     const option = None<number>();
-    const result = option.get_or_insert(3.1415);
+    const result = option.getOrInsert(3.1415);
     expect(result).toBe(3.1415);
     expect(option).toEqual(Some(3.1415));
   });
 
   test("`Some` should not insert the value", () => {
     const option = Some(42);
-    const result = option.get_or_insert(9 + 10); //21
+    const result = option.getOrInsert(9 + 10); //21
     expect(result).toBe(42);
     expect(option).toEqual(Some(42));
   });
 });
 
-describe("Testing `get_or_insert_with` method", () => {
-  test("`get_or_insert_with` should change the value of `None`", () => {
+describe("Testing `getOrInsertWith` method", () => {
+  test("`getOrInsertWith` should change the value of `None`", () => {
     const option = None<string[]>();
-    const result = option.get_or_insert_with(() => Array.from("Hello World!"));
+    const result = option.getOrInsertWith(() => Array.from("Hello World!"));
     expect(result).toEqual(Array.from("Hello World!"));
     expect(option).toEqual(Some(Array.from("Hello World!")));
   });
 
-  test("`get_or_insert_with` should not change the value of `Some`", () => {
+  test("`getOrInsertWith` should not change the value of `Some`", () => {
     const option = Some("Cards Against Humanity");
-    const result = option.get_or_insert_with(() => "Humanity");
+    const result = option.getOrInsertWith(() => "Humanity");
     expect(result).toEqual("Cards Against Humanity");
     expect(option).toEqual(Some("Cards Against Humanity"));
   });
 });
 
-describe("Testing `is_some_and` method", () => {
-  const r_true = () => true;
-  const r_false = () => false;
+describe("Testing `isSomeAnd` method", () => {
+  const rTrue = () => true;
+  const rFalse = () => false;
 
   test("`None` should always return false", () => {
     const none = None();
 
-    expect(none.is_some_and(r_true)).toBe(false);
-    expect(none.is_some_and(r_false)).toBe(false);
+    expect(none.isSomeAnd(rTrue)).toBe(false);
+    expect(none.isSomeAnd(rFalse)).toBe(false);
   });
 
   test("`Some` should execute the function and return its value", () => {
     const some = Some(1);
 
-    expect(some.is_some_and(r_true)).toBe(true);
-    expect(some.is_some_and(r_false)).toBe(false);
-    expect(some.is_some_and((value) => value == 1)).toBe(true);
-    expect(some.is_some_and((value) => value == 2)).toBe(false);
+    expect(some.isSomeAnd(rTrue)).toBe(true);
+    expect(some.isSomeAnd(rFalse)).toBe(false);
+    expect(some.isSomeAnd((value) => value == 1)).toBe(true);
+    expect(some.isSomeAnd((value) => value == 2)).toBe(false);
   });
 });
 
@@ -300,30 +300,30 @@ describe("Testing `take` method", () => {
   });
 });
 
-describe("Testing `unwrap_or` method", () => {
+describe("Testing `unwrapOr` method", () => {
   test("`None` should return the `def` value", () => {
     const none = None<string>();
-    const result = none.unwrap_or("31 minutos");
+    const result = none.unwrapOr("31 minutos");
     expect(result).toBe("31 minutos");
   });
 
   test("`Some` should return its own value", () => {
     const some = Some("Mr. Trance");
-    const result = some.unwrap_or("Esteman");
+    const result = some.unwrapOr("Esteman");
     expect(result).toBe("Mr. Trance");
   });
 });
 
-describe("Testing `unwrap_or_else` method", () => {
+describe("Testing `unwrapOrElse` method", () => {
   test("`None` should call the `func` parameter and return its value", () => {
     const none = None<number>();
-    const result = none.unwrap_or_else(() => 0xe0218a);
+    const result = none.unwrapOrElse(() => 0xe0218a);
     expect(result).toBe(0xe0218a);
   });
 
   test("`Some` should just return its own value", () => {
     const some = Some(0);
-    const result = some.unwrap_or_else(() => 1);
+    const result = some.unwrapOrElse(() => 1);
     expect(result).toBe(0);
   });
 });
@@ -383,12 +383,12 @@ describe("Testing `map` method", () => {
   });
 });
 
-describe("Testing `map_or` method", () => {
+describe("Testing `mapOr` method", () => {
   test("`None` should not execute the `func` parameter and should return the `def` parameter", () => {
     const none = None();
     let val = 1;
 
-    const result = none.map_or("La Guia Del Autoestopista Galáctico", () => {
+    const result = none.mapOr("La Guia Del Autoestopista Galáctico", () => {
       val = 2;
       return "No se asuste";
     });
@@ -401,7 +401,7 @@ describe("Testing `map_or` method", () => {
     const some = Some(0xff);
     let val = 1;
 
-    const result = some.map_or("THE GREAT PAPYRUS", (value) => {
+    const result = some.mapOr("THE GREAT PAPYRUS", (value) => {
       val = 2;
       return value.toString(16);
     });
@@ -411,26 +411,26 @@ describe("Testing `map_or` method", () => {
   });
 });
 
-describe("Testing `ok_or` method", () => {
+describe("Testing `okOr` method", () => {
   test("`None` should return `Err`", () => {
     const none = None();
-    const result = none.ok_or("Brainfuck");
+    const result = none.okOr("Brainfuck");
     expect(result).toEqual(Err("Brainfuck"));
   });
 
   test("`Some` should return `Ok`", () => {
     const some = Some("Rust lang get its name from a fungus");
-    const result = some.ok_or("The cake it's a lie");
+    const result = some.okOr("The cake it's a lie");
     expect(result).toEqual(Ok("Rust lang get its name from a fungus"));
   });
 });
 
-describe("Testing `ok_or_else` method", () => {
+describe("Testing `okOrElse` method", () => {
   test("`None` should call the `func` parameter and return its return value wrapped in a `Err`", () => {
     const none = None();
     let val = 1;
 
-    const result = none.ok_or_else(() => {
+    const result = none.okOrElse(() => {
       val = 2;
       return 78;
     });
@@ -443,7 +443,7 @@ describe("Testing `ok_or_else` method", () => {
     const some = Some("Silksong still doesn't have a release date");
     let val = 1;
 
-    const result = some.ok_or_else(() => {
+    const result = some.okOrElse(() => {
       val = 2;
       return 123456789;
     });
@@ -453,34 +453,34 @@ describe("Testing `ok_or_else` method", () => {
   });
 });
 
-describe("Testing `unwrap_unchecked` method", () => {
+describe("Testing `unwrapUnchecked` method", () => {
   test("`None` should return `undefined`", () => {
     const none = None();
-    const result = none.unwrap_unchecked();
+    const result = none.unwrapUnchecked();
     expect(result).toBe(undefined);
   });
 
   test("`Some` should return its value", () => {
     const some = Some(53);
-    const result = some.unwrap_unchecked();
+    const result = some.unwrapUnchecked();
     expect(result).toBe(53);
   });
 
   test("`Some` with its value taken should also return `undefined`", () => {
     const option = Some("Hello reader");
     option.take();
-    const result = option.unwrap_unchecked();
+    const result = option.unwrapUnchecked();
     expect<unknown>(result).toBe(undefined);
     expect(result).not.toBe("Hello reader");
   });
 });
 
-describe("Testing `if_some` method", () => {
+describe("Testing `ifSome` method", () => {
   test("`None` should not call the `func` parameter", () => {
     const none = None();
     let val = 1;
 
-    none.if_some(() => {
+    none.ifSome(() => {
       val = 2;
     });
 
@@ -491,7 +491,7 @@ describe("Testing `if_some` method", () => {
     const some = Some(56);
     let val = 1;
 
-    some.if_some((value) => {
+    some.ifSome((value) => {
       val = value;
     });
 
@@ -499,12 +499,12 @@ describe("Testing `if_some` method", () => {
   });
 });
 
-describe("Testing `if_none` method", () => {
+describe("Testing `ifNone` method", () => {
   test("`None` should call the `func` parameter", () => {
     const none = None();
     let val = 1;
 
-    none.if_none(() => {
+    none.ifNone(() => {
       val = 2;
     });
 
@@ -515,7 +515,7 @@ describe("Testing `if_none` method", () => {
     const some = Some(-1);
     let val = 1;
 
-    some.if_none(() => {
+    some.ifNone(() => {
       val = 2;
     });
 
@@ -557,12 +557,12 @@ describe("Testing `match` method", () => {
   });
 });
 
-describe("Testing `map_or_else` method", () => {
+describe("Testing `mapOrElse` method", () => {
   test("`None` should call the function `def` parameter and return its returned value", () => {
     const none = None();
     let val = 1;
 
-    const result = none.map_or_else(
+    const result = none.mapOrElse(
       () => {
         val = 2;
         return "What should I put here?";
@@ -580,7 +580,7 @@ describe("Testing `map_or_else` method", () => {
     const some = Some([1, 9, 8, 4]);
     let val = 1;
 
-    const result = some.map_or_else(
+    const result = some.mapOrElse(
       () => {
         unreachable();
       },

@@ -19,7 +19,7 @@ export type ResultJSON<T, E> = OkJSON<T> | ErrJSON<E>;
 
 @StaticImplements<TryStatic<unknown, Result<unknown, unknown>>>()
 export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
-  static from_output<T, E>(output: T): Result<T, E> {
+  static fromOutput<T, E>(output: T): Result<T, E> {
     return Ok(output);
   }
 
@@ -46,7 +46,7 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
     return new Result("Err", value);
   }
 
-  static from_json<T, E>(result: ResultJSON<T, E>): Result<T, E> {
+  static fromJson<T, E>(result: ResultJSON<T, E>): Result<T, E> {
     switch (result.type) {
       case "Ok":
         return Ok(result.value);
@@ -61,12 +61,12 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * Returns true if `Result` is type of `Ok`
    * @example
    * const ok = Ok(1);
-   * expect(ok.is_ok()).toBeTrue();
+   * expect(ok.isOk()).toBeTrue();
    *
    * const err = Err(2);
-   * expect(err.is_ok()).toBeFalse();
+   * expect(err.isOk()).toBeFalse();
    */
-  is_ok(): boolean {
+  isOk(): boolean {
     return this.is("Ok");
   }
 
@@ -74,12 +74,12 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * Returns true if `Result` is type of `Err`
    * @example
    * const ok = Ok(1);
-   * expect(ok.is_err()).toBeFalse();
+   * expect(ok.isErr()).toBeFalse();
    *
    * const err = Err(2);
-   * expect(err.is_err()).toBeTrue();
+   * expect(err.isErr()).toBeTrue();
    */
-  is_err(): boolean {
+  isErr(): boolean {
     return this.is("Err");
   }
 
@@ -97,7 +97,7 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * });
    */
   inspect(func: (ok: T) => unknown): this {
-    this.if_ok(func);
+    this.ifOk(func);
     return this;
   }
 
@@ -105,17 +105,17 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * Execute the `func` parameter if `Result` is `Err`
    * @example
    * const ok = Ok(2);
-   * ok.inspect_err(() => {
+   * ok.inspectErr(() => {
    *   unreachable();
    * });
    *
    * const err = Err(4);
-   * err.inspect_err((value) => {
+   * err.inspectErr((value) => {
    *   expect(value).toBe(4);
    * });
    */
-  inspect_err(func: (err: E) => unknown): this {
-    this.if_err(func);
+  inspectErr(func: (err: E) => unknown): this {
+    this.ifErr(func);
     return this;
   }
 
@@ -150,18 +150,18 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * otherwise it just return `Err`
    * @example
    * const ok = Ok(5);
-   * const result1 = ok.and_then((value) => {
+   * const result1 = ok.andThen((value) => {
    *   return Ok(value * value);
    * });
    * expect(result1).toEqual(Ok(25));
    *
    * const err = Err<number, number>(7);
-   * const result2 = err.and_then((value) => {
+   * const result2 = err.andThen((value) => {
    *   return Ok(value*value);
    * });
    * expect(result2).toEqual(Err(7));
    */
-  and_then<U>(func: (value: T) => Result<U, E>): Result<U, E> {
+  andThen<U>(func: (value: T) => Result<U, E>): Result<U, E> {
     return this.match({
       Ok: (t) => func(t),
       Err: (e) => Err(e),
@@ -213,12 +213,12 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * const msg = "Did I do a good job?";
    *
    * const ok = Ok("Terraria");
-   * expect(() => ok.expect_err(msg)).toThrowError(msg);
+   * expect(() => ok.expectErr(msg)).toThrowError(msg);
    *
    * const err = Err("Also try Minecraft");
-   * expect(err.expect_err(msg)).toBe("Also try Minecraft");
+   * expect(err.expectErr(msg)).toBe("Also try Minecraft");
    */
-  expect_err(value: string): E {
+  expectErr(value: string): E {
     return this.match({
       Ok: () => panic(value),
       Err: (e) => e,
@@ -229,20 +229,20 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * If `Result` is `Ok` returns `false`, otherwise
    * execute the `func` parameter and return its returned value
    * @example
-   * const r_true = () =>  true;
-   * const r_false = () => false;
+   * const rTrue = () =>  true;
+   * const rFalse = () => false;
    *
    * const ok = Ok("Why are you reading this?");
-   * expect(ok.is_err_and(r_true)).toBeFalse();
-   * expect(ok.is_err_and(r_false)).toBeFalse();
+   * expect(ok.isErrAnd(rTrue)).toBeFalse();
+   * expect(ok.isErrAnd(rFalse)).toBeFalse();
    *
    * const err = Err(7);
-   * expect(err.is_err_and(r_true)).toBeTrue();
-   * expect(err.is_err_and(r_false)).toBeFalse();
-   * expect(err.is_err_and((val) => val === 7)).toBeTrue();
-   * expect(err.is_err_and((val) => val === 8)).toBeFalse();
+   * expect(err.isErrAnd(rTrue)).toBeTrue();
+   * expect(err.isErrAnd(rFalse)).toBeFalse();
+   * expect(err.isErrAnd((val) => val === 7)).toBeTrue();
+   * expect(err.isErrAnd((val) => val === 8)).toBeFalse();
    */
-  is_err_and(func: (err: E) => boolean): boolean {
+  isErrAnd(func: (err: E) => boolean): boolean {
     return this.match({
       Ok: () => false,
       Err: (e) => func(e),
@@ -253,20 +253,20 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * If `Result` is `Err` returns false, otherwise execute
    * the `fun` parameter and return its returned value.
    * @example
-   * const r_true = () => true;
-   * const r_false = () => false;
+   * const rTrue = () => true;
+   * const rFalse = () => false;
    *
    * const ok = Ok(1);
-   * expect(ok.is_ok_and(r_true)).toBeTrue();
-   * expect(ok.is_ok_and(r_false)).toBeFalse();
-   * expect(ok.is_ok_and((val) => val === 1)).toBeTrue();
-   * expect(ok.is_ok_and((val) => val === 2)).toBeFalse();
+   * expect(ok.isOkAnd(rTrue)).toBeTrue();
+   * expect(ok.isOkAnd(rFalse)).toBeFalse();
+   * expect(ok.isOkAnd((val) => val === 1)).toBeTrue();
+   * expect(ok.isOkAnd((val) => val === 2)).toBeFalse();
    *
    * const err = Err(2);
-   * expect(err.is_ok_and(r_true)).toBeFalse();
-   * expect(err.is_ok_and(r_false)).toBeFalse();
+   * expect(err.isOkAnd(rTrue)).toBeFalse();
+   * expect(err.isOkAnd(rFalse)).toBeFalse();
    */
-  is_ok_and(func: (ok: T) => boolean): boolean {
+  isOkAnd(func: (ok: T) => boolean): boolean {
     return this.match({
       Ok: (t) => func(t),
       Err: () => false,
@@ -299,14 +299,14 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * otherwise just returns `Ok`
    * @example
    * const ok = Ok(99);
-   * const result1 = ok.map_err(() => 7);
+   * const result1 = ok.mapErr(() => 7);
    * expect(result1).toEqual(Ok(99));
    *
    * const err = Err(8);
-   * const return2 = err.map_err((val) => val*9);
+   * const return2 = err.mapErr((val) => val*9);
    * expect(return2).toEqual(Err(72));
    */
-  map_err<F>(func: (err: E) => F): Result<T, F> {
+  mapErr<F>(func: (err: E) => F): Result<T, F> {
     return this.match({
       Ok: (t) => Ok(t),
       Err: (e) => Err(func(e)),
@@ -319,14 +319,14 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * the `def` parameter.
    * @example
    * const ok = Ok("Nih");
-   * const result1 = ok.map_or("Python", (val) => `Knights who say ${val}`);
+   * const result1 = ok.mapOr("Python", (val) => `Knights who say ${val}`);
    * expect(result1).toBe("Knights who say Nih");
    *
    * const err = Err(12);
-   * const result2 = err.map_or("Default value", () => "Not default value");
+   * const result2 = err.mapOr("Default value", () => "Not default value");
    * expect(result2).toBe("Default value");
    */
-  map_or<U>(def: U, func: (ok: T) => U): U {
+  mapOr<U>(def: U, func: (ok: T) => U): U {
     return this.match({
       Ok: (t) => func(t),
       Err: () => def,
@@ -335,21 +335,21 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
 
   /**
    * @example
-   * const ok = Ok("egg_irl");
-   * const result1 = ok.map_or_else(
+   * const ok = Ok("eggIrl");
+   * const result1 = ok.mapOrElse(
    *   () => unreachable(),
    *   (val) => `r/${val}`,
    * );
-   * expect(result1).toBe("r/egg_irl");
+   * expect(result1).toBe("r/eggIrl");
    *
    * const err = Err("Celeste");
-   * const result2 = err.map_or_else(
+   * const result2 = err.mapOrElse(
    *   (val) => `${val}: Madeline`,
    *   () => unreachable(),
    * );
    * expect(result2).toBe("Celeste: Madeline");
    */
-  map_or_else<U>(def: (e: E) => U, f: (t: T) => U): U {
+  mapOrElse<U>(def: (e: E) => U, f: (t: T) => U): U {
     return this.match({
       Ok: (t) => f(t),
       Err: (e) => def(e),
@@ -406,14 +406,14 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * returned value.
    * @example
    * const ok = Ok("The same value");
-   * const result1 = ok.or_else(() => Ok("Another value"));
+   * const result1 = ok.orElse(() => Ok("Another value"));
    * expect(result1).toEqual(Ok("The same value"));
    *
    * const err = Err("Value");
-   * const result2 = err.or_else((val) => Err(`Another ${val}`));
+   * const result2 = err.orElse((val) => Err(`Another ${val}`));
    * expect(result2).toEqual(Err("Another Value"));
    */
-  or_else<F>(op: (err: E) => Result<T, F>): Result<T, F> {
+  orElse<F>(op: (err: E) => Result<T, F>): Result<T, F> {
     return this.match({
       Ok: (t) => Ok(t),
       Err: (e) => op(e),
@@ -444,14 +444,14 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * @throws {Error}
    * @example
    * const ok = Ok("Never");
-   * expect(() => ok.unwrap_err()).toThrowError("Called `unwrap_err` method on a `Ok`");
+   * expect(() => ok.unwrapErr()).toThrowError("Called `unwrapErr` method on a `Ok`");
    *
    * const err = Err("Gonna");
-   * expect(err.unwrap_err()).toBe("Gonna");
+   * expect(err.unwrapErr()).toBe("Gonna");
    */
-  unwrap_err(): E {
+  unwrapErr(): E {
     return this.match({
-      Ok: () => panic("Called `unwrap_err` method on a `Ok`"),
+      Ok: () => panic("Called `unwrapErr` method on a `Ok`"),
       Err: (e) => e,
     });
   }
@@ -461,12 +461,12 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * if it is `Err` return the `def` parameter
    * @example
    * const ok = Ok(-37);
-   * expect(ok.unwrap_or(74)).toBe(-37);
+   * expect(ok.unwrapOr(74)).toBe(-37);
    *
    * const err = Err<number[], number[]>([1, 2, 3]);
-   * expect(err.unwrap_or([4, 5, 6])).toEqual([4, 5, 6]);
+   * expect(err.unwrapOr([4, 5, 6])).toEqual([4, 5, 6]);
    */
-  unwrap_or(def: T): T {
+  unwrapOr(def: T): T {
     return this.match({
       Ok: (t) => t,
       Err: () => def,
@@ -479,12 +479,12 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * return its returned value.
    * @example
    * const ok = Ok("Returned");
-   * expect(ok.unwrap_or_else(() =>  "Not Returned")).toBe("Returned");
+   * expect(ok.unwrapOrElse(() =>  "Not Returned")).toBe("Returned");
    *
    * const err = Err(5);
-   * expect(err.unwrap_or_else((val) => val*3)).toBe(15);
+   * expect(err.unwrapOrElse((val) => val*3)).toBe(15);
    */
-  unwrap_or_else(func: (err: E) => T): T {
+  unwrapOrElse(func: (err: E) => T): T {
     return this.match({
       Ok: (t) => t,
       Err: (e) => func(e),
@@ -536,43 +536,43 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * @example
    * let value = 0;
    * const ok = Ok(32);
-   * ok.if_ok((val) => {
+   * ok.ifOk((val) => {
    *   value = val;
    * });
    * expect(value).toBe(32);
    *
    * const err = Err(64);
-   * err.if_ok(() => {
+   * err.ifOk(() => {
    *   throw new Error("This will not be executed");
    * });
    */
-  if_ok(func: (value: T) => unknown): void {
-    this.if_is("Ok", (x) => func(x as T));
+  ifOk(func: (value: T) => unknown): void {
+    this.ifIs("Ok", (x) => func(x as T));
   }
 
   /**
    * If `Result` is `Err` execute the `func` parameter
    * @example
    * const ok = Ok(57);
-   * ok.if_err(() => {
+   * ok.ifErr(() => {
    *   throw new Error("This will not be executed");
    * });
    *
    * let value = 0;
    * const err = Err(39);
-   * err.if_err((val) => {
+   * err.ifErr((val) => {
    *   value = val;
    * });
    * expect(value).toBe(39);
    */
-  if_err(func: (value: E) => unknown): void {
-    return this.if_is("Err", (x) => func(x as E));
+  ifErr(func: (value: E) => unknown): void {
+    return this.ifIs("Err", (x) => func(x as E));
   }
 
-  change_to(type: never): void;
-  change_to<A extends "Ok" | "Err">(type: A, value: { Ok: T; Err: E }[A]): void;
-  change_to(type: "Ok" | "Err", value?: unknown): void {
-    super.change_to(type, value);
+  changeTo(type: never): void;
+  changeTo<A extends "Ok" | "Err">(type: A, value: { Ok: T; Err: E }[A]): void;
+  changeTo(type: "Ok" | "Err", value?: unknown): void {
+    super.changeTo(type, value);
   }
 
   /**
@@ -583,7 +583,7 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * @throws {E}
    * @example
    * const ok = Ok<string, Error>("Will not throw");
-   * const result1 = catch_unwind(() => {
+   * const result1 = catchUnwind(() => {
    *   const val = ok.throw();
    *   expect(val).toBe("Will not throw");
    *   return val;
@@ -591,7 +591,7 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * expect(result1).toEqual(ok);
    *
    * const err = Err<string, Error>(new Error("Will throw"));
-   * const result2 = catch_unwind(() => {
+   * const result2 = catchUnwind(() => {
    *   const val = err.throw();
    *   done("This will never execute");
    *   return val;

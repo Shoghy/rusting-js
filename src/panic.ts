@@ -53,7 +53,7 @@ export function unimplemented(message?: string): never {
  * The `func` parameter may panic, if it does, the error will be caught and wrapped in a `Err`,
  * if it runs without any panics the return value of `func` will be wrapped in a `Ok`.
  */
-export async function catch_unwind_async<T extends PromiseLike<unknown>, E>(
+export async function catchUnwindAsync<T extends PromiseLike<unknown>, E>(
   func: () => T,
 ): Promise<Result<Awaited<T>, E>> {
   try {
@@ -67,7 +67,7 @@ export async function catch_unwind_async<T extends PromiseLike<unknown>, E>(
  * The `func` parameter may panic, if it does, the error will be caught and wrapped in a `Err`,
  * if it runs without any panics the return value of `func` will be wrapped in a `Ok`.
  */
-export function catch_unwind<T, E = Error>(func: () => T): Result<T, E> {
+export function catchUnwind<T, E = Error>(func: () => T): Result<T, E> {
   try {
     return Ok(func());
   } catch (e) {

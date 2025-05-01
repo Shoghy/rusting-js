@@ -5,10 +5,10 @@ import { Ok } from "../src/enums/result";
 
 // ----------------- Mutex methods -----------------
 
-describe("Testing `get_lockers_count` method", () => {
+describe("Testing `getLockersCount` method", () => {
   test("No lockers", () => {
     const m = new Mutex(1);
-    expect(m.get_lockers_count()).toBe(0);
+    expect(m.lockersCount).toBe(0);
   });
 
   test("Multiple lockers", () => {
@@ -17,7 +17,7 @@ describe("Testing `get_lockers_count` method", () => {
     for (let i = 0; i < num; ++i) {
       m.lock();
     }
-    expect(m.get_lockers_count()).toBe(num);
+    expect(m.lockersCount).toBe(num);
   });
 
   test("Locking and freeing", async () => {
@@ -25,31 +25,31 @@ describe("Testing `get_lockers_count` method", () => {
     const lock1 = await m.lock();
     const lock2 = m.lock();
 
-    expect(m.get_lockers_count()).toBe(2);
+    expect(m.lockersCount).toBe(2);
 
     lock1.unlock();
-    expect(m.get_lockers_count()).toBe(1);
+    expect(m.lockersCount).toBe(1);
 
     (await lock2).unlock();
-    expect(m.get_lockers_count()).toBe(0);
+    expect(m.lockersCount).toBe(0);
   });
 });
 
-describe("Testing `is_locked` method", () => {
+describe("Testing `isLocked` method", () => {
   test("No lockers", () => {
     const m = new Mutex("Friday");
 
-    expect(m.is_locked()).toBeFalse();
+    expect(m.isLocked).toBeFalse();
   });
 
   test("Locking and unlocking", async () => {
     const m = new Mutex("Night");
     const lock = await m.lock();
 
-    expect(m.is_locked()).toBeTrue();
+    expect(m.isLocked).toBeTrue();
 
     lock.unlock();
-    expect(m.is_locked()).toBeFalse();
+    expect(m.isLocked).toBeFalse();
   });
 
   test("Locking and unlocking (multiple)", async () => {
@@ -57,26 +57,26 @@ describe("Testing `is_locked` method", () => {
     const lock1 = await m.lock();
     const lock2 = m.lock();
 
-    expect(m.is_locked()).toBeTrue();
+    expect(m.isLocked).toBeTrue();
 
     lock1.unlock();
-    expect(m.is_locked()).toBeTrue();
+    expect(m.isLocked).toBeTrue();
 
     (await lock2).unlock();
-    expect(m.is_locked()).toBeFalse();
+    expect(m.isLocked).toBeFalse();
   });
 });
 
-describe("Testing `forced_unlock` method", () => {
-  test("`has_lock` should return false", async () => {
+describe("Testing `forcedUnlock` method", () => {
+  test("`hasLock` should return false", async () => {
     const m = new Mutex(6);
     const lock = await m.lock();
 
-    m.forced_unlock();
-    expect(lock.has_lock()).toBeFalse();
+    m.forcedUnlock();
+    expect(lock.hasLock()).toBeFalse();
   });
 
-  test("`get_lockers_count` should return zero", () => {
+  test("`getLockersCount` should return zero", () => {
     const m = new Mutex(6);
     const num = RandomInt(69, 420);
 
@@ -84,17 +84,17 @@ describe("Testing `forced_unlock` method", () => {
       m.lock();
     }
 
-    expect(m.get_lockers_count()).toBe(num);
+    expect(m.lockersCount).toBe(num);
 
-    m.forced_unlock();
-    expect(m.get_lockers_count()).toBe(0);
+    m.forcedUnlock();
+    expect(m.lockersCount).toBe(0);
   });
 
   test("All of the non try `MutexGuard` methods should panic", async () => {
     const m = new Mutex(6);
     const lock = await m.lock();
 
-    m.forced_unlock();
+    m.forcedUnlock();
 
     expect(() => lock.get()).toThrowError(
       "Calling `get` when `MutexGuard` has been unlocked",
@@ -180,12 +180,12 @@ describe("Testing `set` method", () => {
   });
 });
 
-describe("Testing `has_lock` method", () => {
+describe("Testing `hasLock` method", () => {
   test("Should return true", async () => {
     const m = new Mutex(33);
     const lock = await m.lock();
 
-    expect(lock.has_lock()).toBeTrue();
+    expect(lock.hasLock()).toBeTrue();
   });
 
   test("Should return false", async () => {
@@ -193,16 +193,16 @@ describe("Testing `has_lock` method", () => {
     const lock = await m.lock();
     lock.unlock();
 
-    expect(lock.has_lock()).toBeFalse();
+    expect(lock.hasLock()).toBeFalse();
   });
 });
 
-describe("Testing `try_get` method", () => {
+describe("Testing `tryGet` method", () => {
   test("Should return the value of `Mutex` wrapped in a `Ok`", async () => {
     const m = new Mutex("Fun 2 Rhyme");
     const lock = await m.lock();
 
-    expect(lock.try_get()).toEqual(Ok("Fun 2 Rhyme"));
+    expect(lock.tryGet()).toEqual(Ok("Fun 2 Rhyme"));
   });
 
   test("Should return `Err`", async () => {
@@ -210,18 +210,18 @@ describe("Testing `try_get` method", () => {
     const lock = await m.lock();
     lock.unlock();
 
-    const result = lock.try_get();
+    const result = lock.tryGet();
 
-    expect(result.is_err()).toBeTrue();
+    expect(result.isErr()).toBeTrue();
   });
 });
 
-describe("Testing `try_set` method", () => {
+describe("Testing `trySet` method", () => {
   test("Should change the value of `Mutex` and return `Ok`", async () => {
     const m = new Mutex("(-_-)");
     const lock1 = await m.lock();
 
-    const result = lock1.try_set("]:)");
+    const result = lock1.trySet("]:)");
     expect(result).toEqual(Ok());
     expect(lock1.get()).toBe("]:)");
 
@@ -235,8 +235,8 @@ describe("Testing `try_set` method", () => {
     const lock1 = await m.lock();
     lock1.unlock();
 
-    const result = lock1.try_set("0|0");
-    expect(result.is_err()).toBeTrue();
+    const result = lock1.trySet("0|0");
+    expect(result.isErr()).toBeTrue();
 
     const lock2 = await m.lock();
     expect(lock2.get()).toBe(":}");
@@ -244,14 +244,14 @@ describe("Testing `try_set` method", () => {
   });
 });
 
-describe("Testing `try_unlock` method", () => {
+describe("Testing `tryUnlock` method", () => {
   test("Should `unlock` the `Mutex` and return `Ok`", async () => {
     const m = new Mutex(69);
     const lock = await m.lock();
 
-    const result = lock.try_unlock();
+    const result = lock.tryUnlock();
     expect(result).toEqual(Ok());
-    expect(lock.has_lock()).toBeFalse();
+    expect(lock.hasLock()).toBeFalse();
   });
 
   test("Should just return an `Err`", async () => {
@@ -259,21 +259,21 @@ describe("Testing `try_unlock` method", () => {
     const lock = await m.lock();
     lock.unlock();
 
-    const result = lock.try_unlock();
-    expect(result.is_err()).toBeTrue();
+    const result = lock.tryUnlock();
+    expect(result.isErr()).toBeTrue();
   });
 });
 
 test("Mutex releases lock after using block", async () => {
   const m = new Mutex("Hola");
-  let was_lock_executed = false;
+  let wasLockExecuted = false;
 
   await (async () => {
     using lock = await m.lock();
-    was_lock_executed = true;
+    wasLockExecuted = true;
     expect(lock.get()).toBe("Hola");
   })();
 
-  expect(was_lock_executed).toBeTrue();
-  expect(m.get_lockers_count()).toBe(0);
+  expect(wasLockExecuted).toBeTrue();
+  expect(m.lockersCount).toBe(0);
 });
