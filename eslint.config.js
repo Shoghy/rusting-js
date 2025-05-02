@@ -4,12 +4,12 @@ import tseslint from "typescript-eslint";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 
 export default [
+  { ignores: ["dist/"] },
   { languageOptions: { globals: { ...globals.browser, ...globals.node } } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
   eslintPluginPrettierRecommended,
   {
-    ignores: ["dist/"],
     rules: {
       semi: ["error", "always"],
       "linebreak-style": ["error", "unix"],
