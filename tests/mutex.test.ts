@@ -1,6 +1,6 @@
 import { test, describe, expect } from "bun:test";
 import { Mutex } from "../src/mutex";
-import { RandomInt } from "./random";
+import { randomInt } from "./random";
 import { Ok } from "../src/enums/result";
 
 // ----------------- Mutex methods -----------------
@@ -13,7 +13,7 @@ describe("Testing `getLockersCount` method", () => {
 
   test("Multiple lockers", () => {
     const m = new Mutex(2);
-    const num = RandomInt(10, 100);
+    const num = randomInt(10, 100);
     for (let i = 0; i < num; ++i) {
       m.lock();
     }
@@ -78,7 +78,7 @@ describe("Testing `forcedUnlock` method", () => {
 
   test("`getLockersCount` should return zero", () => {
     const m = new Mutex(6);
-    const num = RandomInt(69, 420);
+    const num = randomInt(69, 420);
 
     for (let i = 0; i < num; ++i) {
       m.lock();

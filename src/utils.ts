@@ -7,7 +7,7 @@ export function StaticImplements<T>() {
   };
 }
 
-export function CopyTo(dest: object, src: object): void {
+export function copyTo(dest: object, src: object): void {
   Object.setPrototypeOf(dest, Object.getPrototypeOf(src));
   Object.defineProperties(dest, Object.getOwnPropertyDescriptors(src));
 }
@@ -56,24 +56,25 @@ export enum PromiseState {
 }
 
 export class ManualPromise<T, E = Error> {
-  resolve!: (value: T | PromiseLike<T>) => void;
-  reject!: (value: E) => void;
+  resolve: (value: T | PromiseLike<T>) => void;
+  reject: (value: E) => void;
+
   get state() {
-    return this._state;
+    return this.#state;
   }
 
-  private _state: PromiseState;
-  private promise: Promise<T>;
+  #state: PromiseState;
+  #promise: Promise<T>;
 
   constructor() {
     let resolve: (value: T | PromiseLike<T>) => void;
     let reject: (value: E) => void;
-    this._state = PromiseState.AWAITING;
+    this.#state = PromiseState.AWAITING;
 
-    this.promise = new Promise((rsv, rjc) => {
+    this.#promise = new Promise((rsv, rjc) => {
       resolve = (value) => {
         rsv(value);
-        this._state = PromiseState.RESOLVED;
+        this.#state = PromiseState.RESOLVED;
         resolve = () =>
           panic("Calling `resolve` on an already resolved `ManualPromise`");
         reject = () =>
@@ -82,7 +83,7 @@ export class ManualPromise<T, E = Error> {
 
       reject = (value) => {
         rjc(value);
-        this._state = PromiseState.REJECTED;
+        this.#state = PromiseState.REJECTED;
         resolve = () =>
           panic("Calling `resolve` on an already rejected `ManualPromise`");
         reject = () =>
@@ -103,6 +104,6 @@ export class ManualPromise<T, E = Error> {
   }
 
   wait() {
-    return catchUnwindAsync<Promise<T>, E>(() => this.promise);
+    return catchUnwindAsync<Promise<T>, E>(() => this.#promise);
   }
 }

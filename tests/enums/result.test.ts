@@ -2,7 +2,7 @@ import { expect, test, describe } from "bun:test";
 import { Err, Ok, Result } from "../../src/enums";
 import { unreachable } from "../../src/panic";
 import { None, Some } from "../../src/enums";
-import { RandomInt, RandomString } from "../random";
+import { randomInt, randomString } from "../random";
 
 describe("Testing `isOk` method", () => {
   test("`Ok` should return true", () => {
@@ -234,15 +234,15 @@ describe("Testing `isOkAnd` method", () => {
 
 describe("Testing `map` method", () => {
   test("`Ok` should execute the `func` parameter and return its returned value wrapped in a `Ok`", () => {
-    const num1 = RandomInt(1, 100);
-    const num2 = RandomInt(1, 100);
+    const num1 = randomInt(1, 100);
+    const num2 = randomInt(1, 100);
     const ok1 = Ok(num1);
     const result1 = ok1.map((value) => value * num2);
 
     expect(result1).toEqual(Ok(num1 * num2));
 
-    const str1 = RandomString(7);
-    const str2 = RandomString(7);
+    const str1 = randomString(7);
+    const str2 = randomString(7);
     const ok2 = Ok(str1);
     const result2 = ok2.map((value) => value + str2);
 
@@ -250,7 +250,7 @@ describe("Testing `map` method", () => {
   });
 
   test("`Err` should not execute the `func` parameter", (done) => {
-    const err = Err(RandomInt(1, 100));
+    const err = Err(randomInt(1, 100));
     err.map(() => {
       done("`map` method was executed");
     });
@@ -258,7 +258,7 @@ describe("Testing `map` method", () => {
   });
 
   test("`Err` should return its value wrapped in a `Err`", () => {
-    const str = RandomString(11);
+    const str = randomString(11);
     const err = Err(str);
     const result = err.map(() => {});
 
@@ -268,15 +268,15 @@ describe("Testing `map` method", () => {
 
 describe("Testing `mapErr` method", () => {
   test("`Err` should execute the `func` parameter and return its returned value wrapped in a `Err`", () => {
-    const num1 = RandomInt(1, 100);
-    const num2 = RandomInt(1, 100);
+    const num1 = randomInt(1, 100);
+    const num2 = randomInt(1, 100);
     const err = Err(num1);
     const result1 = err.mapErr((value) => value * num2);
 
     expect(result1).toEqual(Err(num1 * num2));
 
-    const str1 = RandomString(7);
-    const str2 = RandomString(7);
+    const str1 = randomString(7);
+    const str2 = randomString(7);
     const err2 = Err(str1);
     const result2 = err2.mapErr((value) => value + str2);
 
@@ -284,7 +284,7 @@ describe("Testing `mapErr` method", () => {
   });
 
   test("`Ok` should not execute the `func` parameter", (done) => {
-    const ok = Ok(RandomInt(1, 100));
+    const ok = Ok(randomInt(1, 100));
     ok.mapErr(() => {
       done("`mapErr` method was executed");
     });
@@ -292,7 +292,7 @@ describe("Testing `mapErr` method", () => {
   });
 
   test("`Ok` should return its value wrapped in a `Ok`", () => {
-    const str = RandomString(11);
+    const str = randomString(11);
     const ok = Ok(str);
     const result = ok.mapErr(() => {});
 
@@ -302,8 +302,8 @@ describe("Testing `mapErr` method", () => {
 
 describe("Testing `mapOr` method", () => {
   test("`Ok` should execute the func parameter and return its returned value", () => {
-    const def = RandomInt(1, 100);
-    const num = RandomInt(101, 200);
+    const def = randomInt(1, 100);
+    const num = randomInt(101, 200);
     const ok = Ok(num);
     const result = ok.mapOr(def, (value) => {
       return (value * value + value) / 2;
@@ -313,7 +313,7 @@ describe("Testing `mapOr` method", () => {
   });
 
   test("`Err` should not execute the func parameter and should return def", (done) => {
-    const def = RandomString(11);
+    const def = randomString(11);
     const err = Err([7, 7, 7]);
 
     const result = err.mapOr(def, () => {
@@ -328,7 +328,7 @@ describe("Testing `mapOr` method", () => {
 
 describe("Testing `ok` method", () => {
   test("`Ok` should return a its value wrapped in a `Some`", () => {
-    const str = RandomString(11);
+    const str = randomString(11);
     const ok = Ok(str);
 
     expect(ok.ok()).toEqual(Some(str));
@@ -345,8 +345,8 @@ describe("Testing `or` method", () => {
   type R = Result<string, number>;
 
   test("`Ok` and `Err` should return `Ok`", () => {
-    const str = RandomString(11);
-    const num = RandomInt(1, 100);
+    const str = randomString(11);
+    const num = randomInt(1, 100);
 
     const ok: R = Ok(str);
     const err: R = Err(num);
@@ -355,8 +355,8 @@ describe("Testing `or` method", () => {
   });
 
   test("`Err` and `Ok` should return `Ok`", () => {
-    const str = RandomString(11);
-    const num = RandomInt(1, 100);
+    const str = randomString(11);
+    const num = randomInt(1, 100);
 
     const ok: R = Ok(str);
     const err: R = Err(num);
@@ -365,8 +365,8 @@ describe("Testing `or` method", () => {
   });
 
   test("`Ok` and `Ok` should return the first `Ok`", () => {
-    const str1 = RandomString(11);
-    const str2 = RandomString(11);
+    const str1 = randomString(11);
+    const str2 = randomString(11);
 
     const ok1: R = Ok(str1);
     const ok2: R = Ok(str2);
@@ -375,8 +375,8 @@ describe("Testing `or` method", () => {
   });
 
   test("`Err` and `Err` should return the last `Err`", () => {
-    const num1 = RandomInt(1, 100);
-    const num2 = RandomInt(1, 100);
+    const num1 = randomInt(1, 100);
+    const num2 = randomInt(1, 100);
 
     const err1: R = Err(num1);
     const err2: R = Err(num2);
@@ -387,7 +387,7 @@ describe("Testing `or` method", () => {
 
 describe("Testing `unwrap` method", () => {
   test("`Ok` should return its wrapped value", () => {
-    const str = RandomString(11);
+    const str = randomString(11);
     const ok = Ok(str);
     expect(ok.unwrap()).toBe(str);
   });
@@ -423,7 +423,7 @@ describe("Testing `unwrapOr` method", () => {
   });
 
   test("`Err` should return the `def` parameter", () => {
-    const str = RandomString(11);
+    const str = randomString(11);
     const err = Err(new TypeError("11"));
     expect(err.unwrapOr(str)).toEqual(str);
   });
@@ -431,7 +431,7 @@ describe("Testing `unwrapOr` method", () => {
 
 describe("Testing `unwrapOrElse` method", () => {
   test("`Ok` should return its wrapped value", () => {
-    const str = RandomString(11);
+    const str = randomString(11);
     const ok = Ok(str);
 
     const result = ok.unwrapOrElse(() => {
@@ -444,8 +444,8 @@ describe("Testing `unwrapOrElse` method", () => {
   });
 
   test("`Err` should execute the `func` parameter and return its returned value", () => {
-    const str1 = RandomString(11);
-    const str2 = RandomString(11);
+    const str1 = randomString(11);
+    const str2 = randomString(11);
     const err = Err(str1);
 
     const result = err.unwrapOrElse((value) => {
@@ -458,7 +458,7 @@ describe("Testing `unwrapOrElse` method", () => {
 
 describe("Testing `match` method", () => {
   test("`Ok` should execute the `ok` arm", (done) => {
-    const num = RandomInt(1, 100);
+    const num = randomInt(1, 100);
     const ok = Ok(num);
     ok.match({
       Ok(value) {
@@ -473,7 +473,7 @@ describe("Testing `match` method", () => {
   });
 
   test("`Err` should execute the `err` arm", (done) => {
-    const str = RandomString(11);
+    const str = randomString(11);
     const err = Err(str);
     err.match({
       Err(value) {
@@ -490,7 +490,7 @@ describe("Testing `match` method", () => {
 
 describe("Testing `ifOk` method", () => {
   test("`Ok` should execute the `func` parameter", (done) => {
-    const num = RandomInt(1, 100);
+    const num = randomInt(1, 100);
     const ok = Ok(num);
 
     ok.ifOk((value) => {
@@ -524,7 +524,7 @@ describe("Testing `ifErr` method", () => {
   });
 
   test("`Err` should execute the `func` parameter", (done) => {
-    const str = RandomString(11);
+    const str = randomString(11);
     const err = Err(str);
 
     err.ifErr((value) => {
@@ -538,8 +538,8 @@ describe("Testing `ifErr` method", () => {
 
 describe("Testing `mapOrElse` method", () => {
   test("`Ok` should execute the `f` parameter and return its returned value", () => {
-    const str1 = RandomString(11);
-    const str2 = RandomString(11);
+    const str1 = randomString(11);
+    const str2 = randomString(11);
     const ok = Ok(str1);
 
     const result = ok.mapOrElse(
@@ -551,8 +551,8 @@ describe("Testing `mapOrElse` method", () => {
   });
 
   test("`Err` should execute the `def` parameter and return its returned value", () => {
-    const str1 = RandomString(11);
-    const str2 = RandomString(11);
+    const str1 = randomString(11);
+    const str2 = randomString(11);
     const err = Err(str1);
 
     const result = err.mapOrElse(
