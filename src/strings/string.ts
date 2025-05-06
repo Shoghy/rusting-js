@@ -1,10 +1,9 @@
-import { panic } from "../panic.ts";
 import { Err, Ok, Result } from "../enums/result.ts";
 import {
   FromUtf8Error,
   runUtf8Validation,
   stringToUtf8,
-  utf8CharWidth,
+  splitUtf8Chars,
   utf8ToString,
 } from "./utils.ts";
 import { Char } from "./char.ts";
@@ -16,21 +15,10 @@ export class RString {
     this.#vec = new Uint8Array();
   }
 
-  static from(arrLike: ArrayLike<string>) {
+  static fromStr(str: string) {
     const bytes: number[] = [];
 
-    if (typeof arrLike === "string") {
-      bytes.push(...stringToUtf8(arrLike));
-    } else {
-      for (let i = 0; i < arrLike.length; ++i) {
-        const val = arrLike[i];
-
-        if (typeof val !== "string") {
-          panic("`arrLike` contains values that are not of type `string`");
-        }
-        bytes.push(...stringToUtf8(val));
-      }
-    }
+    bytes.push(...stringToUtf8(str));
 
     const self = new RString();
     self.#vec = new Uint8Array(bytes);
@@ -38,7 +26,7 @@ export class RString {
     return self;
   }
 
-  static fromUtf8(vec: ArrayLike<number>): Result<RString, FromUtf8Error> {
+  static fromUtf8(vec: Uint8Array): Result<RString, FromUtf8Error> {
     return runUtf8Validation(vec).match({
       Err: (e) => Err(new FromUtf8Error(vec, e)),
       Ok: () => {
@@ -58,14 +46,17 @@ export class RString {
     return utf8ToString(this.#vec);
   }
 
-  pushStr(str: ArrayLike<string> | RString): void {
-    if (!(str instanceof RString)) {
-      str = RString.from(str);
+  pushStr(str: string | RString): void {
+    let otherVec: ArrayLike<number>;
+    if (str instanceof RString) {
+      otherVec = str.#vec;
+    } else {
+      otherVec = stringToUtf8(str);
     }
 
-    const newVec = new Uint8Array(this.len() + str.len());
+    const newVec = new Uint8Array(this.len() + otherVec.length);
     newVec.set(this.#vec);
-    newVec.set(str.#vec, this.len());
+    newVec.set(otherVec, this.len());
 
     this.#vec = newVec;
   }
@@ -88,19 +79,12 @@ export class RString {
 
   chars() {
     const chars: Char[] = [];
+    const uChars = splitUtf8Chars(this.#vec);
 
-    for (let i = 0; i < this.#vec.length; ++i) {
-      const firstByte = this.#vec[i];
-      const finalByteIndex = utf8CharWidth(firstByte) + i;
-      const bytes: number[] = [];
-
-      bytes.push(...this.#vec.slice(i, finalByteIndex));
-      i = finalByteIndex - 1;
-
-      const char = Char.fromUtf8(bytes).expect(
-        `Invalid UTF-8 sequence at index ${i}`,
+    for (let i = 0; i < uChars.length; ++i) {
+      chars.push(
+        Char.fromUtf8(uChars[i]).expect(`Invalid UTF-8 sequence ${uChars[i]}`),
       );
-      chars.push(char);
     }
 
     return chars;

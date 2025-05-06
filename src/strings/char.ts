@@ -4,6 +4,7 @@ import {
   utf8CharWidth,
   stringToUtf8,
   utf8ToString,
+  splitUtf8Chars,
 } from "./utils";
 
 export class Char {
@@ -13,7 +14,7 @@ export class Char {
     this.#bytes = new Uint8Array(bytes);
   }
 
-  static fromUtf8(bytes: ArrayLike<number>): Option<Char> {
+  static fromUtf8(bytes: Uint8Array): Option<Char> {
     if (bytes.length === 0) return None();
 
     const first = bytes[0];
@@ -25,25 +26,20 @@ export class Char {
 
     return runUtf8Validation(bytes).match({
       Err: () => None(),
-      Ok: () => Some(new this(bytes)),
+      Ok: () => Some(new Char(bytes)),
     });
   }
 
-  /**
-   * @param {string} str Must be a char long, if not it will return `None`
-   */
-  static fromStr(str: string): Option<Char> {
-    if (str.length === 0) return None();
+  static fromStr(str: string): Char[] {
+    const bytes = new Uint8Array(stringToUtf8(str));
+    const uChars = splitUtf8Chars(bytes);
+    const chars: Char[] = [];
 
-    const bytes = stringToUtf8(str);
-    const first = bytes[0];
-    const length = utf8CharWidth(first);
-
-    if (length !== bytes.length) {
-      return None();
+    for (let i = 0; i < uChars.length; ++i) {
+      chars.push(new Char(uChars[i]));
     }
 
-    return Some(new this(bytes));
+    return chars;
   }
 
   toString(): string {

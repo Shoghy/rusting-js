@@ -35,13 +35,14 @@ export function stringToUtf8(str: string) {
       );
     }
   }
+
   return utf8;
 }
 
 /**
  * @author https://stackoverflow.com/a/42453251
  */
-export function utf8ToString(array: ArrayLike<number>) {
+export function utf8ToString(array: Uint8Array) {
   let c: number, char2: number, char3: number, char4: number;
   let out = "";
   const len = array.length;
@@ -133,9 +134,7 @@ export class Utf8Error {
   }
 }
 
-export function runUtf8Validation(
-  v: ArrayLike<number>,
-): Result<void, Utf8Error> {
+export function runUtf8Validation(v: Uint8Array): Result<void, Utf8Error> {
   let index = 0;
   let oldOffset = 0;
   const len = v.length;
@@ -157,14 +156,6 @@ export function runUtf8Validation(
   const result = catchUnwind<void, Option<number>>(() => {
     for (; index < len; ++index) {
       const first = v[index];
-
-      if (first > 255) {
-        throw None();
-      } else if (first < 0) {
-        throw None();
-      } else if (isNaN(first)) {
-        throw None();
-      }
 
       if (first < 128) {
         continue;
@@ -226,6 +217,20 @@ export function runUtf8Validation(
   });
 
   return result.mapErr((error) => new Utf8Error(oldOffset, error));
+}
+
+export function splitUtf8Chars(vec: Uint8Array) {
+  const charsBytes: Uint8Array[] = [];
+  for (let i = 0; i < vec.length; ++i) {
+    const firstByte = vec[i];
+    const charLength = utf8CharWidth(firstByte);
+
+    charsBytes.push(new Uint8Array(vec.buffer, i, charLength));
+
+    i += charLength - 1;
+  }
+
+  return charsBytes;
 }
 
 export class FromUtf8Error {
