@@ -134,36 +134,36 @@ export class Utf8Error {
   }
 }
 
-export function runUtf8Validation(v: Uint8Array): Result<void, Utf8Error> {
+export function runUtf8Validation(bytes: Uint8Array): Result<void, Utf8Error> {
   let index = 0;
   let oldOffset = 0;
-  const len = v.length;
+  const len = bytes.length;
 
   function next() {
     index += 1;
 
     if (index >= len) {
       throw None();
-    } else if (v[index] < 0) {
+    } else if (bytes[index] < 0) {
       throw Some(1);
-    } else if (isNaN(v[index])) {
+    } else if (isNaN(bytes[index])) {
       throw None();
     }
 
-    return v[index];
+    return bytes[index];
   }
 
   const result = catchUnwind<void, Option<number>>(() => {
     for (; index < len; ++index) {
-      const first = v[index];
+      const firstByte = bytes[index];
 
-      if (first < 128) {
+      if (firstByte < 128) {
         continue;
       }
 
-      const w = utf8CharWidth(first);
+      const charWidth = utf8CharWidth(firstByte);
 
-      switch (w) {
+      switch (charWidth) {
         case 2: {
           const val = next();
           if (val < 0x80 || val > 0xbf) {
@@ -174,10 +174,16 @@ export function runUtf8Validation(v: Uint8Array): Result<void, Utf8Error> {
         case 3: {
           let val = next();
           if (
-            (first === 0xe0 && val >= 0xa0 && val <= 0xbf) ||
-            (first >= 0xe1 && first <= 0xec && val >= 0x80 && val <= 0xbf) ||
-            (first === 0xed && val >= 0x80 && val <= 0x9f) ||
-            (first >= 0xee && first <= 0xef && val >= 0x80 && val <= 0xbf)
+            (firstByte === 0xe0 && val >= 0xa0 && val <= 0xbf) ||
+            (firstByte >= 0xe1 &&
+              firstByte <= 0xec &&
+              val >= 0x80 &&
+              val <= 0xbf) ||
+            (firstByte === 0xed && val >= 0x80 && val <= 0x9f) ||
+            (firstByte >= 0xee &&
+              firstByte <= 0xef &&
+              val >= 0x80 &&
+              val <= 0xbf)
           ) {
             val = next();
             if (val < 0x80 || val > 0xbf) {
@@ -191,9 +197,12 @@ export function runUtf8Validation(v: Uint8Array): Result<void, Utf8Error> {
         case 4: {
           let val = next();
           if (
-            (first === 0xf0 && val >= 0x90 && val <= 0xbf) ||
-            (first >= 0xf1 && first <= 0xf3 && val >= 0x80 && val <= 0xbf) ||
-            (first === 0xf4 && val >= 0x80 && val <= 0x8f)
+            (firstByte === 0xf0 && val >= 0x90 && val <= 0xbf) ||
+            (firstByte >= 0xf1 &&
+              firstByte <= 0xf3 &&
+              val >= 0x80 &&
+              val <= 0xbf) ||
+            (firstByte === 0xf4 && val >= 0x80 && val <= 0x8f)
           ) {
             val = next();
             if (val < 0x80 || val > 0xbf) {
