@@ -2,10 +2,10 @@ import { None, type Option, Some } from "../enums/option.ts";
 import { RIterator } from "../traits/iterator.ts";
 
 export class Iter<T> extends RIterator<T> {
-  #generator: Generator<T>;
+  #generator: Iterator<T>;
   #hasEnded = false;
 
-  constructor(generator: Generator<T>) {
+  constructor(generator: Iterator<T>) {
     super();
     this.#generator = generator;
   }
