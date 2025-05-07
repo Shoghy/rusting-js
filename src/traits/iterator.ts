@@ -6,18 +6,14 @@ import type { TryInstance } from "./try_trait.ts";
 import { ControlFlow } from "../enums/control_flow.ts";
 
 export abstract class RIterator<T> {
-  [Symbol.iterator]!: () => Generator<T, void>;
-
-  constructor() {
-    this[Symbol.iterator] = function* () {
-      while (true) {
-        const val = this.next();
-        if (val.isNone()) {
-          break;
-        }
-        yield val.unwrap();
+  *[Symbol.iterator]() {
+    while (true) {
+      const val = this.next();
+      if (val.isNone()) {
+        break;
       }
-    };
+      yield val.unwrap();
+    }
   }
 
   advanceBy(n: number): Result<void, number> {
