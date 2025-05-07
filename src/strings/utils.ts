@@ -1,4 +1,4 @@
-import { type Result } from "../enums/result.ts";
+import { Err, Ok, type Result } from "../enums/result.ts";
 import { None, Option, Some } from "../enums/option.ts";
 import { catchUnwind } from "../panic.ts";
 
@@ -124,6 +124,42 @@ export function utf8CharWidth(b: number): 0 | 1 | 2 | 3 | 4 {
   return 0;
 }
 
+export function utf8ToUnicode(bytes: Uint8Array): Result<number[], number> {
+  const unicodeArr: number[] = [];
+
+  for (let i = 0; i < bytes.length; ++i) {
+    const firstByte = bytes[i];
+
+    if (firstByte < 128) {
+      unicodeArr.push(firstByte);
+      continue;
+    }
+
+    const charLength = utf8CharWidth(firstByte);
+
+    if (charLength === 0 || i + charLength > bytes.length) {
+      return Err(i);
+    }
+
+    let unicode = firstByte & ((1 << (8 - charLength - 1)) - 1);
+
+    for (let j = 1; j < charLength; ++j) {
+      const b = bytes[i + j];
+      if ((b & 0b1100_0000) !== 0b1000_0000) {
+        return Err(i);
+      }
+      unicode <<= 6;
+      unicode += b & 0b0011_1111;
+    }
+
+    i += charLength - 1;
+
+    unicodeArr.push(unicode);
+  }
+
+  return Ok(unicodeArr);
+}
+
 export class Utf8Error {
   validUpTo: number;
   errorLen: Option<number>;
@@ -228,18 +264,15 @@ export function runUtf8Validation(bytes: Uint8Array): Result<void, Utf8Error> {
   return result.mapErr((error) => new Utf8Error(oldOffset, error));
 }
 
-export function splitUtf8Chars(vec: Uint8Array) {
-  const charsBytes: Uint8Array[] = [];
+export function* splitUtf8Chars(vec: Uint8Array) {
   for (let i = 0; i < vec.length; ++i) {
     const firstByte = vec[i];
     const charLength = utf8CharWidth(firstByte);
 
-    charsBytes.push(new Uint8Array(vec.buffer, i, charLength));
+    yield new Uint8Array(vec.buffer, i, charLength);
 
     i += charLength - 1;
   }
-
-  return charsBytes;
 }
 
 export class FromUtf8Error {

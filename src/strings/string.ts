@@ -3,10 +3,11 @@ import {
   FromUtf8Error,
   runUtf8Validation,
   stringToUtf8,
-  splitUtf8Chars,
   utf8ToString,
+  splitUtf8Chars,
 } from "./utils.ts";
 import { Char } from "./char.ts";
+import { Iter } from "../iterators/iter";
 
 export class RString {
   #vec: Uint8Array;
@@ -78,15 +79,10 @@ export class RString {
   }
 
   chars() {
-    const chars: Char[] = [];
-    const uChars = splitUtf8Chars(this.#vec);
-
-    for (let i = 0; i < uChars.length; ++i) {
-      chars.push(
-        Char.fromUtf8(uChars[i]).expect(`Invalid UTF-8 sequence ${uChars[i]}`),
-      );
-    }
-
-    return chars;
+    return new Iter(
+      splitUtf8Chars(this.#vec).map((bytes, index) =>
+        Char.fromUtf8(bytes).expect(`Invalid UTF-8 at index: ${index}`),
+      ),
+    );
   }
 }

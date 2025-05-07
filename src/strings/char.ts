@@ -1,48 +1,56 @@
-import { None, Option, Some } from "../enums/option";
-import {
-  runUtf8Validation,
-  utf8CharWidth,
-  stringToUtf8,
-  utf8ToString,
-  splitUtf8Chars,
-} from "./utils";
+import { Err, Ok, Result } from "../enums/result";
+import { utf8CharWidth, utf8ToUnicode } from "./utils";
+
+export enum CharFromError {
+  EmptyValue,
+  MoreThanOneChar,
+  InvalidUtf8,
+}
 
 export class Char {
-  #bytes: Uint8Array;
+  #unicode: number;
 
-  private constructor(bytes: ArrayLike<number>) {
-    this.#bytes = new Uint8Array(bytes);
+  private constructor(unicode: number) {
+    this.#unicode = unicode;
   }
 
-  static fromUtf8(bytes: Uint8Array): Option<Char> {
-    if (bytes.length === 0) return None();
+  asNumber() {
+    return this.#unicode;
+  }
+
+  static fromUtf8(bytes: Uint8Array): Result<Char, CharFromError> {
+    if (bytes.length === 0) return Err(CharFromError.EmptyValue);
 
     const first = bytes[0];
     const length = utf8CharWidth(first);
 
     if (bytes.length !== length) {
-      return None();
+      return Err(CharFromError.MoreThanOneChar);
     }
 
-    return runUtf8Validation(bytes).match({
-      Err: () => None(),
-      Ok: () => Some(new Char(bytes)),
-    });
+    return utf8ToUnicode(bytes)
+      .map((unicodeArr) => new Char(unicodeArr[0]))
+      .mapErr(() => CharFromError.InvalidUtf8);
   }
 
-  static fromStr(str: string): Char[] {
-    const bytes = new Uint8Array(stringToUtf8(str));
-    const uChars = splitUtf8Chars(bytes);
-    const chars: Char[] = [];
+  static fromStr(str: string): Result<Char, CharFromError> {
+    if (str.length === 0) return Err(CharFromError.EmptyValue);
+    let first = true;
 
-    for (let i = 0; i < uChars.length; ++i) {
-      chars.push(new Char(uChars[i]));
+    let char: string;
+    for (const c of str) {
+      if (!first) {
+        return Err(CharFromError.MoreThanOneChar);
+      } else {
+        first = false;
+      }
+      char = c;
     }
 
-    return chars;
+    return Ok(new Char(char!.codePointAt(0)!));
   }
 
   toString(): string {
-    return utf8ToString(this.#bytes);
+    return String.fromCodePoint(this.#unicode);
   }
 }
