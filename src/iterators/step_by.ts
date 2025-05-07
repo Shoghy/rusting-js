@@ -64,8 +64,6 @@ export class StepBy<T> extends RIterator<T> {
     return this.#iter.nth(mul - 1);
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   protected specTryFold<Acc, R extends TryInstance<Acc, unknown>>(
     type: { fromOutput(output: Acc): R },
     acc: Acc,
