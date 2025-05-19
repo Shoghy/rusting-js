@@ -64,10 +64,8 @@ export abstract class RIterator<T> {
     unimplemented(`${separator}`);
   }
 
-  map<B>(f: (value: T) => B): never {
-    unimplemented(
-      `The return type of this method should run the function ${f} for each element and return its returned value.`,
-    );
+  map<B>(f: (value: T) => B): import("../iterators/map").Map<T, B> {
+    return new Map(this, f);
   }
 
   forEach(f: (value: T) => unknown): void {
@@ -269,3 +267,5 @@ const Chain = require("../iterators/chain")
   .Chain as typeof import("../iterators/chain").Chain;
 const Zip = require("../iterators/zip")
   .Zip as typeof import("../iterators/zip").Zip;
+const Map = require("../iterators/map")
+  .Map as typeof import("../iterators/map").Map;
