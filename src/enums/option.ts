@@ -33,6 +33,21 @@ export class Option<T> extends Enum<{ Some: unknown; None: void }>() {
   }
 
   /**
+   * If `value` is `null`, `undefined` or `NaN`
+   * it returns a None, otherwise returns a Some
+   */
+  static fromValue<T>(value: T): Option<Exclude<T, null | undefined>> {
+    if (
+      value === null ||
+      value === undefined ||
+      (typeof value === "number" && isNaN(value))
+    ) {
+      return None();
+    }
+    return Some(value as Exclude<T, null | undefined>);
+  }
+
+  /**
    * It returns true if `Option` is `Some`
    * @example
    * const some = Some(0);
