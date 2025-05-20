@@ -253,6 +253,45 @@ describe("Testing `getOrInsertWith` method", () => {
   });
 });
 
+describe("Testing `insert` method", () => {
+  test("`insert` should change the value of `None`", (done) => {
+    const cool_song = "https://open.spotify.com/track/4S3dFI8Sx3UsKOUnoYFCg2";
+
+    const option1 = None<string>();
+    const result1 = option1.insert(cool_song);
+    expect(result1).toBe(cool_song);
+    expect(option1.isNone()).toBeFalse();
+
+    option1.match({
+      Some(value) {
+        expect(value).toBe(cool_song);
+      },
+      None() {
+        done("`insert` didn't change the `None` to `Some`");
+      },
+    });
+
+    done();
+  });
+
+  test("`insert` should change the value of `Some`", (done) => {
+    const option2 = Some(1);
+    const result2 = option2.insert(2);
+    expect(result2).toBe(2);
+
+    option2.match({
+      Some(value) {
+        expect(value).toBe(2);
+      },
+      None() {
+        done("`insert` changed the value of `Some` to `None`");
+      },
+    });
+
+    done();
+  });
+});
+
 describe("Testing `isSomeAnd` method", () => {
   const rTrue = () => true;
   const rFalse = () => false;
