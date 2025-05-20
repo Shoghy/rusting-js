@@ -575,10 +575,7 @@ export class Option<T> extends Enum<{ Some: unknown; None: void }>() {
    * expect(result2).toBe("Some");
    */
   unwrapUnchecked(): T | undefined {
-    return this.match({
-      Some: (v) => v,
-      None: () => undefined,
-    });
+    return this.toJSON().value as T;
   }
 
   /**

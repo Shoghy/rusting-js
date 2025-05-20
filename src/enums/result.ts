@@ -5,18 +5,6 @@ import { ControlFlow } from "./control_flow.ts";
 import type { TryStatic } from "../traits/try_trait.ts";
 import { StaticImplements } from "../utils.ts";
 
-interface OkJSON<T> {
-  type: "Ok";
-  value: T;
-}
-
-interface ErrJSON<E> {
-  type: "Err";
-  value: E;
-}
-
-export type ResultJSON<T, E> = OkJSON<T> | ErrJSON<E>;
-
 @StaticImplements<TryStatic<unknown, Result<unknown, unknown>>>()
 export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
   static fromOutput<T, E>(output: T): Result<T, E> {
@@ -44,17 +32,6 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    */
   static Err<T, E>(value: E): Result<T, E> {
     return new Result("Err", value);
-  }
-
-  static fromJson<T, E>(result: ResultJSON<T, E>): Result<T, E> {
-    switch (result.type) {
-      case "Ok":
-        return Ok(result.value);
-      case "Err":
-        return Err(result.value);
-    }
-
-    panic("Not a valid `Result` JSON");
   }
 
   /**
@@ -605,20 +582,6 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
       Err: (error) => {
         throw error;
       },
-    });
-  }
-
-  toJSON() {
-    return this.match<ResultJSON<T, E>>({
-      Ok: (value) => ({
-        type: "Ok",
-        value,
-      }),
-
-      Err: (value) => ({
-        type: "Err",
-        value,
-      }),
     });
   }
 }
