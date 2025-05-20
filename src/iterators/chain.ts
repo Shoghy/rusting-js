@@ -1,6 +1,6 @@
 import { RIterator } from "../traits/iterator.ts";
 import { None, Option, Some } from "../enums/option.ts";
-import type { TryInstance } from "../traits/try_trait.ts";
+import type { TryInstance, TryStatic } from "../traits/try_trait.ts";
 import { Err, Result } from "../enums/result.ts";
 
 export class Chain<T> extends RIterator<T> {
@@ -49,8 +49,8 @@ export class Chain<T> extends RIterator<T> {
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  tryFold<B, R extends TryInstance<B, unknown>>(
-    type: { fromOutput(output: B): R },
+  tryFold<B, R extends TryInstance<B, R>>(
+    type: TryStatic<B, R>,
     init: B,
     f: (acum: B, item: T) => R,
   ): R {
@@ -78,7 +78,7 @@ export class Chain<T> extends RIterator<T> {
       return e as R;
     }
 
-    return type.fromOutput(acc);
+    return type.fromOutput(acc) as R;
   }
 
   fold<B>(init: B, f: (acum: B, item: T) => B): B {

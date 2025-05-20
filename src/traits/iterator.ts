@@ -2,7 +2,7 @@
 import { None, type Option, Some } from "../enums/option.ts";
 import { Err, Ok, type Result } from "../enums/result.ts";
 import { unimplemented } from "../panic.ts";
-import type { TryInstance } from "./try_trait.ts";
+import type { TryInstance, TryStatic } from "./try_trait.ts";
 import { ControlFlow } from "../enums/control_flow.ts";
 
 export abstract class RIterator<T> {
@@ -156,8 +156,8 @@ export abstract class RIterator<T> {
     );
   }
 
-  tryFold<B, R extends TryInstance<B, unknown>>(
-    type: { fromOutput(output: B): R },
+  tryFold<B, R extends TryInstance<B, R>>(
+    type: TryStatic<B, R>,
     init: B,
     f: (acum: B, item: T) => R,
   ): R {
@@ -177,7 +177,7 @@ export abstract class RIterator<T> {
       acum = flow.unwrapContinue();
     }
 
-    return type.fromOutput(acum);
+    return type.fromOutput(acum) as R;
   }
 
   tryForeach() {

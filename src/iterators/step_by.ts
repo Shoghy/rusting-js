@@ -1,6 +1,6 @@
 import { type Option } from "../enums/option.ts";
 import { panic } from "../panic.ts";
-import type { TryInstance } from "../traits/try_trait.ts";
+import type { TryInstance, TryStatic } from "../traits/try_trait.ts";
 import { RIterator } from "../traits/iterator.ts";
 import { Iter } from "./iter.ts";
 
@@ -64,8 +64,8 @@ export class StepBy<T> extends RIterator<T> {
     return this.#iter.nth(mul - 1);
   }
 
-  protected specTryFold<Acc, R extends TryInstance<Acc, unknown>>(
-    type: { fromOutput(output: Acc): R },
+  protected specTryFold<Acc, R extends TryInstance<Acc, R>>(
+    type: TryStatic<Acc, R>,
     acc: Acc,
     f: (acc: Acc, item: T) => R,
   ): R {
@@ -76,7 +76,7 @@ export class StepBy<T> extends RIterator<T> {
       const val = iter.next();
 
       if (val.isNone()) {
-        return type.fromOutput(acc);
+        return type.fromOutput(acc) as R;
       }
 
       const result = f(acc, val.unwrap());
@@ -119,11 +119,11 @@ export class StepBy<T> extends RIterator<T> {
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  tryFold<B, R extends TryInstance<B, unknown>>(
-    type: { fromOutput(output: B): R },
+  tryFold<B, R extends TryInstance<B, R>>(
+    type: TryStatic<B, R>,
     init: B,
     f: (acum: B, item: T) => R,
-  ): R {
+  ) {
     return this.specTryFold(type, init, f);
   }
 
