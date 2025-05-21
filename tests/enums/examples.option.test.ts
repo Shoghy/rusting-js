@@ -7,7 +7,6 @@
 
 import { expect, test } from "bun:test";
 import { None, Some } from "../../src/enums";
-import { Err, Ok } from "../../src/enums";
 import { unreachable } from "../../src/panic";
 
 test("isSome", () => {
@@ -41,19 +40,19 @@ test("inspect", () => {
 test("or", () => {
   let val1 = Some("lorem");
   let val2 = None<string>();
-  expect(val1.or(val2)).toEqual(Some("lorem"));
+  expect(val1.or(val2).unwrap()).toBe("lorem");
 
   val1 = None();
   val2 = Some("6.02214076 * 10^23");
-  expect(val1.or(val2)).toEqual(Some("6.02214076 * 10^23"));
+  expect(val1.or(val2).unwrap()).toBe("6.02214076 * 10^23");
 
   val1 = Some("あなた");
   val2 = Some("かわいい");
-  expect(val1.or(val2)).toEqual(Some("あなた"));
+  expect(val1.or(val2).unwrap()).toBe("あなた");
 
   val1 = None();
   val2 = None();
-  expect(val1.or(val2)).toEqual(None());
+  expect(val1.or(val2).isNone()).toBeTrue();
 });
 
 test("orElse", () => {
@@ -61,49 +60,49 @@ test("orElse", () => {
   const result1 = none.orElse(() => {
     return Some([4, 20]);
   });
-  expect(result1).toEqual(Some([4, 20]));
+  expect(result1.unwrap()).toEqual([4, 20]);
 
   const some = Some(69);
   const result2 = some.orElse(() => {
     return Some(13);
   });
-  expect(result2).toEqual(Some(69));
+  expect(result2.unwrap()).toBe(69);
 });
 
 test("xor", () => {
   let val1 = Some(1);
   let val2 = None<number>();
-  expect(val1.xor(val2)).toEqual(Some(1));
+  expect(val1.xor(val2).unwrap()).toBe(1);
 
   val1 = None();
   val2 = Some(2);
-  expect(val1.xor(val2)).toEqual(Some(2));
+  expect(val1.xor(val2).unwrap()).toBe(2);
 
   val1 = Some(3);
   val2 = Some(4);
-  expect(val1.xor(val2)).toEqual(None());
+  expect(val1.xor(val2).isNone()).toBeTrue();
 
   val1 = None();
   val2 = None();
-  expect(val1.xor(val2)).toEqual(None());
+  expect(val1.xor(val2).isNone()).toBeTrue();
 });
 
 test("and", () => {
   let val1 = Some("Español");
   let val2 = None<string>();
-  expect(val1.and(val2)).toEqual(None());
+  expect(val1.and(val2).isNone()).toBeTrue();
 
   val1 = None();
   val2 = Some("Português");
-  expect(val1.and(val2)).toEqual(None());
+  expect(val1.and(val2).isNone()).toBeTrue();
 
   val1 = Some("English");
   val2 = Some("日本語");
-  expect(val1.and(val2)).toEqual(Some("日本語"));
+  expect(val1.and(val2).unwrap()).toBe("日本語");
 
   val1 = None();
   val2 = None();
-  expect(val1.and(val2)).toEqual(None());
+  expect(val1.and(val2).isNone()).toBeTrue();
 });
 
 test("andThen", () => {
@@ -111,18 +110,18 @@ test("andThen", () => {
   const result1 = none.andThen((value) => {
     return Some(value * value);
   });
-  expect(result1).toEqual(None());
+  expect(result1.isNone()).toBeTrue();
 
   const some = Some(5);
   const result = some.andThen((value) => {
     return Some(value * value);
   });
-  expect(result).toEqual(Some(25));
+  expect(result.unwrap()).toBe(25);
 });
 
 test("expect", () => {
   const none = None();
-  const msg = "This should throw an exception";
+  const msg = "This should panic";
   expect(() => none.expect(msg)).toThrowError(msg);
 
   const some = Some(1);
@@ -134,24 +133,26 @@ test("getOrInsert", () => {
   const option1 = None<number>();
   const result1 = option1.getOrInsert(3.1415);
   expect(result1).toBe(3.1415);
-  expect(option1).toEqual(Some(3.1415));
+  expect(option1.unwrap()).toBe(3.1415);
 
   const option2 = Some(42);
   const result2 = option2.getOrInsert(19);
   expect(result2).toBe(42);
-  expect(option2).toEqual(Some(42));
+  expect(option2.unwrap()).toEqual(42);
 });
 
 test("getOrInsertWith", () => {
+  const text1 = "Hello World!";
   const option1 = None<string>();
-  const result1 = option1.getOrInsertWith(() => "Hello World!");
-  expect(result1).toEqual("Hello World!");
-  expect(option1).toEqual(Some("Hello World!"));
+  const result1 = option1.getOrInsertWith(() => text1);
+  expect(result1).toBe(text1);
+  expect(option1.unwrap()).toBe(text1);
 
-  const option2 = Some("Cards Against Humanity");
-  const result2 = option2.getOrInsertWith(() => "Humanity");
-  expect(result2).toEqual("Cards Against Humanity");
-  expect(option2).toEqual(Some("Cards Against Humanity"));
+  const text2 = "Cards Against Humanity";
+  const option2 = Some(text2);
+  const result2 = option2.getOrInsertWith(() => "^w^");
+  expect(result2).toBe(text2);
+  expect(option2.unwrap()).toBe(text2);
 });
 
 test("isSomeAnd", () => {
@@ -173,13 +174,13 @@ test("take", () => {
   let option1 = Some(142857);
   let option2 = option1.take();
 
-  expect(option1).toEqual(None());
-  expect(option2).toEqual(Some(142857));
+  expect(option1.isNone()).toBeTrue();
+  expect(option2.unwrap()).toBe(142857);
 
   option1 = None();
   option2 = option1.take();
-  expect(option1).toEqual(None());
-  expect(option2).toEqual(None());
+  expect(option1.isNone()).toBeTrue();
+  expect(option2.isNone()).toBeTrue();
 });
 
 test("unwrap", () => {
@@ -214,19 +215,19 @@ test("unwrapOrElse", () => {
 test("zip", () => {
   let val1 = Some(1);
   let val2 = None<string>();
-  expect(val1.zip(val2)).toEqual(None());
+  expect(val1.zip(val2).isNone()).toBeTrue();
 
   val1 = None();
   val2 = Some("thing");
-  expect(val1.zip(val2)).toEqual(None());
+  expect(val1.zip(val2).isNone()).toBeTrue();
 
   val1 = Some(0 + 0 + 7);
   val2 = Some("Agente");
-  expect(val1.zip(val2)).toEqual(Some([7, "Agente"]));
+  expect(val1.zip(val2).unwrap()).toEqual([7, "Agente"]);
 
   val1 = None();
   val2 = None();
-  expect(val1.zip(val2)).toEqual(None());
+  expect(val1.zip(val2).isNone()).toBeTrue();
 });
 
 test("map", () => {
@@ -234,13 +235,13 @@ test("map", () => {
   const result1 = none.map((value) => {
     return value.length;
   });
-  expect(result1).toEqual(None());
+  expect(result1.isNone()).toBeTrue();
 
   const some = Some("1234");
   const result2 = some.map((value) => {
     return value.length;
   });
-  expect(result2).toEqual(Some(4));
+  expect(result2.unwrap()).toBe(4);
 });
 
 test("mapOr", () => {
@@ -258,23 +259,24 @@ test("mapOr", () => {
 });
 
 test("okOr", () => {
+  const text = "The value was a None";
   const none = None();
-  const result1 = none.okOr("The value was a None");
-  expect(result1).toEqual(Err("The value was a None"));
+  const result1 = none.okOr(text);
+  expect(result1.unwrapErr()).toBe(text);
 
   const some = Some(9);
-  const result2 = some.okOr("The value was a None");
-  expect(result2).toEqual(Ok(9));
+  const result2 = some.okOr(text);
+  expect(result2.unwrap()).toBe(9);
 });
 
 test("okOrElse", () => {
   const none = None();
   const result1 = none.okOrElse(() => 68);
-  expect(result1).toEqual(Err(68));
+  expect(result1.unwrapErr()).toBe(68);
 
   const some = Some("DCLXVI");
   const result2 = some.okOrElse(() => "DCXVI");
-  expect(result2).toEqual(Ok("DCLXVI"));
+  expect(result2.unwrap()).toBe("DCLXVI");
 });
 
 test("unwrapUnchecked", () => {
@@ -290,9 +292,7 @@ test("unwrapUnchecked", () => {
 test("ifSome", () => {
   let value = 0;
   const none = None();
-  none.ifSome(() => {
-    value = 1;
-  });
+  none.ifSome(() => unreachable());
   expect(value).toBe(0);
 
   value = 0;
@@ -313,9 +313,7 @@ test("ifNone", () => {
 
   value = 0;
   const some = Some(1);
-  some.ifNone(() => {
-    value = 1;
-  });
+  some.ifNone(() => unreachable());
   expect(value).toBe(0);
 });
 
@@ -323,9 +321,7 @@ test("match", () => {
   let value = 0;
   const none = None<number>();
   none.match({
-    Some: (v) => {
-      value = v;
-    },
+    Some: () => unreachable(),
     None: () => {
       value = 2;
     },
@@ -338,9 +334,7 @@ test("match", () => {
     Some: (v) => {
       value = v;
     },
-    None: () => {
-      value = 2;
-    },
+    None: () => unreachable(),
   });
   expect(value).toBe(1);
 });
