@@ -72,40 +72,56 @@ export class MutexGuard<T> {
     this.tryUnlock();
   }
 
-  get: () => T;
-  set: (val: T) => void;
-  unlock: () => void;
-  hasLock: () => boolean;
+  #get: () => T;
+  #set: (val: T) => void;
+  #unlock: () => void;
+  #hasLock: boolean;
+
+  get get() {
+    return this.#get;
+  }
+
+  get set() {
+    return this.#set;
+  }
+
+  get unlock() {
+    return this.#unlock;
+  }
+
+  get hasLock() {
+    return this.#hasLock;
+  }
 
   constructor(get: () => T, set: (val: T) => void, resolver: () => void) {
-    this.get = () => get();
-    this.set = (val: T) => set(val);
+    this.#get = get;
+    this.#set = set;
+    this.#hasLock = true;
 
-    let hasLock = true;
-
-    this.hasLock = () => hasLock;
-
-    this.unlock = () => {
-      if (!hasLock) {
+    this.#unlock = () => {
+      if (this.#hasLock) {
         panic("Calling `unlock` when `MutexGuard` has been unlocked");
       }
-      hasLock = false;
+      this.#hasLock = false;
 
-      get = () => panic("Calling `get` when `MutexGuard` has been unlocked");
-      set = () => panic("Calling `set` when `MutexGuard` has been unlocked");
+      this.#get = () =>
+        panic("Calling `get` when `MutexGuard` has been unlocked");
+      this.#set = () =>
+        panic("Calling `set` when `MutexGuard` has been unlocked");
+
       resolver();
     };
   }
 
   tryGet(): Result<T, Error> {
-    return catchUnwind(this.get);
+    return catchUnwind(this.#get);
   }
 
   trySet(value: T): Result<void, Error> {
-    return catchUnwind(() => this.set(value));
+    return catchUnwind(() => this.#set(value));
   }
 
   tryUnlock(): Result<void, Error> {
-    return catchUnwind(this.unlock);
+    return catchUnwind(this.#unlock);
   }
 }

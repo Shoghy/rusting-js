@@ -56,51 +56,56 @@ export enum PromiseState {
 }
 
 export class ManualPromise<T, E = Error> {
-  resolve: (value: T | PromiseLike<T>) => void;
-  reject: (value: E) => void;
+  #resolve!: (value: T | PromiseLike<T>) => void;
+  #reject!: (value: E) => void;
 
   get state() {
     return this.#state;
+  }
+
+  get resolve() {
+    return this.#resolve;
+  }
+
+  get reject() {
+    return this.#reject;
   }
 
   #state: PromiseState;
   #promise: Promise<T>;
 
   constructor() {
-    let resolve: (value: T | PromiseLike<T>) => void;
-    let reject: (value: E) => void;
     this.#state = PromiseState.AWAITING;
 
     this.#promise = new Promise((rsv, rjc) => {
-      resolve = (value) => {
+      this.#resolve = (value) => {
+        if (this.#state !== PromiseState.AWAITING) {
+          panic(
+            `Calling \`resolve\` on a promise that was ${PromiseState[this.#state]}`,
+          );
+        }
         rsv(value);
         this.#state = PromiseState.RESOLVED;
-        resolve = () =>
-          panic("Calling `resolve` on an already resolved `ManualPromise`");
-        reject = () =>
-          panic("Calling `reject` on an already resolved `ManualPromise`");
       };
 
-      reject = (value) => {
-        rjc(value);
+      this.#reject = (err) => {
+        if (this.#state !== PromiseState.AWAITING) {
+          panic(
+            `Calling \`resolve\` on a promise that was ${PromiseState[this.#state]}`,
+          );
+        }
+        rjc(err);
         this.#state = PromiseState.REJECTED;
-        resolve = () =>
-          panic("Calling `resolve` on an already rejected `ManualPromise`");
-        reject = () =>
-          panic("Calling `reject` on an already rejected `ManualPromise`");
       };
     });
-
-    this.resolve = (value) => resolve!(value);
-    this.reject = (value) => reject!(value);
   }
 
   tryResolve(value: T | PromiseLike<T>): Result<void, Error> {
-    return catchUnwind(() => this.resolve(value));
+    return catchUnwind(() => this.#resolve(value));
   }
 
   tryReject(value: E): Result<void, Error> {
-    return catchUnwind(() => this.reject(value));
+    return catchUnwind(() => this.#reject(value));
   }
 
   wait() {
