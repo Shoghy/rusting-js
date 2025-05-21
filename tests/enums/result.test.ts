@@ -1,5 +1,5 @@
 import { expect, test, describe } from "bun:test";
-import { Err, Ok, Result } from "../../src/enums";
+import { Err, Ok, type Result } from "../../src/enums";
 import { unreachable } from "../../src/panic";
 import { None, Some } from "../../src/enums";
 import { randomInt, randomString } from "../random";

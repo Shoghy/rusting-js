@@ -1,4 +1,4 @@
-import { Err, Ok, Result } from "../enums/result";
+import { Err, Ok, type Result } from "../enums/result";
 import { Iter } from "../iterators/iter";
 import { utf8CharWidth, utf8ToUnicode } from "./utils";
 
@@ -58,7 +58,7 @@ export class Char {
   }
 
   static fromStr(str: string) {
-    return new Iter(splitString(str).map((c) => new Char(c.codePointAt(0)!)));
+    return new Iter(splitString(str)).map((c) => new Char(c.codePointAt(0)!));
   }
 
   toString(): string {

@@ -1,7 +1,7 @@
 import { RIterator } from "../traits/iterator.ts";
-import { None, Option, Some } from "../enums/option.ts";
+import { None, type Option, Some } from "../enums/option.ts";
 import type { TryInstance, TryStatic } from "../traits/try_trait.ts";
-import { Err, Result } from "../enums/result.ts";
+import { Err, type Result } from "../enums/result.ts";
 
 export class Chain<T> extends RIterator<T> {
   #a: Option<RIterator<T>>;

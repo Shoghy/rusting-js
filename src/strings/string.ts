@@ -1,4 +1,4 @@
-import { Err, Ok, Result } from "../enums/result.ts";
+import { Err, Ok, type Result } from "../enums/result.ts";
 import {
   FromUtf8Error,
   runUtf8Validation,
@@ -79,10 +79,8 @@ export class RString {
   }
 
   chars() {
-    return new Iter(
-      splitUtf8Chars(this.#vec).map((bytes, index) =>
-        Char.fromUtf8(bytes).expect(`Invalid UTF-8 at index: ${index}`),
-      ),
+    return new Iter(splitUtf8Chars(this.#vec)).map((bytes) =>
+      Char.fromUtf8(bytes).expect("Invalid UTF-8"),
     );
   }
 }

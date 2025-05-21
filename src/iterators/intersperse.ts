@@ -1,4 +1,4 @@
-import { None, Option, Some } from "../enums/option";
+import { None, type Option, Some } from "../enums/option";
 import { RIterator } from "../traits/iterator";
 
 function intersperseFold<T, I extends RIterator<T>, B>(
