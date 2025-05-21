@@ -54,10 +54,8 @@ export abstract class RIterator<T> {
     return new Zip(this, other);
   }
 
-  intersperse(separator: T): never {
-    unimplemented(
-      `The return type of this method should "add" ${separator} between each element in ${this}`,
-    );
+  intersperse(separator: T): import("../iterators/intersperse").Intersperse<T> {
+    return new Intersperse(this, separator);
   }
 
   intersperseWith(separator: () => T): never {
@@ -269,3 +267,5 @@ const Zip = require("../iterators/zip")
   .Zip as typeof import("../iterators/zip").Zip;
 const Map = require("../iterators/map")
   .Map as typeof import("../iterators/map").Map;
+const Intersperse = require("../iterators/intersperse")
+  .Intersperse as typeof import("../iterators/intersperse").Intersperse;
