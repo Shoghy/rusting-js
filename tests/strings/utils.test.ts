@@ -1,5 +1,5 @@
 import { test, describe, expect } from "bun:test";
-import { stringToUtf8 } from "../../src/strings/utils";
+import { stringToUtf8 } from "../../src/strings/utils.ts";
 
 describe("should convert string into utf-8", () => {
   test("ASCII characters", () => {

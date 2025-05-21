@@ -1,6 +1,6 @@
-import { type Option } from "../enums/option";
-import { RIterator } from "../traits/iterator";
-import { type TryInstance, type TryStatic } from "../traits/try_trait";
+import { type Option } from "../enums/option.ts";
+import { RIterator } from "../traits/iterator.ts";
+import { type TryInstance, type TryStatic } from "../traits/try_trait.ts";
 
 function mapFold<T, B, Acc>(f: (arg1: T) => B, g: (arg1: Acc, arg2: B) => Acc) {
   return (acc: Acc, elt: T) => g(acc, f(elt));

@@ -6,9 +6,9 @@
  */
 
 import { expect, test } from "bun:test";
-import { Err, Ok } from "../../src/enums";
-import { catchUnwind, unreachable } from "../../src/panic";
-import { None, Some } from "../../src/enums";
+import { Err, Ok } from "../../src/enums/result.ts";
+import { catchUnwind, unreachable } from "../../src/panic.ts";
+import { None, Some } from "../../src/enums/option.ts";
 
 test("isOk", () => {
   const ok = Ok(1);

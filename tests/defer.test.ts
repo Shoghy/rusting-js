@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
-import { defer } from "../src/utils";
-import { catchUnwind, catchUnwindAsync, panic } from "../src/panic";
+import { defer } from "../src/utils.ts";
+import { catchUnwind, catchUnwindAsync, panic } from "../src/panic.ts";
 
 test("Sync defer", (done) => {
   let i = 0;

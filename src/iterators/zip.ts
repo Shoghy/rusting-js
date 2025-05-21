@@ -1,5 +1,5 @@
-import { None, type Option, Some } from "../enums/option";
-import { RIterator } from "../traits/iterator";
+import { None, type Option, Some } from "../enums/option.ts";
+import { RIterator } from "../traits/iterator.ts";
 
 export class Zip<A, B> extends RIterator<[A, B]> {
   #a: RIterator<A>;

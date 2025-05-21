@@ -1,5 +1,5 @@
-import type { Result } from "./enums/result";
-import { catchUnwind, catchUnwindAsync, panic } from "./panic";
+import type { Result } from "./enums/result.ts";
+import { catchUnwind, catchUnwindAsync, panic } from "./panic.ts";
 
 export function StaticImplements<T>() {
   return <U extends T>(constructor: U) => {

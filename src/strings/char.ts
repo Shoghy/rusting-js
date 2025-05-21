@@ -1,6 +1,6 @@
-import { Err, Ok, type Result } from "../enums/result";
-import { Iter } from "../iterators/iter";
-import { utf8CharWidth, utf8ToUnicode } from "./utils";
+import { Err, Ok, type Result } from "../enums/result.ts";
+import { Iter } from "../iterators/iter.ts";
+import { utf8CharWidth, utf8ToUnicode } from "./utils.ts";
 
 export enum CharFromError {
   EmptyValue,

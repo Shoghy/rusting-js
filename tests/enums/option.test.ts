@@ -1,6 +1,6 @@
 import { expect, test, describe } from "bun:test";
-import { None, Some } from "../../src/enums";
-import { unreachable } from "../../src/panic";
+import { None, Some } from "../../src/enums/option.ts";
+import { unreachable } from "../../src/panic.ts";
 
 describe("Testing `isNone` method", () => {
   test("`None` should return true", () => {

@@ -1,6 +1,6 @@
-import { catchUnwind, panic } from "./panic";
-import { type Result } from "./enums/result";
-import { ManualPromise } from "./utils";
+import { catchUnwind, panic } from "./panic.ts";
+import { type Result } from "./enums/result.ts";
+import { ManualPromise } from "./utils.ts";
 
 export class Mutex<T> {
   #value: T;

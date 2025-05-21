@@ -6,8 +6,8 @@
  */
 
 import { expect, test } from "bun:test";
-import { None, Some } from "../../src/enums";
-import { unreachable } from "../../src/panic";
+import { None, Some } from "../../src/enums/option.ts";
+import { unreachable } from "../../src/panic.ts";
 
 test("isSome", () => {
   const some = Some(0);

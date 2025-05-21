@@ -1,8 +1,8 @@
 import { expect, test, describe } from "bun:test";
-import { Err, Ok, type Result } from "../../src/enums";
-import { unreachable } from "../../src/panic";
-import { None, Some } from "../../src/enums";
-import { randomInt, randomString } from "../random";
+import { Err, Ok, type Result } from "../../src/enums/result.ts";
+import { unreachable } from "../../src/panic.ts";
+import { None, Some } from "../../src/enums/option.ts";
+import { randomInt, randomString } from "../random.ts";
 
 describe("Testing `isOk` method", () => {
   test("`Ok` should return true", () => {

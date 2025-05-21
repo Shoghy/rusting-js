@@ -1,5 +1,5 @@
 import { expect, test, describe } from "bun:test";
-import { randomInt, randomString } from "./random";
+import { randomInt, randomString } from "./random.ts";
 
 describe("Testing `randomInt` with fixed values", () => {
   test("The returned value should be between it min and max including both", () => {

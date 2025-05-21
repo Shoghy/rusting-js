@@ -7,7 +7,7 @@ import {
   splitUtf8Chars,
 } from "./utils.ts";
 import { Char } from "./char.ts";
-import { Iter } from "../iterators/iter";
+import { Iter } from "../iterators/iter.ts";
 
 export class RString {
   #vec: Uint8Array;
