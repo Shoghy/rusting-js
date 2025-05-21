@@ -99,7 +99,7 @@ export class MutexGuard<T> {
     this.#hasLock = true;
 
     this.#unlock = () => {
-      if (this.#hasLock) {
+      if (!this.#hasLock) {
         panic("Calling `unlock` when `MutexGuard` has been unlocked");
       }
       this.#hasLock = false;
