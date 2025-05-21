@@ -11,8 +11,8 @@ So far, it has:
 
 - The function `catch_unwind` is for replacing try/catch. It needs a function as its argument, and if the function argument throws an error, it will catch it and wrap it in a `Result` of type `Err` returning it, and if the function runs successfully, it will return the function return value wrapped in a `Result` of type `Ok`.
 
-Some others still not finnished features are:
-- `RString` is a class that imitates the String structure in Rust. So far, it can give you the UTF-8 bytes of a string, and you can instatiate it with an array of numbers if the array is a valid UTF-8.
+Some others still not finished features are:
+- `RString` is a class that imitates the String structure in Rust. So far, it can give you the UTF-8 bytes of a string, and you can insatiate it with an array of numbers if the array is a valid UTF-8.
 
 - `RIterator` a class that works like a trait to allow you create Rust-like Iterators. The project currently come with 3 types of iterators: Iter, StepBy, and Chain. A lot of functions in RIterator depend on different Iterators so those functions, for now, are currently not available for those reasons.
 

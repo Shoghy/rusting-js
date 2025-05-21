@@ -122,12 +122,12 @@ export class StepBy<T> extends RIterator<T> {
   tryFold<B, R extends TryInstance<B, R>>(
     type: TryStatic<B, R>,
     init: B,
-    f: (acum: B, item: T) => R,
+    f: (accum: B, item: T) => R,
   ) {
     return this.specTryFold(type, init, f);
   }
 
-  fold<B>(init: B, f: (acum: B, item: T) => B): B {
+  fold<B>(init: B, f: (accum: B, item: T) => B): B {
     return this.specFold(init, f);
   }
 }

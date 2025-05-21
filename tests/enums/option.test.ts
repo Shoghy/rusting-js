@@ -385,7 +385,7 @@ describe("Testing `map` method", () => {
   });
 
   test("`Some` should execute the `func` parameter and return its return value wrapped in a `Some`", () => {
-    const boo = "Hipopomonstruoesquipedalofobia";
+    const boo = "Hipopotomonstrosesquipedaliofobia";
     const some = Some(boo);
     let val = 1;
 

@@ -32,12 +32,12 @@ export class Map<Orig, Mapped> extends RIterator<Mapped> {
   tryFold<Acc, R extends TryInstance<Acc, R>>(
     type: TryStatic<Acc, R>,
     init: Acc,
-    g: (acum: Acc, item: Mapped) => R,
+    g: (accum: Acc, item: Mapped) => R,
   ): R {
     return this.#iter.tryFold(type, init, mapTryFold(this.#func, g));
   }
 
-  fold<Acc>(init: Acc, g: (acum: Acc, item: Mapped) => Acc) {
+  fold<Acc>(init: Acc, g: (accum: Acc, item: Mapped) => Acc) {
     return this.#iter.fold(init, mapFold(this.#func, g));
   }
 }

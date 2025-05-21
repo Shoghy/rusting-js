@@ -52,7 +52,7 @@ export class Chain<T> extends RIterator<T> {
   tryFold<B, R extends TryInstance<B, R>>(
     type: TryStatic<B, R>,
     init: B,
-    f: (acum: B, item: T) => R,
+    f: (accum: B, item: T) => R,
   ): R {
     let acc = init;
     try {
@@ -81,7 +81,7 @@ export class Chain<T> extends RIterator<T> {
     return type.fromOutput(acc) as R;
   }
 
-  fold<B>(init: B, f: (acum: B, item: T) => B): B {
+  fold<B>(init: B, f: (accum: B, item: T) => B): B {
     let acc = init;
     this.#a.ifSome((a) => {
       acc = a.fold(acc, f);

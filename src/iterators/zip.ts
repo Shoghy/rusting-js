@@ -33,17 +33,17 @@ export class Zip<A, B> extends RIterator<[A, B]> {
   }
 
   protected specFold<Acc>(init: Acc, f: (acc: Acc, item: [A, B]) => Acc): Acc {
-    let acum = init;
+    let accum = init;
 
     while (true) {
       const val = this.next();
       if (val.isNone()) {
         break;
       }
-      acum = f(acum, val.unwrap());
+      accum = f(accum, val.unwrap());
     }
 
-    return acum;
+    return accum;
   }
 
   fold<Acc>(init: Acc, f: (acc: Acc, item: [A, B]) => Acc): Acc {

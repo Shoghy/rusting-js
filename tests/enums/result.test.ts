@@ -151,7 +151,7 @@ describe("Testing `err` method", () => {
 describe("Testing `expect` method", () => {
   test("`Ok` should return its wrapped value", () => {
     const ok = Ok("Mate");
-    expect(ok.expect("Mensage de error")).toBe("Mate");
+    expect(ok.expect("Mensaje de error")).toBe("Mate");
   });
 
   test("`Err` should panic", () => {

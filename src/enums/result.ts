@@ -152,8 +152,8 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * const ok = Ok("You're cute");
    * expect(ok.err()).toEqual(None());
    *
-   * const err = Err(new Error("EEEERRRROOORRRR"));
-   * expect(err.err()).toEqual(Some(new Error("EEEERRRROOORRRR")));
+   * const err = Err(new Error("EEEEEERRRRROOOOORRR"));
+   * expect(err.err()).toEqual(Some(new Error("EEEEEERRRRROOOOORRR")));
    */
   err(): Option<E> {
     return this.match({

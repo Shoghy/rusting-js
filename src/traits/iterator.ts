@@ -157,9 +157,9 @@ export abstract class RIterator<T> {
   tryFold<B, R extends TryInstance<B, R>>(
     type: TryStatic<B, R>,
     init: B,
-    f: (acum: B, item: T) => R,
+    f: (accum: B, item: T) => R,
   ): R {
-    let acum = init;
+    let accum = init;
 
     while (true) {
       const val = this.next();
@@ -167,33 +167,33 @@ export abstract class RIterator<T> {
         break;
       }
 
-      const result = f(acum, val.unwrap());
+      const result = f(accum, val.unwrap());
       const flow = result.branch();
       if (flow.isBreak()) {
         return result;
       }
-      acum = flow.unwrapContinue();
+      accum = flow.unwrapContinue();
     }
 
-    return type.fromOutput(acum) as R;
+    return type.fromOutput(accum) as R;
   }
 
   tryForeach() {
     unimplemented();
   }
 
-  fold<B>(init: B, f: (acum: B, item: T) => B): B {
-    let acum = init;
+  fold<B>(init: B, f: (accum: B, item: T) => B): B {
+    let accum = init;
 
     while (true) {
       const val = this.next();
       if (val.isNone()) {
         break;
       }
-      acum = f(acum, val.unwrap());
+      accum = f(accum, val.unwrap());
     }
 
-    return acum;
+    return accum;
   }
 
   reduce(f: (item: T) => T): Option<T> {
