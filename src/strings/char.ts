@@ -1,10 +1,17 @@
 import { Err, Ok, Result } from "../enums/result";
+import { Iter } from "../iterators/iter";
 import { utf8CharWidth, utf8ToUnicode } from "./utils";
 
 export enum CharFromError {
   EmptyValue,
   MoreThanOneChar,
   InvalidUtf8,
+}
+
+function* splitString(str: string) {
+  for (const c of str) {
+    yield c;
+  }
 }
 
 export class Char {
@@ -33,12 +40,12 @@ export class Char {
       .mapErr(() => CharFromError.InvalidUtf8);
   }
 
-  static fromStr(str: string): Result<Char, CharFromError> {
-    if (str.length === 0) return Err(CharFromError.EmptyValue);
+  static fromCharStr(charStr: string): Result<Char, CharFromError> {
+    if (charStr.length === 0) return Err(CharFromError.EmptyValue);
     let first = true;
 
     let char: string;
-    for (const c of str) {
+    for (const c of charStr) {
       if (!first) {
         return Err(CharFromError.MoreThanOneChar);
       } else {
@@ -48,6 +55,10 @@ export class Char {
     }
 
     return Ok(new Char(char!.codePointAt(0)!));
+  }
+
+  static fromStr(str: string) {
+    return new Iter(splitString(str).map((c) => new Char(c.codePointAt(0)!)));
   }
 
   toString(): string {
