@@ -52,4 +52,10 @@ describe("should convert string into utf-8", () => {
       10, 124, 32, 124, 124, 10, 10, 124, 124, 32, 124, 45, 45, 10,
     ]);
   });
+
+  test("AMONG US", () => {
+    const arr = stringToUtf8("ඞ");
+
+    expect(arr).toEqual([224, 182, 158]);
+  });
 });
