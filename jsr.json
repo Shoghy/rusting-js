@@ -1,0 +1,31 @@
+{
+  "name": "@shoghy/rusting-js",
+  "version": "0.1.8",
+  "license": "MIT",
+  "exclude": ["tests/"],
+  "exports": {
+    ".": "./src/index.ts",
+    "./enums": "./src/enums/index.ts",
+    "./iterators": "./src/iterators/index.ts",
+    "./strings": "./src/strings/index.ts",
+    "./traits": "./src/traits/index.ts"
+  },
+  "compilerOptions": {
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
+    "jsx": "react-jsx",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "verbatimModuleSyntax": true,
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false
+  },
+  "unstable": [
+    "sloppy-imports"
+  ]
+}
