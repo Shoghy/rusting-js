@@ -73,7 +73,7 @@ describe("Testing `forcedUnlock` method", () => {
     const lock = await m.lock();
 
     m.forcedUnlock();
-    expect(lock.hasLock()).toBeFalse();
+    expect(lock.hasLock).toBeFalse();
   });
 
   test("`getLockersCount` should return zero", () => {
@@ -185,7 +185,7 @@ describe("Testing `hasLock` method", () => {
     const m = new Mutex(33);
     const lock = await m.lock();
 
-    expect(lock.hasLock()).toBeTrue();
+    expect(lock.hasLock).toBeTrue();
   });
 
   test("Should return false", async () => {
@@ -193,7 +193,7 @@ describe("Testing `hasLock` method", () => {
     const lock = await m.lock();
     lock.unlock();
 
-    expect(lock.hasLock()).toBeFalse();
+    expect(lock.hasLock).toBeFalse();
   });
 });
 
@@ -251,7 +251,7 @@ describe("Testing `tryUnlock` method", () => {
 
     const result = lock.tryUnlock();
     expect(result).toEqual(Ok());
-    expect(lock.hasLock()).toBeFalse();
+    expect(lock.hasLock).toBeFalse();
   });
 
   test("Should just return an `Err`", async () => {
