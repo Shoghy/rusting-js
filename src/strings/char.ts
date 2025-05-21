@@ -64,4 +64,8 @@ export class Char {
   toString(): string {
     return String.fromCodePoint(this.#unicode);
   }
+
+  valueOf() {
+    return this.#unicode;
+  }
 }

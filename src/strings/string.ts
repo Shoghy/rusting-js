@@ -55,9 +55,9 @@ export class RString {
       otherVec = stringToUtf8(str);
     }
 
-    const newVec = new Uint8Array(this.len() + otherVec.length);
+    const newVec = new Uint8Array(this.#vec.length + otherVec.length);
     newVec.set(this.#vec);
-    newVec.set(otherVec, this.len());
+    newVec.set(otherVec, this.#vec.length);
 
     this.#vec = newVec;
   }
