@@ -22,6 +22,10 @@ export default [
       ],
       "comma-dangle": ["error", "always-multiline"],
       "@typescript-eslint/no-shadow": "warn",
+      "@typescript-eslint/consistent-type-imports": [
+        "warn",
+        { disallowTypeAnnotations: false, fixStyle: "inline-type-imports" },
+      ],
     },
   },
 ];
