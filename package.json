@@ -71,20 +71,6 @@
         "default": "./enums/index.js"
       }
     },
-    "./traits": {
-      "import": {
-        "types": "./traits/index.d.ts",
-        "default": "./traits/index.js"
-      },
-      "node": {
-        "types": "./traits/index.d.cts",
-        "default": "./traits/index.cjs"
-      },
-      "default": {
-        "types": "./traits/index.d.ts",
-        "default": "./traits/index.js"
-      }
-    },
     "./iterators": {
       "import": {
         "types": "./iterators/index.d.ts",
@@ -99,6 +85,20 @@
         "default": "./iterators/index.js"
       }
     },
+    "./slices": {
+      "import": {
+        "types": "./slices/index.d.ts",
+        "default": "./slices/index.js"
+      },
+      "node": {
+        "types": "./slices/index.d.cts",
+        "default": "./slices/index.cjs"
+      },
+      "default": {
+        "types": "./slices/index.d.ts",
+        "default": "./slices/index.js"
+      }
+    },
     "./strings": {
       "import": {
         "types": "./strings/index.d.ts",
@@ -111,6 +111,20 @@
       "default": {
         "types": "./strings/index.d.ts",
         "default": "./strings/index.js"
+      }
+    },
+    "./traits": {
+      "import": {
+        "types": "./traits/index.d.ts",
+        "default": "./traits/index.js"
+      },
+      "node": {
+        "types": "./traits/index.d.cts",
+        "default": "./traits/index.cjs"
+      },
+      "default": {
+        "types": "./traits/index.d.ts",
+        "default": "./traits/index.js"
       }
     }
   }
