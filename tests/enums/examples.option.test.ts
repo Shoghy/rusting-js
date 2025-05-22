@@ -138,7 +138,7 @@ test("getOrInsert", () => {
   const option2 = Some(42);
   const result2 = option2.getOrInsert(19);
   expect(result2).toBe(42);
-  expect(option2.unwrap()).toEqual(42);
+  expect(option2.unwrap()).toBe(42);
 });
 
 test("getOrInsertWith", () => {
@@ -292,36 +292,39 @@ test("unwrapUnchecked", () => {
 test("ifSome", () => {
   let value = 0;
   const none = None();
-  none.ifSome(() => unreachable());
+  none.ifSome(() => {
+    value = 1;
+  });
   expect(value).toBe(0);
 
-  value = 0;
-  const some = Some(1);
+  const some = Some(7);
   some.ifSome((v) => {
-    value = v;
+    value = v + 5;
   });
-  expect(value).toBe(1);
+  expect(value).toBe(12);
 });
 
 test("ifNone", () => {
-  let value = 0;
+  let value = "Let's get creative";
   const none = None();
   none.ifNone(() => {
-    value = 1;
+    value = "`None` is not a creative color";
   });
-  expect(value).toBe(1);
+  expect(value).toBe("`None` is not a creative color");
 
-  value = 0;
-  const some = Some(1);
-  some.ifNone(() => unreachable());
-  expect(value).toBe(0);
+  value = "Love is gravel eater god named Malcolm";
+  const some = Some("You need to slow down");
+  some.ifNone(() => {
+    value = "DON'T TOUCH MEEEEEEEEEEEEE";
+  });
+  expect(value).toBe("Love is gravel eater god named Malcolm");
 });
 
 test("match", () => {
   let value = 0;
   const none = None<number>();
   none.match({
-    Some: () => unreachable(),
+    Some: () => unreachable("This is a `None`"),
     None: () => {
       value = 2;
     },
@@ -329,14 +332,14 @@ test("match", () => {
   expect(value).toBe(2);
 
   value = 0;
-  const some = Some(1);
+  const some = Some(432);
   some.match({
     Some: (v) => {
       value = v;
     },
-    None: () => unreachable(),
+    None: () => unreachable("This is a `Some`"),
   });
-  expect(value).toBe(1);
+  expect(value).toBe(432);
 });
 
 test("mapOrElse", () => {
