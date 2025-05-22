@@ -5,7 +5,7 @@ import { unimplemented } from "../panic.ts";
 import type { TryInstance, TryStatic } from "./try_trait.ts";
 import { ControlFlow } from "../enums/control_flow.ts";
 
-export abstract class RIterator<T> {
+export abstract class RIterator<T> implements Iterable<T, void> {
   *[Symbol.iterator]() {
     while (true) {
       const val = this.next();

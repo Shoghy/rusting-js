@@ -14,12 +14,12 @@ function* iterableGenerator<T>(jsIter: Iterable<T>) {
 }
 
 export class Iter<T> extends RIterator<T> {
-  #generator: Iterator<T>;
+  #iterator: Iterator<T>;
   #hasEnded = false;
 
-  constructor(generator: Iterator<T>) {
+  constructor(iterator: Iterator<T>) {
     super();
-    this.#generator = generator;
+    this.#iterator = iterator;
   }
 
   static fromSlice<T>(arr: ArrayLike<T>) {
@@ -35,7 +35,7 @@ export class Iter<T> extends RIterator<T> {
       return None();
     }
 
-    const val = this.#generator.next();
+    const val = this.#iterator.next();
     if (val.done) {
       this.#hasEnded = true;
       return None();

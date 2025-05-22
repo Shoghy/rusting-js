@@ -10,10 +10,10 @@ import { Char } from "./char.ts";
 import { Iter } from "../iterators/iter.ts";
 
 export class RString {
-  #vec: Uint8Array;
+  #bytes: Uint8Array;
 
   constructor() {
-    this.#vec = new Uint8Array();
+    this.#bytes = new Uint8Array();
   }
 
   static fromStr(str: string) {
@@ -22,17 +22,17 @@ export class RString {
     bytes.push(...stringToUtf8(str));
 
     const self = new RString();
-    self.#vec = new Uint8Array(bytes);
+    self.#bytes = new Uint8Array(bytes);
 
     return self;
   }
 
-  static fromUtf8(vec: Uint8Array): Result<RString, FromUtf8Error> {
-    return runUtf8Validation(vec).match({
-      Err: (e) => Err(new FromUtf8Error(vec, e)),
+  static fromUtf8(bytes: Uint8Array): Result<RString, FromUtf8Error> {
+    return runUtf8Validation(bytes).match({
+      Err: (e) => Err(new FromUtf8Error(bytes, e)),
       Ok: () => {
         const self = new RString();
-        self.#vec = new Uint8Array(vec);
+        self.#bytes = new Uint8Array(bytes);
 
         return Ok(self);
       },
@@ -40,46 +40,46 @@ export class RString {
   }
 
   len(): number {
-    return this.#vec.length;
+    return this.#bytes.length;
   }
 
   toString(): string {
-    return utf8ToString(this.#vec);
+    return utf8ToString(this.#bytes);
   }
 
   pushStr(str: string | RString): void {
     let otherVec: ArrayLike<number>;
     if (str instanceof RString) {
-      otherVec = str.#vec;
+      otherVec = str.#bytes;
     } else {
       otherVec = stringToUtf8(str);
     }
 
-    const newVec = new Uint8Array(this.#vec.length + otherVec.length);
-    newVec.set(this.#vec);
-    newVec.set(otherVec, this.#vec.length);
+    const newVec = new Uint8Array(this.#bytes.length + otherVec.length);
+    newVec.set(this.#bytes);
+    newVec.set(otherVec, this.#bytes.length);
 
-    this.#vec = newVec;
+    this.#bytes = newVec;
   }
 
   asBytes(): Uint8Array {
-    return this.#vec.slice();
+    return this.#bytes.slice();
   }
 
   clear() {
-    this.#vec = new Uint8Array(0);
+    this.#bytes = new Uint8Array(0);
   }
 
   isEmpty() {
-    return this.#vec.length === 0;
+    return this.#bytes.length === 0;
   }
 
   capacity() {
-    return this.#vec.byteLength;
+    return this.#bytes.byteLength;
   }
 
   chars() {
-    return new Iter(splitUtf8Chars(this.#vec)).map((bytes) =>
+    return new Iter(splitUtf8Chars(this.#bytes)).map((bytes) =>
       Char.fromUtf8(bytes).expect("Invalid UTF-8"),
     );
   }
