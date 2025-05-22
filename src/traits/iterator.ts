@@ -55,11 +55,13 @@ export abstract class RIterator<T> implements Iterable<T> {
   }
 
   intersperse(separator: T): import("../iterators/intersperse").Intersperse<T> {
-    return new Intersperse(this, separator);
+    return new Intersperse(this, () => separator);
   }
 
-  intersperseWith(separator: () => T): never {
-    unimplemented(`${separator}`);
+  intersperseWith(
+    separator: () => T,
+  ): import("../iterators/intersperse").Intersperse<T> {
+    return new Intersperse(this, separator);
   }
 
   map<B>(f: (value: T) => B): import("../iterators/map").Map<T, B> {

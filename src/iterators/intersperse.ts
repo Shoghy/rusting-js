@@ -33,9 +33,9 @@ export class Intersperse<T> extends RIterator<T> {
   #started: boolean = false;
   #iter: RIterator<T>;
   #nextItem = None<T>();
-  #separator: T;
+  #separator: () => T;
 
-  constructor(iter: RIterator<T>, separator: T) {
+  constructor(iter: RIterator<T>, separator: () => T) {
     super();
     this.#iter = iter;
     this.#separator = separator;
@@ -58,7 +58,7 @@ export class Intersperse<T> extends RIterator<T> {
     }
 
     this.#nextItem = nextItem;
-    return Some(this.#separator);
+    return Some(this.#separator());
   }
 
   fold<B>(init: B, f: (accum: B, value: T) => B) {
@@ -66,7 +66,7 @@ export class Intersperse<T> extends RIterator<T> {
       this.#iter,
       init,
       f,
-      () => this.#separator,
+      this.#separator,
       this.#started,
       this.#nextItem,
     );
