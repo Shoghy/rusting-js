@@ -2,6 +2,7 @@ import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
+import fileExtensionPlugin from "eslint-plugin-file-extension-in-import-ts";
 
 export default [
   { ignores: ["dist/"] },
@@ -10,6 +11,9 @@ export default [
   ...tseslint.configs.recommended,
   eslintPluginPrettierRecommended,
   {
+    plugins: {
+      fileExtensionPlugin,
+    },
     rules: {
       semi: ["error", "always"],
       "linebreak-style": ["error", "unix"],
@@ -25,6 +29,11 @@ export default [
       "@typescript-eslint/consistent-type-imports": [
         "warn",
         { disallowTypeAnnotations: false, fixStyle: "inline-type-imports" },
+      ],
+      "fileExtensionPlugin/file-extension-in-import-ts": [
+        "error",
+        "always",
+        { extMapping: { ".ts": ".ts" } },
       ],
     },
   },
