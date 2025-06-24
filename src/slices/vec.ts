@@ -130,6 +130,10 @@ class VecClass<T> {
     }
     return Some(this[ArrSymbol][index]);
   }
+
+  iter() {
+    return new Iter(createIterator(this, 0, this[ArrSymbol].length));
+  }
 }
 
 export const Vec = new Proxy(VecClass, {
