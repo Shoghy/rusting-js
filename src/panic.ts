@@ -55,7 +55,7 @@ export function unimplemented(message?: string): never {
  */
 export async function catchUnwindAsync<T, E = Error>(
   func: () => PromiseLike<T>,
-): Promise<Result<T, E>> {
+): Promise<Result<Awaited<T>, E>> {
   try {
     return Ok(await func());
   } catch (e) {
