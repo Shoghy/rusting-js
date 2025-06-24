@@ -1,3 +1,4 @@
+import { None, Some, type Option } from "../enums/option.ts";
 import { Iter } from "../iterators/iter.ts";
 import { panic } from "../panic.ts";
 
@@ -123,8 +124,11 @@ class VecClass<T> {
     this[ArrSymbol].sort(f);
   }
 
-  get(index: number): T {
-    return this[ArrSymbol][index];
+  get(index: number): Option<T> {
+    if (index >= this[ArrSymbol].length) {
+      None();
+    }
+    return Some(this[ArrSymbol][index]);
   }
 }
 
