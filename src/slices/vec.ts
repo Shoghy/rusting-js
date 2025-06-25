@@ -47,10 +47,11 @@ function getVecRange<T>(vec: VecClass<T>, range: StrRange): Iter<T> {
   let splitStr = "..";
   if (range.includes("=")) {
     splitStr += "=";
+    end = 1;
   }
 
   const [a, b] = range.split(splitStr);
-  end = parseInt(b, 10);
+  end += parseInt(b, 10);
   if (a !== "") {
     start = parseInt(a, 10);
   }
