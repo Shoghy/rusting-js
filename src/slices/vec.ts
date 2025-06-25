@@ -113,6 +113,12 @@ class VecClass<T> {
 
   [key: number]: T;
 
+  *[Symbol.iterator]() {
+    for (let i = 0; i < this[ArrSymbol].length; ++i) {
+      yield this[ArrSymbol][i];
+    }
+  }
+
   constructor(...values: T[]) {
     this[ArrSymbol] = values;
   }
