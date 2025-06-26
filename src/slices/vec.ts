@@ -10,8 +10,7 @@ export enum Ordering {
 
 const ArrSymbol = Symbol("Arr");
 const UIntRegex = /^[0-9]+$/;
-const StrRangeRegex =
-  /^(\.\.|[0-9]+\.\.|\.\.[0-9]+|[0-9]+\.\.[0-9]+|\.\.=[0-9]+|[0-9]+\.\.=[0-9]+)$/;
+const StrRangeRegex = /^[0-9]*\.\.(=[0-9]+|[0-9]*)$/;
 
 type StrRange =
   | ".."
