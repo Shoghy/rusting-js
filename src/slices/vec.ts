@@ -50,14 +50,15 @@ function getVecRange<T>(vec: VecClass<T>, range: StrRange): Iter<T> {
   }
 
   const [a, b] = range.split(splitStr);
-  end += parseInt(b, 10);
+  if (b !== "") {
+    end += parseInt(b, 10);
+  } else {
+    end = length;
+  }
   if (a !== "") {
     start = parseInt(a, 10);
   }
 
-  if (start < 0 || end < 0) {
-    panic("Negative index in range");
-  }
   if (start >= length || end > length) {
     panic("Out of range");
   }
