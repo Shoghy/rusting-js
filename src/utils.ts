@@ -2,9 +2,7 @@ import type { Result } from "./enums/result.ts";
 import { catchUnwind, catchUnwindAsync, panic } from "./panic.ts";
 
 export function StaticImplements<T>() {
-  return <U extends T>(constructor: U) => {
-    constructor;
-  };
+  return <U extends T>(_: U) => {};
 }
 
 export function copyTo(dest: object, src: object): void {
@@ -24,7 +22,7 @@ export interface DeferObject {
  *
  * To use it you just need to create a dummy
  * variable with the `using` keyword.
- * ```ts
+ * @example
  * function example() {
  *   using _d1 = defer(() => {
  *     console.log("AEUGH");
@@ -109,6 +107,6 @@ export class ManualPromise<T, E = Error> {
   }
 
   wait() {
-    return catchUnwindAsync<Promise<T>, E>(() => this.#promise);
+    return catchUnwindAsync<T, E>(() => this.#promise);
   }
 }

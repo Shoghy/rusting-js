@@ -22,7 +22,7 @@ export default [
       quotes: ["warn", "double", { avoidEscape: true }],
       "@typescript-eslint/no-unused-vars": [
         "error",
-        { varsIgnorePattern: "^_" },
+        { varsIgnorePattern: "^_", argsIgnorePattern: "^_" },
       ],
       "comma-dangle": ["error", "always-multiline"],
       "@typescript-eslint/no-shadow": "warn",
