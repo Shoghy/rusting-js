@@ -49,8 +49,13 @@ export function Enum<Structure extends object>() {
       return new this(type, value as Structure[T]);
     }
 
-    is(type: EnumStates): boolean {
-      return this.#type === type;
+    is(type: EnumStates): boolean;
+    is(): EnumStates;
+    is(type?: EnumStates): boolean | EnumStates {
+      if (type !== undefined) {
+        return this.#type === type;
+      }
+      return this.#type;
     }
 
     ifIs<T extends EnumStates>(type: T, func: Func<T, unknown>): void {
