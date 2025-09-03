@@ -5,7 +5,7 @@ import { ManualPromise } from "./utils.ts";
 export class Mutex<T> {
   #value: T;
 
-  #locker?: ManualPromise<unknown>;
+  #locker?: ManualPromise<void>;
   #unlockers: Record<symbol, () => void> = {};
   #lockersCount = 0;
 
@@ -36,12 +36,12 @@ export class Mutex<T> {
     this.#lockersCount += 1;
 
     const prevLocker = this.#locker;
-    const promise = new ManualPromise();
+    const promise = new ManualPromise<void>();
 
     const resolvePromise = () => {
       this.#lockersCount -= 1;
       delete this.#unlockers[unlockerKey];
-      promise.resolve(undefined);
+      promise.resolve();
     };
 
     const mutexGuard = new MutexGuard(
