@@ -285,8 +285,8 @@ describe("Testing `isSomeAnd` method", () => {
 
     expect(some.isSomeAnd(rTrue)).toBe(true);
     expect(some.isSomeAnd(rFalse)).toBe(false);
-    expect(some.isSomeAnd((value) => value == 1)).toBe(true);
-    expect(some.isSomeAnd((value) => value == 2)).toBe(false);
+    expect(some.isSomeAnd((value) => value === 1)).toBe(true);
+    expect(some.isSomeAnd((value) => value === 2)).toBe(false);
   });
 });
 

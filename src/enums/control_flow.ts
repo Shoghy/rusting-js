@@ -1,7 +1,7 @@
-import { Enum } from "./enum.ts";
 import { panic } from "../panic.ts";
 import type { TryStatic } from "../traits/try_trait.ts";
 import { StaticImplements } from "../utils.ts";
+import { Enum } from "./enum.ts";
 import { Some, None, type Option } from "./option.ts";
 
 @StaticImplements<TryStatic<unknown, ControlFlow<unknown, unknown>>>()

@@ -1,9 +1,10 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/consistent-type-imports */
 import { None, type Option, Some } from "../enums/option.ts";
 import { Err, Ok, type Result } from "../enums/result.ts";
 import { unimplemented } from "../panic.ts";
-import type { TryInstance, TryStatic } from "./try_trait.ts";
 import { ControlFlow } from "../enums/control_flow.ts";
+import type { TryInstance, TryStatic } from "./try_trait.ts";
 
 export abstract class RIterator<T> implements Iterable<T> {
   *[Symbol.iterator]() {

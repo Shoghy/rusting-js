@@ -9,8 +9,9 @@ export function stringToUtf8(str: string) {
   const utf8: number[] = [];
   for (let i = 0; i < str.length; i++) {
     let charCode = str.charCodeAt(i);
-    if (charCode < 0x80) utf8.push(charCode);
-    else if (charCode < 0x800) {
+    if (charCode < 0x80) {
+      utf8.push(charCode);
+    } else if (charCode < 0x800) {
       utf8.push(0xc0 | (charCode >> 6), 0x80 | (charCode & 0x3f));
     } else if (charCode < 0xd800 || charCode >= 0xe000) {
       utf8.push(

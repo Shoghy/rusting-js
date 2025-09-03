@@ -1,4 +1,5 @@
 import { Err, Ok, type Result } from "../enums/result.ts";
+import { Iter } from "../iterators/iter.ts";
 import {
   FromUtf8Error,
   runUtf8Validation,
@@ -7,7 +8,6 @@ import {
   splitUtf8Chars,
 } from "./utils.ts";
 import { Char } from "./char.ts";
-import { Iter } from "../iterators/iter.ts";
 
 export class RString {
   #bytes: Uint8Array;

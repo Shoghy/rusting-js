@@ -36,7 +36,7 @@ export class Iter<T> extends RIterator<T> {
     }
 
     const val = this.#iterator.next();
-    if (val.done) {
+    if (val.done ?? false) {
       this.#hasEnded = true;
       return None();
     }

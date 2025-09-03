@@ -1,7 +1,7 @@
 import { test, describe, expect } from "bun:test";
 import { Mutex } from "../src/mutex.ts";
-import { randomInt } from "./random.ts";
 import { Ok } from "../src/enums/result.ts";
+import { randomInt } from "./random.ts";
 
 // ----------------- Mutex methods -----------------
 
