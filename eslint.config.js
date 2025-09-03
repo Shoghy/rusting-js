@@ -16,7 +16,11 @@ export default [
       parserOptions: {
         project: "tsconfig.json",
         projectService: {
-          allowDefaultProject: ["eslint.config.js", "tsup.config.ts"],
+          allowDefaultProject: [
+            "eslint.config.js",
+            "tsup.config.ts",
+            "move_files.ts",
+          ],
         },
         tsconfigRootDir: import.meta.dirname,
       },
@@ -49,15 +53,14 @@ export default [
         "always",
         { extMapping: { ".ts": ".ts" } },
       ],
-      "importPlugin/consistent-type-specifier-style": [
-        "error",
-        "prefer-top-level",
-      ],
+      "importPlugin/order": "warn",
       "@typescript-eslint/strict-boolean-expressions": "error",
+      curly: ["error", "multi-line", "consistent"],
       "@typescript-eslint/consistent-type-imports": [
         "warn",
-        { prefer: "type-imports", fixStyle: "separate-type-imports" },
+        { prefer: "type-imports", fixStyle: "inline-type-imports" },
       ],
+      "@typescript-eslint/no-deprecated": "warn",
     },
   },
 ];
