@@ -1,5 +1,4 @@
 {
-  "files": ["src/index.ts"],
   "compilerOptions": {
     // Enable latest features
     "lib": ["ESNext", "DOM"],
@@ -29,5 +28,6 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
-  }
+  },
+  "include": ["src", "tests"]
 }
