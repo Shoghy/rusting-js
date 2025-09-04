@@ -96,12 +96,12 @@ describe("Testing `forcedUnlock` method", () => {
 
     m.forcedUnlock();
 
-    expect(() => lock.get()).toThrowError(
+    expect(() => lock.value).toThrowError(
       "Calling `get` when `MutexGuard` has been unlocked",
     );
-    expect(() => lock.set(1)).toThrowError(
-      "Calling `set` when `MutexGuard` has been unlocked",
-    );
+    expect(() => {
+      lock.value = 1;
+    }).toThrowError("Calling `set` when `MutexGuard` has been unlocked");
     expect(() => lock.unlock()).toThrowError(
       "Calling `unlock` when `MutexGuard` has been unlocked",
     );
@@ -139,7 +139,7 @@ describe("Testing `get` method", () => {
     const m = new Mutex([1, 2, 3, 4, 5]);
     const lock = await m.lock();
 
-    expect(lock.get()).toEqual([1, 2, 3, 4, 5]);
+    expect(lock.value).toEqual([1, 2, 3, 4, 5]);
   });
 
   test("Should throw an error after has been unlocked", async () => {
@@ -148,7 +148,7 @@ describe("Testing `get` method", () => {
 
     lock.unlock();
 
-    expect(() => lock.get()).toThrowError(
+    expect(() => lock.value).toThrowError(
       "Calling `get` when `MutexGuard` has been unlocked",
     );
   });
@@ -160,13 +160,13 @@ describe("Testing `set` method", () => {
     const m = new Mutex("Já pensou se a gente for");
     const lock1 = await m.lock();
 
-    lock1.set("Um pouco mais ousado nesse nosso lance?");
-    expect(lock1.get()).toBe("Um pouco mais ousado nesse nosso lance?");
+    lock1.value = "Um pouco mais ousado nesse nosso lance?";
+    expect(lock1.value).toBe("Um pouco mais ousado nesse nosso lance?");
 
     lock1.unlock();
 
     const lock2 = await m.lock();
-    expect(lock2.get()).toBe("Um pouco mais ousado nesse nosso lance?");
+    expect(lock2.value).toBe("Um pouco mais ousado nesse nosso lance?");
   });
 
   test("Should throw an error after has been unlocked", async () => {
@@ -174,9 +174,9 @@ describe("Testing `set` method", () => {
     const lock = await m.lock();
     lock.unlock();
 
-    expect(() => lock.set("A nossa amizade num lindo romance?")).toThrowError(
-      "Calling `set` when `MutexGuard` has been unlocked",
-    );
+    expect(() => {
+      lock.value = "A nossa amizade num lindo romance?";
+    }).toThrowError("Calling `set` when `MutexGuard` has been unlocked");
   });
 });
 
@@ -223,11 +223,11 @@ describe("Testing `trySet` method", () => {
 
     const result = lock1.trySet("]:)");
     expect(result).toEqual(Ok());
-    expect(lock1.get()).toBe("]:)");
+    expect(lock1.value).toBe("]:)");
 
     lock1.unlock();
     const lock2 = await m.lock();
-    expect(lock2.get()).toBe("]:)");
+    expect(lock2.value).toBe("]:)");
   });
 
   test("Should not change the value of `Mutex` and return `Err`", async () => {
@@ -239,7 +239,7 @@ describe("Testing `trySet` method", () => {
     expect(result.isErr()).toBeTrue();
 
     const lock2 = await m.lock();
-    expect(lock2.get()).toBe(":}");
+    expect(lock2.value).toBe(":}");
     lock2.unlock();
   });
 });
@@ -271,9 +271,45 @@ test("Mutex releases lock after using block", async () => {
   await (async () => {
     using lock = await m.lock();
     wasLockExecuted = true;
-    expect(lock.get()).toBe("Hola");
+    expect(lock.value).toBe("Hola");
   })();
 
   expect(wasLockExecuted).toBeTrue();
   expect(m.lockersCount).toBe(0);
+});
+
+test("Cannot modified object if Mutex has been unlocked", async () => {
+  const m = new Mutex<Record<string, string>>({
+    hola: "mundo",
+  });
+
+  const lock = await m.lock();
+  const value = lock.value;
+  value.hola = "World";
+  value.hey = "¿Qué pasa chavales?";
+
+  expect(value).toEqual({
+    hola: "World",
+    hey: "¿Qué pasa chavales?",
+  });
+
+  lock.unlock();
+
+  expect(() => {
+    value.hola = "Pedro";
+  }).toThrowError();
+  expect(() => {
+    value.ciao = "Pedro";
+  }).toThrowError();
+  expect(() => {
+    delete value.hola;
+  }).toThrowError();
+  expect(() => {
+    Object.setPrototypeOf(value, Array.prototype);
+  }).toThrowError();
+
+  expect(value).toEqual({
+    hola: "World",
+    hey: "¿Qué pasa chavales?",
+  });
 });
