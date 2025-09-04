@@ -77,12 +77,52 @@ export class MutexGuard<T> {
   #unlock: () => void;
   #hasLock: boolean;
 
-  get get() {
-    return this.#get;
+  get value(): T {
+    const val = this.#get();
+    if (typeof val !== "object" || val === null) {
+      return val;
+    }
+
+    return new Proxy(val, {
+      set: (target, p, newValue, receiver) => {
+        if (!this.#hasLock) {
+          panic("Changing property from `Mutex` object that has been unlocked");
+        }
+
+        return Reflect.set(target, p, newValue, receiver);
+      },
+
+      deleteProperty: (target, p) => {
+        if (!this.#hasLock) {
+          panic("Deleting property from `Mutex` object that has been unlocked");
+        }
+
+        return Reflect.deleteProperty(target, p);
+      },
+
+      setPrototypeOf: (target, v) => {
+        if (!this.#hasLock) {
+          panic(
+            "Changing prototype from `Mutex` object that has been unlocked",
+          );
+        }
+
+        return Reflect.setPrototypeOf(target, v);
+      },
+
+      defineProperty: (target, property, attributes) => {
+        if (!this.#hasLock) {
+          panic(
+            "Adding a new property to `Mutex` object that has been unlocked",
+          );
+        }
+        return Reflect.defineProperty(target, property, attributes);
+      },
+    });
   }
 
-  get set() {
-    return this.#set;
+  set value(val: T) {
+    this.#set(val);
   }
 
   get unlock() {
@@ -114,7 +154,7 @@ export class MutexGuard<T> {
   }
 
   tryGet(): Result<T, Error> {
-    return catchUnwind(this.#get);
+    return catchUnwind(() => this.value);
   }
 
   trySet(value: T): Result<void, Error> {
