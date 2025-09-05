@@ -133,7 +133,7 @@ class VecClass<T> {
 
   get(index: number): Option<T> {
     if (index >= this[ArrSymbol].length) {
-      None();
+      return None();
     }
     return Some(this[ArrSymbol][index]);
   }
