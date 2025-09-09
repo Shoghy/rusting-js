@@ -116,7 +116,26 @@ export class MutexGuard<T> {
             "Adding a new property to `Mutex` object that has been unlocked",
           );
         }
+
         return Reflect.defineProperty(target, property, attributes);
+      },
+
+      preventExtensions: (target) => {
+        if (!this.#hasLock) {
+          panic(
+            "Preventing extension on `Mutex` object that has been unlocked",
+          );
+        }
+
+        return Reflect.preventExtensions(target);
+      },
+
+      get: (target, p, receiver) => {
+        if (!this.#hasLock) {
+          panic("Reading property of `Mutex` object that has been unlocked");
+        }
+
+        return Reflect.get(target, p, receiver);
       },
     });
   }
