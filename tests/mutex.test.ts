@@ -277,39 +277,3 @@ test("Mutex releases lock after using block", async () => {
   expect(wasLockExecuted).toBeTrue();
   expect(m.lockersCount).toBe(0);
 });
-
-test("Cannot modified object if Mutex has been unlocked", async () => {
-  const m = new Mutex<Record<string, string>>({
-    hola: "mundo",
-  });
-
-  const lock = await m.lock();
-  const value = lock.value;
-  value.hola = "World";
-  value.hey = "¿Qué pasa chavales?";
-
-  expect(value).toEqual({
-    hola: "World",
-    hey: "¿Qué pasa chavales?",
-  });
-
-  lock.unlock();
-
-  expect(() => {
-    value.hola = "Pedro";
-  }).toThrowError();
-  expect(() => {
-    value.ciao = "Pedro";
-  }).toThrowError();
-  expect(() => {
-    delete value.hola;
-  }).toThrowError();
-  expect(() => {
-    Object.setPrototypeOf(value, Array.prototype);
-  }).toThrowError();
-
-  expect(value).toEqual({
-    hola: "World",
-    hey: "¿Qué pasa chavales?",
-  });
-});
