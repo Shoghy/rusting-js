@@ -1,3 +1,5 @@
+import { catchUnwindAsync } from "./panic.ts";
+
 export function StaticImplements<T>() {
   return <U extends T>(_: U) => {};
 }
@@ -28,4 +30,8 @@ export function promiseWithResolvers<T>(): PromiseWithResolvers<T> {
   });
 
   return { promise, resolve, reject };
+}
+
+export function safeFetch(...params: Parameters<typeof fetch>) {
+  return catchUnwindAsync(() => fetch(...params));
 }
