@@ -15,7 +15,7 @@
   "files": [
     "**"
   ],
-  "version": "0.1.9",
+  "version": "0.1.10",
   "license": "MIT",
   "main": "./index.js",
   "module": "./index.js",
