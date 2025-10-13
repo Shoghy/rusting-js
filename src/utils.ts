@@ -29,9 +29,3 @@ export function promiseWithResolvers<T>(): PromiseWithResolvers<T> {
 
   return { promise, resolve, reject };
 }
-
-export enum PromiseState {
-  AWAITING,
-  RESOLVED,
-  REJECTED,
-}
