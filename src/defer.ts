@@ -1,12 +1,18 @@
-import type { Result } from "./enums/result";
-import { catchUnwindAsync } from "./panic.ts";
+import { Err, Ok, type Result } from "./enums/result.ts";
+
 import { promiseWithResolvers } from "./utils.ts";
 
-export async function defer<T>(
+export function defer<T>(
   promise: Promise<T>,
-  func: (value: Result<Awaited<T>, Error>) => unknown,
+  func: (value: Result<T, Error>) => unknown,
 ) {
-  func(await catchUnwindAsync(() => promise));
+  promise
+    .then((value) => {
+      func(Ok(value));
+    })
+    .catch((error) => {
+      func(Err(error as Error));
+    });
 }
 
 export function deferrableFunc<ArgsType extends Array<unknown>, ReturnType>(
