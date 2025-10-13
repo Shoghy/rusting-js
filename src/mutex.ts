@@ -1,11 +1,11 @@
 import { catchUnwind, panic } from "./panic.ts";
 import { type Result } from "./enums/result.ts";
-import { ManualPromise } from "./utils.ts";
+import { promiseWithResolvers, type PromiseWithResolvers } from "./utils.ts";
 
 export class Mutex<T> {
   #value: T;
 
-  #locker?: ManualPromise<void>;
+  #locker?: PromiseWithResolvers<void>;
   #unlockers: Record<symbol, () => void> = {};
   #lockersCount = 0;
 
@@ -36,7 +36,8 @@ export class Mutex<T> {
     this.#lockersCount += 1;
 
     const prevLocker = this.#locker;
-    const promise = new ManualPromise<void>();
+    const promise = promiseWithResolvers<void>();
+    this.#locker = promise;
 
     const resolvePromise = () => {
       this.#lockersCount -= 1;
@@ -61,7 +62,7 @@ export class Mutex<T> {
     const unlockerKey = Symbol();
     this.#unlockers[unlockerKey] = () => unlock();
 
-    await prevLocker?.wait();
+    await prevLocker?.promise;
 
     return mutexGuard;
   }
