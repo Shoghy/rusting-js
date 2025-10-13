@@ -1,12 +1,9 @@
 import { expect, test } from "bun:test";
+import { sleep } from "bun";
 import { panic } from "../src/panic.ts";
 import { defer, deferrableFunc } from "../src/defer.ts";
 
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-test("Sync defer", (done) => {
+test("executes deferred functions after main function body", (done) => {
   const func = deferrableFunc((p) => {
     let i = 0;
 
@@ -21,7 +18,7 @@ test("Sync defer", (done) => {
   func();
 });
 
-test("Async defer", async (done) => {
+test("executes deferred functions after awaited code in async deferrable function", async (done) => {
   const func = deferrableFunc(async (p) => {
     let text = "🥺";
 
@@ -38,7 +35,7 @@ test("Async defer", async (done) => {
   await func();
 });
 
-test("Sync throwing errors", (done) => {
+test("executes deferred functions even when a panic occurs", (done) => {
   const tester = deferrableFunc((p) => {
     defer(p, () => {
       done();
@@ -50,10 +47,8 @@ test("Sync throwing errors", (done) => {
   expect(tester).toThrowError();
 });
 
-test("Async throwing errors", async (done) => {
+test("executes deferred functions in async deferrable function even after panic", (done) => {
   const tester = deferrableFunc(async (p) => {
-    await sleep(5);
-
     defer(p, () => {
       done();
     });

@@ -1,4 +1,5 @@
 import { test, describe, expect } from "bun:test";
+import { sleep } from "bun";
 import { Mutex } from "../src/mutex.ts";
 import { Ok } from "../src/enums/result.ts";
 import { randomInt } from "./random.ts";
@@ -130,6 +131,30 @@ describe("Testing `lock` method", async () => {
     expect(val).toBe(2);
     lock3.unlock();
   });
+});
+
+test("ensures mutex preserves lock order regardless of task duration", async () => {
+  const m = new Mutex(0);
+  const firstLock = await m.lock();
+
+  let prevNumber = 100;
+
+  async function lock(num: number) {
+    const l = await m.lock();
+    await sleep(num);
+
+    expect(prevNumber > num).toBeTrue();
+
+    l.unlock();
+
+    prevNumber = num;
+  }
+
+  const p = Promise.all([lock(50), lock(5)]);
+
+  firstLock.unlock();
+
+  await p;
 });
 
 // ----------------- MutexGuard methods -----------------
