@@ -2,19 +2,30 @@ import { Err, Ok, type Result } from "./enums/result.ts";
 
 import { promiseWithResolvers } from "./utils.ts";
 
-export function capturePromise<T>(
+export function capturePromise<T, E = Error>(
   promise: Promise<T>,
-  func: (value: Result<T, Error>) => unknown,
+  func: (value: Result<T, E>) => unknown,
 ) {
   promise
     .then((value) => {
       func(Ok(value));
     })
     .catch((error) => {
-      func(Err(error as Error));
+      func(Err(error as E));
     });
 }
 
+/**
+ * @example
+ * const func = deferrableFunc((promise, value: string) => {
+ *   capturePromise(p, () => {
+ *     console.log(value);
+ *   });
+ *   console.log("Hello");
+ * });
+ *
+ * func("World"); // Hello\nWorld
+ */
 export function deferrableFunc<ArgsType extends Array<unknown>, ReturnType>(
   func: (promise: Promise<ReturnType>, ...args: ArgsType) => ReturnType,
 ) {
