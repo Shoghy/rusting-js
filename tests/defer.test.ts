@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { sleep } from "bun";
-import { panic } from "../src/panic.ts";
-import { capturePromise, deferrableFunc } from "../src/defer.ts";
+import { catchUnwind, catchUnwindAsync, panic } from "../src/panic.ts";
+import { capturePromise, defer, deferrableFunc } from "../src/defer.ts";
 
 test("executes deferred functions after main function body", (done) => {
   const func = deferrableFunc((p) => {
@@ -58,4 +58,58 @@ test("executes deferred functions in async deferrable function even after panic"
   });
 
   expect(tester).toThrowError();
+});
+
+test("Sync defer", (done) => {
+  let i = 0;
+
+  using _ = defer(() => {
+    expect(i).toBe(1);
+    done();
+  });
+
+  i += 1;
+});
+
+test("Async defer", async (done) => {
+  let text = "🥺";
+
+  await using _ = defer(async () => {
+    expect(text).toBe("👉👈");
+    done();
+  });
+
+  text = "👉👈";
+});
+
+test("Sync throwing errors", (done) => {
+  function tester() {
+    using _ = defer(() => {
+      done();
+    });
+
+    panic();
+  }
+
+  catchUnwind(() => {
+    tester();
+  });
+
+  done("Unreachable");
+});
+
+test("Async throwing errors", async (done) => {
+  async function tester() {
+    await using _ = defer(async () => {
+      done();
+    });
+
+    panic();
+  }
+
+  await catchUnwindAsync(async () => {
+    await tester();
+  });
+
+  done("Unreachable");
 });
