@@ -9,11 +9,6 @@ export function copyTo(dest: object, src: object): void {
   Object.defineProperties(dest, Object.getOwnPropertyDescriptors(src));
 }
 
-export interface DeferObject {
-  [Symbol.dispose](): void;
-  [Symbol.asyncDispose](): Promise<void>;
-}
-
 export interface PromiseWithResolvers<T> {
   promise: Promise<T>;
   resolve: (value: T) => void;

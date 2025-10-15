@@ -1,13 +1,13 @@
 import { expect, test } from "bun:test";
 import { sleep } from "bun";
 import { panic } from "../src/panic.ts";
-import { defer, deferrableFunc } from "../src/defer.ts";
+import { capturePromise, deferrableFunc } from "../src/defer.ts";
 
 test("executes deferred functions after main function body", (done) => {
   const func = deferrableFunc((p) => {
     let i = 0;
 
-    defer(p, () => {
+    capturePromise(p, () => {
       expect(i).toBe(1);
       done();
     });
@@ -22,7 +22,7 @@ test("executes deferred functions after awaited code in async deferrable functio
   const func = deferrableFunc(async (p) => {
     let text = "🥺";
 
-    defer(p, () => {
+    capturePromise(p, () => {
       expect(text).toBe("👉👈");
       done();
     });
@@ -37,7 +37,7 @@ test("executes deferred functions after awaited code in async deferrable functio
 
 test("executes deferred functions even when a panic occurs", (done) => {
   const tester = deferrableFunc((p) => {
-    defer(p, () => {
+    capturePromise(p, () => {
       done();
     });
 
@@ -49,7 +49,7 @@ test("executes deferred functions even when a panic occurs", (done) => {
 
 test("executes deferred functions in async deferrable function even after panic", (done) => {
   const tester = deferrableFunc(async (p) => {
-    defer(p, () => {
+    capturePromise(p, () => {
       done();
     });
 
