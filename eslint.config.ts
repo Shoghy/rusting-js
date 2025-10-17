@@ -1,23 +1,23 @@
+import js from "@eslint/js";
 import globals from "globals";
-import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
+import { defineConfig } from "eslint/config";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
-import fileExtensionPlugin from "eslint-plugin-file-extension-in-import-ts";
 import importPlugin from "eslint-plugin-import";
 
-export default [
+export default defineConfig([
   { ignores: ["dist/"] },
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
-  eslintPluginPrettierRecommended,
   {
+    files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
+    plugins: { js },
+    extends: ["js/recommended"],
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
       parserOptions: {
         project: "tsconfig.json",
         projectService: {
           allowDefaultProject: [
-            "eslint.config.js",
+            "eslint.config.ts",
             "tsup.config.ts",
             "move_files.ts",
           ],
@@ -26,17 +26,17 @@ export default [
       },
     },
   },
+  tseslint.configs.recommended,
+  eslintPluginPrettierRecommended,
   {
     plugins: {
-      fileExtensionPlugin,
-      importPlugin,
+      import: importPlugin,
     },
     rules: {
       semi: ["error", "always"],
       "linebreak-style": ["error", "unix"],
       "no-trailing-spaces": ["warn", { ignoreComments: true }],
       "no-console": "warn",
-      quotes: ["warn", "double", { avoidEscape: true }],
       eqeqeq: "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
@@ -48,12 +48,8 @@ export default [
       ],
       "comma-dangle": ["error", "always-multiline"],
       "@typescript-eslint/no-shadow": "warn",
-      "fileExtensionPlugin/file-extension-in-import-ts": [
-        "error",
-        "always",
-        { extMapping: { ".ts": ".ts" } },
-      ],
-      "importPlugin/order": "warn",
+      "import/order": "warn",
+      "import/extensions": ["error", "ignorePackages"],
       "@typescript-eslint/strict-boolean-expressions": "error",
       curly: ["error", "multi-line", "consistent"],
       "@typescript-eslint/consistent-type-imports": [
@@ -63,4 +59,4 @@ export default [
       "@typescript-eslint/no-deprecated": "warn",
     },
   },
-];
+]);
