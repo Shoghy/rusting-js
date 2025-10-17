@@ -3,6 +3,7 @@ import { esbuildDecorators } from "@anatine/esbuild-decorators";
 
 export default defineConfig({
   entry: [
+    "src/defer.ts",
     "src/index.ts",
     "src/enums/index.ts",
     "src/iterators/index.ts",
