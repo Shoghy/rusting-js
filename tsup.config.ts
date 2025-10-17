@@ -10,7 +10,7 @@ export default defineConfig({
     "src/strings/index.ts",
     "src/traits/index.ts",
   ],
-  target: "es2017",
+  target: "esnext",
   format: ["cjs", "esm"],
   dts: true,
   splitting: true,
