@@ -262,13 +262,13 @@ export interface FromIterator<T, R> {
   fromIter(iter: RIterator<T>): R;
 }
 
-const StepBy = require("../iterators/step_by")
-  .StepBy as typeof import("../iterators/step_by").StepBy;
-const Chain = require("../iterators/chain")
+const StepBy = require("../iterators/step_by.ts")
+  .StepBy as typeof import("../iterators/step_by.ts").StepBy;
+const Chain = require("../iterators/chain.ts")
   .Chain as typeof import("../iterators/chain").Chain;
-const Zip = require("../iterators/zip")
-  .Zip as typeof import("../iterators/zip").Zip;
-const Map = require("../iterators/map")
-  .Map as typeof import("../iterators/map").Map;
-const Intersperse = require("../iterators/intersperse")
-  .Intersperse as typeof import("../iterators/intersperse").Intersperse;
+const Zip = require("../iterators/zip.ts")
+  .Zip as typeof import("../iterators/zip.ts").Zip;
+const Map = require("../iterators/map.ts")
+  .Map as typeof import("../iterators/map.ts").Map;
+const Intersperse = require("../iterators/intersperse.ts")
+  .Intersperse as typeof import("../iterators/intersperse.ts").Intersperse;
