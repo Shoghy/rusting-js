@@ -7,12 +7,8 @@ export function capturePromise<T, E = Error>(
   func: (value: Result<T, E>) => unknown,
 ) {
   promise
-    .then((value) => {
-      func(Ok(value));
-    })
-    .catch((error) => {
-      func(Err(error as E));
-    });
+    .then((value) => func(Ok(value)))
+    .catch((error) => func(Err(error as E)));
 }
 
 /**
@@ -36,6 +32,69 @@ export function deferrableFunc<ArgsType extends Array<unknown>, ReturnType>(
       const value = func(promise.promise, ...args);
       promise.resolve(value);
       return value;
+    } catch (e) {
+      promise.reject(e);
+      throw e;
+    }
+  };
+}
+
+export function deferrableGenerator<
+  ArgsType extends Array<unknown>,
+  T = unknown,
+  TReturn = unknown,
+  TNext = unknown,
+>(
+  func: (
+    promise: Promise<TReturn>,
+    ...args: ArgsType
+  ) => Generator<T, TReturn, TNext>,
+) {
+  return function* (...args: ArgsType) {
+    const promise = promiseWithResolvers<TReturn>();
+
+    try {
+      const value = func(promise.promise, ...args);
+      while (true) {
+        const item = value.next();
+        if (item.done ?? false) {
+          promise.resolve(item.value as TReturn);
+          return item.value;
+        }
+        yield item.value;
+      }
+    } catch (e) {
+      promise.reject(e);
+      throw e;
+    }
+  };
+}
+
+export function deferrableAsyncGenerator<
+  ArgsType extends Array<unknown>,
+  T = unknown,
+  TReturn = unknown,
+  TNext = unknown,
+>(
+  func: (
+    promise: Promise<TReturn>,
+    ...args: ArgsType
+  ) => AsyncGenerator<T, TReturn, TNext>,
+) {
+  return async function* (...args: ArgsType) {
+    const promise = promiseWithResolvers<TReturn>();
+
+    try {
+      const value = func(promise.promise, ...args);
+      while (true) {
+        const item = await value.next();
+        if (item.done ?? false) {
+          promise.resolve(item.value as TReturn);
+          return item.value;
+        }
+
+        yield item.value;
+      }
     } catch (e) {
       promise.reject(e);
       throw e;
