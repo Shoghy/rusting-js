@@ -1,14 +1,15 @@
-import { Err, Ok, type Result } from "./enums/result.ts";
+import { type Result } from "./enums/result.ts";
+import { catchUnwindAsync } from "./panic.ts";
 
 import { promiseWithResolvers } from "./utils.ts";
 
 export function capturePromise<T, E = Error>(
-  promise: Promise<T>,
+  promise: PromiseLike<T>,
   func: (value: Result<T, E>) => unknown,
 ) {
-  promise
-    .then((value) => func(Ok(value)))
-    .catch((error) => func(Err(error as E)));
+  (async () => {
+    func(await catchUnwindAsync<T, E>(() => promise));
+  })();
 }
 
 /**
