@@ -129,20 +129,6 @@
         "types": "./traits/index.d.ts",
         "default": "./traits/index.js"
       }
-    },
-    "./defer": {
-      "import": {
-        "types": "./defer.d.ts",
-        "default": "./defer.js"
-      },
-      "node": {
-        "types": "./defer.d.cts",
-        "default": "./defer.cjs"
-      },
-      "default": {
-        "types": "./defer.d.ts",
-        "default": "./defer.js"
-      }
     }
   }
 }
