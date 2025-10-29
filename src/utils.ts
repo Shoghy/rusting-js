@@ -9,15 +9,18 @@ export function copyTo(dest: object, src: object): void {
   Object.defineProperties(dest, Object.getOwnPropertyDescriptors(src));
 }
 
-export interface PromiseWithResolvers<T> {
+export interface PromiseWithResolvers<T, E> {
   promise: Promise<T>;
   resolve: (value: T) => void;
-  reject: (value?: unknown) => void;
+  reject: (value?: E) => void;
 }
 
-export function promiseWithResolvers<T>(): PromiseWithResolvers<T> {
+export function promiseWithResolvers<T, E = Error>(): PromiseWithResolvers<
+  T,
+  E
+> {
   let resolve!: (value: T) => void;
-  let reject!: (value?: unknown) => void;
+  let reject!: (value?: E) => void;
 
   const promise = new Promise<T>((rsv, rjc) => {
     resolve = rsv;

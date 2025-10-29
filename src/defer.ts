@@ -1,5 +1,4 @@
-import { type Result } from "./enums/result.ts";
-import { catchUnwindAsync } from "./panic.ts";
+import { Err, Ok, type Result } from "./enums/result.ts";
 
 import { promiseWithResolvers } from "./utils.ts";
 
@@ -7,9 +6,10 @@ export function capturePromise<T, E = Error>(
   promise: PromiseLike<T>,
   func: (value: Result<T, E>) => unknown,
 ) {
-  (async () => {
-    func(await catchUnwindAsync<T, E>(() => promise));
-  })();
+  promise.then(
+    (value) => func(Ok(value)),
+    (error) => func(Err(error)),
+  );
 }
 
 /**
@@ -27,7 +27,7 @@ export function deferrableFunc<ArgsType extends Array<unknown>, ReturnType>(
   func: (promise: Promise<ReturnType>, ...args: ArgsType) => ReturnType,
 ) {
   return function (...args: ArgsType): ReturnType {
-    const promise = promiseWithResolvers<ReturnType>();
+    const promise = promiseWithResolvers<ReturnType, unknown>();
 
     try {
       const value = func(promise.promise, ...args);
@@ -52,7 +52,7 @@ export function deferrableGenerator<
   ) => Generator<T, TReturn, TNext>,
 ) {
   return function* (...args: ArgsType) {
-    const promise = promiseWithResolvers<TReturn>();
+    const promise = promiseWithResolvers<TReturn, unknown>();
 
     try {
       const value = func(promise.promise, ...args);
@@ -83,7 +83,7 @@ export function deferrableAsyncGenerator<
   ) => AsyncGenerator<T, TReturn, TNext>,
 ) {
   return async function* (...args: ArgsType) {
-    const promise = promiseWithResolvers<TReturn>();
+    const promise = promiseWithResolvers<TReturn, unknown>();
 
     try {
       const value = func(promise.promise, ...args);

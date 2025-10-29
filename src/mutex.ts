@@ -5,7 +5,7 @@ import { promiseWithResolvers, type PromiseWithResolvers } from "./utils.ts";
 export class Mutex<T> {
   #value: T;
 
-  #locker?: PromiseWithResolvers<void>;
+  #locker?: PromiseWithResolvers<void, void>;
   #unlockers: Record<symbol, () => void> = {};
   #lockersCount = 0;
 
@@ -36,7 +36,7 @@ export class Mutex<T> {
     this.#lockersCount += 1;
 
     const prevLocker = this.#locker;
-    const promise = promiseWithResolvers<void>();
+    const promise = promiseWithResolvers<void, void>();
     this.#locker = promise;
 
     const resolvePromise = () => {
