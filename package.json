@@ -15,9 +15,9 @@
   "files": [
     "**"
   ],
-  "version": "0.1.11",
+  "version": "0.1.12",
   "license": "MIT",
-  "main": "./index.cjs",
+  "main": "./index.js",
   "module": "./index.js",
   "types": "./index.d.ts",
   "scripts": {
@@ -43,5 +43,92 @@
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.1"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      },
+      "node": {
+        "types": "./index.d.cts",
+        "default": "./index.cjs"
+      },
+      "default": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      }
+    },
+    "./enums": {
+      "import": {
+        "types": "./enums/index.d.ts",
+        "default": "./enums/index.js"
+      },
+      "node": {
+        "types": "./enums/index.d.cts",
+        "default": "./enums/index.cjs"
+      },
+      "default": {
+        "types": "./enums/index.d.ts",
+        "default": "./enums/index.js"
+      }
+    },
+    "./iterators": {
+      "import": {
+        "types": "./iterators/index.d.ts",
+        "default": "./iterators/index.js"
+      },
+      "node": {
+        "types": "./iterators/index.d.cts",
+        "default": "./iterators/index.cjs"
+      },
+      "default": {
+        "types": "./iterators/index.d.ts",
+        "default": "./iterators/index.js"
+      }
+    },
+    "./slices": {
+      "import": {
+        "types": "./slices/index.d.ts",
+        "default": "./slices/index.js"
+      },
+      "node": {
+        "types": "./slices/index.d.cts",
+        "default": "./slices/index.cjs"
+      },
+      "default": {
+        "types": "./slices/index.d.ts",
+        "default": "./slices/index.js"
+      }
+    },
+    "./strings": {
+      "import": {
+        "types": "./strings/index.d.ts",
+        "default": "./strings/index.js"
+      },
+      "node": {
+        "types": "./strings/index.d.cts",
+        "default": "./strings/index.cjs"
+      },
+      "default": {
+        "types": "./strings/index.d.ts",
+        "default": "./strings/index.js"
+      }
+    },
+    "./traits": {
+      "import": {
+        "types": "./traits/index.d.ts",
+        "default": "./traits/index.js"
+      },
+      "node": {
+        "types": "./traits/index.d.cts",
+        "default": "./traits/index.cjs"
+      },
+      "default": {
+        "types": "./traits/index.d.ts",
+        "default": "./traits/index.js"
+      }
+    }
   }
 }
