@@ -99,7 +99,6 @@ export function Enum<S extends object>(schema: SetEnumThis<S>) {
 }
 
 const isArm = Symbol();
-export function Arm<Value = void>(): ArmType<Value>;
-export function Arm(): unknown {
-  return isArm;
+export function Arm<Value = void>(): ArmType<Value> {
+  return isArm as unknown as ArmType<Value>;
 }
