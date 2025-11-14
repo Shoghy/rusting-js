@@ -29,10 +29,18 @@ export abstract class EnumClass<Schema extends object> {
     def?: () => T,
   ): T {
     if (this.#type in arms) {
-      return arms[this.#type]!(this.#value);
+      const arm = arms[this.#type];
+      if (typeof arm !== "function") {
+        panic(`${String(this.#type)} in match is not a function`);
+      }
+      return arm(this.#value);
     }
 
-    return def!();
+    if (typeof def !== "function") {
+      panic("All arms in match should be filled or def should be a function");
+    }
+
+    return def();
   }
 
   is(type: keyof Schema) {
