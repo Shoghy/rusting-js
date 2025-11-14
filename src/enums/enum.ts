@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { panic } from "../panic.ts";
 
 export abstract class EnumClass<Schema extends object> {
@@ -67,8 +68,14 @@ type EnumMethods<S extends object> = {
   [K in keyof S]: S[K] extends (...args: unknown[]) => unknown ? S[K] : never;
 };
 
+type KeyOfType<S extends object, T> = {
+  [K in keyof S]: S[K] extends T ? K : never;
+}[keyof S];
+
 type GetArms<S extends object> = {
-  [K in keyof S]: S[K] extends ArmType<infer T> ? T : never;
+  [K in KeyOfType<S, ArmType<unknown>>]: S[K] extends ArmType<infer T>
+    ? T
+    : never;
 };
 
 type ArmMethods<S extends object, Class> = {
@@ -94,12 +101,11 @@ export function Enum<S extends object>(schema: SetEnumThis<S>) {
       continue;
     }
     if (value !== isArm) continue;
+    // @ts-ignore
     enumKeys.push(key);
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     NewEnum[key] = function (enumValue) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       return new this(key, enumValue);
     };
@@ -114,3 +120,9 @@ const isArm = Symbol();
 export function Arm<Value = void>(): ArmType<Value> {
   return isArm as unknown as ArmType<Value>;
 }
+
+Enum({
+  Number: Arm<number>(),
+  String: Arm<string>(),
+  hola() {},
+});
