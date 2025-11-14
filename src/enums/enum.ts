@@ -59,7 +59,7 @@ export abstract class EnumClass<Schema extends object> {
 
 type SetEnumThis<S extends object> = {
   [K in keyof S]: S[K] extends (this: S, ...args: infer Args) => infer Return
-    ? (this: S & EnumClass<S>, ...args: Args) => Return
+    ? (this: EnumMethods<S> & EnumClass<GetArms<S>>, ...args: Args) => Return
     : S[K];
 };
 
