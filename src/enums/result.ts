@@ -2,11 +2,21 @@ import { panic } from "../panic.ts";
 import type { TryStatic } from "../traits/try_trait.ts";
 import { StaticImplements } from "../utils.ts";
 import { None, type Option, Some } from "./option.ts";
-import { Enum } from "./enum.ts";
+import { EnumClass } from "./enum.ts";
 import { ControlFlow } from "./control_flow.ts";
 
 @StaticImplements<TryStatic<unknown, Result<unknown, unknown>>>()
-export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
+export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
+  isValidType(type: "Ok" | "Err"): boolean {
+    switch (type) {
+      case "Ok":
+      case "Err":
+        return true;
+    }
+
+    return false;
+  }
+
   static fromOutput<T, E>(output: T): Result<T, E> {
     return Ok(output);
   }
@@ -24,14 +34,14 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
   static Ok<E>(): Result<void, E>;
   static Ok<T, E>(value: T): Result<T, E>;
   static Ok<T, E>(value?: T): Result<T, E> {
-    return new Result("Ok", value);
+    return new Result<T, E>("Ok", value as T);
   }
 
   /**
    * Creates a `Err` type `Result`
    */
   static Err<T, E>(value: E): Result<T, E> {
-    return new Result("Err", value);
+    return new Result<T, E>("Err", value);
   }
 
   /**
@@ -469,46 +479,6 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
   }
 
   /**
-   * If `Result` is `Ok` execute the `ok` property function,
-   * if is `Err` execute the `err` property function.
-   *
-   * This function will return the returned value by the executed
-   * function
-   * @example
-   * let value = 0;
-   * const ok = Ok(7);
-   * ok.match({
-   *   Ok: (val) => {
-   *     value = val;
-   *   },
-   *   Err: () => unreachable(),
-   * });
-   * expect(value).toBe(7);
-   *
-   * value = 0;
-   * const err = Err(123);
-   * err.match({
-   *   Ok: () => unreachable(),
-   *   Err: (val) => {
-   *     value = val;
-   *   }
-   * });
-   * expect(value).toBe(123);
-   */
-  match<R>(arms: { Ok: (value: T) => R; Err: (value: E) => R }): R;
-  match<R>(
-    arms: { Ok?: (value: T) => R; Err?: (value: E) => R },
-    def: () => R,
-  ): R;
-  match<R>(
-    arms: { Ok?: (value: T) => R; Err?: (value: E) => R },
-    def?: () => R,
-  ): R {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return super.match(arms as any, def as any);
-  }
-
-  /**
    * If `Result` is `Ok` execute the `func parameter`
    * @example
    * let value = 0;
@@ -523,8 +493,8 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    *   throw new Error("This will not be executed");
    * });
    */
-  ifOk(func: (value: T) => unknown): void {
-    this.ifIs("Ok", (x) => func(x as T));
+  ifOk(func: (value: T) => void): void {
+    this.ifIs("Ok", func);
   }
 
   /**
@@ -542,14 +512,8 @@ export class Result<T, E> extends Enum<{ Ok: unknown; Err: unknown }>() {
    * });
    * expect(value).toBe(39);
    */
-  ifErr(func: (value: E) => unknown): void {
-    return this.ifIs("Err", (x) => func(x as E));
-  }
-
-  changeTo(type: never): void;
-  changeTo<A extends "Ok" | "Err">(type: A, value: { Ok: T; Err: E }[A]): void;
-  changeTo(type: "Ok" | "Err", value?: unknown): void {
-    super.changeTo(type, value);
+  ifErr(func: (value: E) => void): void {
+    this.ifIs("Err", func);
   }
 
   /**

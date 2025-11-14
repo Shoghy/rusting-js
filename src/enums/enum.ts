@@ -1,118 +1,105 @@
 import { panic } from "../panic.ts";
 
-type ZeroParamFunc<T = unknown> = () => T;
+export abstract class EnumClass<Schema extends object> {
+  #type: keyof Schema;
+  #value: Schema[keyof Schema];
 
-export function Enum<Structure extends object>() {
-  type EnumStates = keyof Structure;
-  type EnumValues = Structure[EnumStates];
+  protected constructor(type: keyof Schema, value: Schema[keyof Schema]) {
+    if (!this.isValidType(type)) {
+      panic("Invalid type");
+    }
+    this.#type = type;
+    this.#value = value;
+  }
 
-  type Func<T extends EnumStates, R> = Structure[T] extends void
-    ? () => R
-    : (value: Structure[T]) => R;
+  abstract isValidType(type: keyof Schema): boolean;
 
-  type EnumJSON<T extends EnumStates> = Structure[T] extends void
-    ? { type: T }
-    : { type: T; value: Structure[T] };
+  ifIs<T extends keyof Schema>(type: T, func: (value: Schema[T]) => void) {
+    if (type !== this.#type) return;
+    func(this.#value as Schema[T]);
+  }
 
-  return class EnumClass {
-    #type: EnumStates;
-    #value?: EnumValues;
-
-    constructor(type: EnumStates, value: Structure[typeof type]) {
-      this.#type = type;
-      this.#value = value;
+  match<T>(arms: { [K in keyof Schema]: (value: Schema[K]) => T }): T;
+  match<T>(
+    arms: { [K in keyof Schema]?: (value: Schema[K]) => T },
+    def: () => T,
+  ): T;
+  match<T>(
+    arms: { [K in keyof Schema]?: (value: Schema[K]) => T },
+    def?: () => T,
+  ): T {
+    if (this.#type in arms) {
+      return arms[this.#type]!(this.#value);
     }
 
-    changeTo<T extends EnumStates>(
-      type: Structure[T] extends void ? T : never,
-    ): void;
-    changeTo<T extends EnumStates>(
-      type: Structure[T] extends void ? never : T,
-      value: Structure[T],
-    ): void;
-    changeTo<T extends EnumStates>(type: T, value?: Structure[T]): void {
-      this.#type = type;
-      this.#value = value;
+    return def!();
+  }
+
+  is(type: keyof Schema) {
+    return type === this.#type;
+  }
+
+  changeTo<T extends keyof Schema>(type: T, value: Schema[T]) {
+    if (!this.isValidType(type)) return false;
+
+    this.#type = type;
+    this.#value = value;
+
+    return true;
+  }
+}
+
+type SetEnumThis<S extends object> = {
+  [K in keyof S]: S[K] extends (this: S, ...args: infer Args) => infer Return
+    ? (this: S & EnumClass<S>, ...args: Args) => Return
+    : S[K];
+};
+
+type EnumMethods<S extends object> = {
+  [K in keyof S]: S[K] extends (...args: unknown[]) => unknown ? S[K] : never;
+};
+
+type GetArms<S extends object> = {
+  [K in keyof S]: S[K] extends ArmType<infer T> ? T : never;
+};
+
+type ArmMethods<S extends object, Class> = {
+  [K in keyof S]: S[K] extends ArmType<infer T> ? (value: T) => Class : never;
+};
+
+type ArmType<Value> = { [isArm]: Value };
+
+export function Enum<S extends object>(schema: SetEnumThis<S>) {
+  type Arms = GetArms<S>;
+  class NewEnum extends EnumClass<Arms> {
+    isValidType(type: keyof Arms): boolean {
+      return enumKeys.includes(type);
     }
+  }
 
-    static create<T extends EnumStates>(
-      type: Structure[T] extends void ? T : never,
-    ): EnumClass;
-    static create<T extends EnumStates>(
-      type: Structure[T] extends void ? never : T,
-      value: Structure[T],
-    ): EnumClass;
-    static create<T extends EnumStates>(
-      type: T,
-      value?: Structure[T],
-    ): EnumClass {
-      return new this(type, value as Structure[T]);
+  const enumKeys: (keyof Arms)[] = [];
+  const methods: Record<string | number | symbol, unknown> = {};
+  for (const key in schema) {
+    const value = schema[key];
+    if (typeof value === "function") {
+      methods[key] = value;
+      continue;
     }
+    if (value !== isArm) continue;
+    enumKeys.push(key);
 
-    is(type: EnumStates): boolean;
-    is(): EnumStates;
-    is(type?: EnumStates): boolean | EnumStates {
-      if (type !== undefined) {
-        return this.#type === type;
-      }
-      return this.#type;
-    }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    NewEnum[key] = (enumValue) => new NewEnum(key, enumValue);
+  }
 
-    ifIs<T extends EnumStates>(type: T, func: Func<T, unknown>): void {
-      if (this.#type !== type) {
-        return;
-      }
+  Object.setPrototypeOf(NewEnum.prototype, methods);
 
-      func(this.#value as Structure[T]);
-    }
+  return NewEnum as typeof NewEnum & ArmMethods<S, NewEnum & EnumMethods<S>>;
+}
 
-    match<T>(arms: { [K in EnumStates]: Func<K, T> }): T;
-    match<T>(
-      arms: { [K in EnumStates]?: Func<K, T> },
-      def: ZeroParamFunc<T>,
-    ): T;
-    match<T>(
-      arms: { [K in EnumStates]?: Func<K, T> },
-      def?: ZeroParamFunc<T>,
-    ): T {
-      const arm = arms[this.#type];
-
-      if (arm !== undefined) {
-        return arm(this.#value as EnumValues);
-      }
-
-      if (def !== undefined) {
-        return def();
-      }
-
-      panic("All arms should be filled or `def` should be a function");
-    }
-
-    toString(): string {
-      if (this.#value === undefined) {
-        return String(this.#type);
-      }
-      return `${String(this.#type)}(${this.#value})`;
-    }
-
-    toJSON() {
-      return {
-        type: this.#type,
-        value: this.#value,
-      };
-    }
-
-    static fromJSON<T extends EnumStates>(json: EnumJSON<T>) {
-      if (!("type" in json)) {
-        panic("There is no `type` in `json`");
-      }
-      let value: EnumValues | undefined = undefined;
-      if ("value" in json) {
-        value = json.value;
-      }
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      return new this(json.type, value);
-    }
-  };
+const isArm = Symbol();
+export function Arm<Value = void>(): ArmType<Value>;
+export function Arm(): unknown {
+  return isArm;
 }

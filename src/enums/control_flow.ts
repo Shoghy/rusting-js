@@ -1,14 +1,20 @@
 import { panic } from "../panic.ts";
 import type { TryStatic } from "../traits/try_trait.ts";
 import { StaticImplements } from "../utils.ts";
-import { Enum } from "./enum.ts";
+import { EnumClass } from "./enum.ts";
 import { Some, None, type Option } from "./option.ts";
 
 @StaticImplements<TryStatic<unknown, ControlFlow<unknown, unknown>>>()
-export class ControlFlow<B, C> extends Enum<{
-  Continue: unknown;
-  Break: unknown;
-}>() {
+export class ControlFlow<B, C> extends EnumClass<{ Break: B; Continue: C }> {
+  isValidType(type: "Break" | "Continue"): boolean {
+    switch (type) {
+      case "Break":
+      case "Continue":
+        return true;
+    }
+    return false;
+  }
+
   static fromOutput<B, C>(output: C): ControlFlow<B, C> {
     return ControlFlow.Continue(output);
   }
@@ -21,33 +27,11 @@ export class ControlFlow<B, C> extends Enum<{
   }
 
   static Continue<B, C>(value: C): ControlFlow<B, C> {
-    return new ControlFlow("Continue", value);
+    return new ControlFlow<B, C>("Continue", value);
   }
 
   static Break<B, C>(value: B): ControlFlow<B, C> {
-    return new ControlFlow("Break", value);
-  }
-
-  match<T>(arms: { Continue: (value: C) => T; Break: (value: B) => T }): T;
-  match<T>(
-    arms: { Continue?: (value: C) => T; Break?: (value: B) => T },
-    def: () => T,
-  ): T;
-  match<T>(
-    arms: { Continue?: (value: C) => T; Break?: (value: B) => T },
-    def?: () => T,
-  ): T {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return super.match(arms as any, def as any);
-  }
-
-  changeTo(type: never): void;
-  changeTo<T extends "Continue" | "Break">(
-    type: T,
-    value: { Continue: C; Break: B }[T],
-  ): void;
-  changeTo(type: "Continue" | "Break", value?: unknown): void {
-    super.changeTo(type, value);
+    return new ControlFlow<B, C>("Break", value);
   }
 
   isContinue(): boolean {

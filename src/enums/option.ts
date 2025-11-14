@@ -1,12 +1,22 @@
 import { panic } from "../panic.ts";
 import type { TryStatic } from "../traits/try_trait.ts";
 import { StaticImplements } from "../utils.ts";
-import { Enum } from "./enum.ts";
+import { EnumClass } from "./enum.ts";
 import { ControlFlow } from "./control_flow.ts";
 import { Err, Ok, type Result } from "./result.ts";
 
 @StaticImplements<TryStatic<unknown, Option<unknown>>>()
-export class Option<T> extends Enum<{ Some: unknown; None: void }>() {
+export class Option<T> extends EnumClass<{ Some: T; None: void }> {
+  isValidType(type: "None" | "Some"): boolean {
+    switch (type) {
+      case "None":
+      case "Some":
+        return true;
+    }
+
+    return false;
+  }
+
   static fromOutput<T>(output: T) {
     return Some(output);
   }
@@ -22,14 +32,14 @@ export class Option<T> extends Enum<{ Some: unknown; None: void }>() {
    * Creates a `Some` type `Option`
    */
   static Some<T>(value: T): Option<T> {
-    return Option.create("Some", value) as Option<T>;
+    return new Option("Some", value);
   }
 
   /**
    * Creates a `None` type `Option`
    */
   static None<T>(): Option<T> {
-    return Option.create("None") as Option<T>;
+    return new Option("None");
   }
 
   /**
@@ -350,7 +360,7 @@ export class Option<T> extends Enum<{ Some: unknown; None: void }>() {
   take(): Option<T> {
     return this.match({
       Some: (x) => {
-        this.changeTo("None");
+        this.changeTo("None", undefined);
         return Some(x);
       },
       None: () => None(),
@@ -574,7 +584,10 @@ export class Option<T> extends Enum<{ Some: unknown; None: void }>() {
    * expect(result2).toBe("Some");
    */
   unwrapUnchecked(): T | undefined {
-    return this.toJSON().value as T;
+    return this.match({
+      None: () => undefined,
+      Some: (value) => value,
+    });
   }
 
   /**
@@ -593,8 +606,8 @@ export class Option<T> extends Enum<{ Some: unknown; None: void }>() {
    * });
    * expect(value).toBe(12);
    */
-  ifSome(func: (value: T) => unknown): void {
-    this.ifIs("Some", (x) => func(x as T));
+  ifSome(func: (value: T) => void): void {
+    this.ifIs("Some", func);
   }
 
   /**
@@ -614,47 +627,8 @@ export class Option<T> extends Enum<{ Some: unknown; None: void }>() {
    * });
    * expect(value).toBe("Love is gravel eater god named Malcolm");
    */
-  ifNone(func: () => unknown): void {
+  ifNone(func: () => void): void {
     this.ifIs("None", func);
-  }
-
-  /**
-   * If `Option` is `Some` call the function property `Some`.
-   * If `Option` is `None` call the function property `None`.
-   *
-   * This function will return the returned value by the executed
-   * @example
-   * let value = 0;
-   * const none = None<number>();
-   * none.match({
-   *   Some: () => unreachable("This is a `None`"),
-   *   None: () => {
-   *     value = 2;
-   *   },
-   * });
-   * expect(value).toBe(2);
-   *
-   * value = 0;
-   * const some = Some(432);
-   * some.match({
-   *   Some: (v) => {
-   *     value = v;
-   *   },
-   *   None: () => unreachable("This is a `Some`"),
-   * });
-   * expect(value).toBe(432);
-   */
-  match<R>(arms: { Some: (value: T) => R; None: () => R }): R;
-  match<R>(arms: { Some?: (value: T) => R; None?: () => R }, def: () => R): R;
-  match<R>(arms: { Some?: (value: T) => R; None?: () => R }, def?: () => R): R {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return super.match(arms as any, def as any);
-  }
-
-  changeTo(type: "None"): void;
-  changeTo(type: "Some", value: T): void;
-  changeTo(type: "Some" | "None", value?: unknown): void {
-    super.changeTo(type as "Some", value);
   }
 }
 
