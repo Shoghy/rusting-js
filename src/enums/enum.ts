@@ -98,7 +98,11 @@ export function Enum<S extends object>(schema: SetEnumThis<S>) {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    NewEnum[key] = (enumValue) => new NewEnum(key, enumValue);
+    NewEnum[key] = function (enumValue) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return new this(key, enumValue);
+    };
   }
 
   Object.setPrototypeOf(NewEnum.prototype, methods);
