@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { panic } from "../panic.ts";
 
 export abstract class EnumClass<Schema extends object> {
@@ -59,7 +60,7 @@ export abstract class EnumClass<Schema extends object> {
 
 type SetEnumThis<S extends object> = {
   [K in keyof S]: S[K] extends (this: S, ...args: infer Args) => infer Return
-    ? (this: S & EnumClass<S>, ...args: Args) => Return
+    ? (this: EnumMethods<S> & EnumClass<GetArms<S>>, ...args: Args) => Return
     : S[K];
 };
 
@@ -67,8 +68,14 @@ type EnumMethods<S extends object> = {
   [K in keyof S]: S[K] extends (...args: unknown[]) => unknown ? S[K] : never;
 };
 
+type KeyOfType<S extends object, T> = {
+  [K in keyof S]: S[K] extends T ? K : never;
+}[keyof S];
+
 type GetArms<S extends object> = {
-  [K in keyof S]: S[K] extends ArmType<infer T> ? T : never;
+  [K in KeyOfType<S, ArmType<unknown>>]: S[K] extends ArmType<infer T>
+    ? T
+    : never;
 };
 
 type ArmMethods<S extends object, Class> = {
@@ -94,11 +101,14 @@ export function Enum<S extends object>(schema: SetEnumThis<S>) {
       continue;
     }
     if (value !== isArm) continue;
+    // @ts-ignore
     enumKeys.push(key);
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    NewEnum[key] = (enumValue) => new NewEnum(key, enumValue);
+    NewEnum[key] = function (enumValue) {
+      // @ts-ignore
+      return new this(key, enumValue);
+    };
   }
 
   Object.setPrototypeOf(NewEnum.prototype, methods);

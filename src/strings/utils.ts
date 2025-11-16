@@ -1,6 +1,6 @@
 import { Err, Ok, type Result } from "../enums/result.ts";
 import { None, type Option, Some } from "../enums/option.ts";
-import { catchUnwind } from "../panic.ts";
+import { catchUnwind } from "../catch.ts";
 
 /**
  * @author https://stackoverflow.com/a/18729931

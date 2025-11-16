@@ -7,8 +7,9 @@
 
 import { expect, test } from "bun:test";
 import { Err, Ok } from "../../src/enums/result.ts";
-import { catchUnwind, unreachable } from "../../src/panic.ts";
+import { catchUnwind } from "../../src/catch.ts";
 import { None, Some } from "../../src/enums/option.ts";
+import { unreachable } from "../../src/panic.ts";
 
 test("isOk", () => {
   const ok = Ok(1);

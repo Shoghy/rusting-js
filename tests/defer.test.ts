@@ -1,7 +1,8 @@
 import { expect, test } from "bun:test";
 import { sleep } from "bun";
-import { catchUnwind, catchUnwindAsync, panic } from "../src/panic.ts";
+import { catchUnwind, catchUnwindAsync } from "../src/catch.ts";
 import { capturePromise, defer, deferrableFunc } from "../src/defer.ts";
+import { panic } from "../src/panic.ts";
 
 test("executes deferred functions after main function body", (done) => {
   const func = deferrableFunc((p) => {

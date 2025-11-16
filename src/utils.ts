@@ -1,4 +1,4 @@
-import { catchUnwindAsync } from "./panic.ts";
+import { catchUnwindAsync } from "./catch.ts";
 
 export function StaticImplements<T>() {
   return <U extends T>(_: U) => {};

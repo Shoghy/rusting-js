@@ -1,5 +1,6 @@
-import { catchUnwind, panic } from "./panic.ts";
+import { catchUnwind } from "./catch.ts";
 import { type Result } from "./enums/result.ts";
+import { panic } from "./panic.ts";
 import { promiseWithResolvers, type PromiseWithResolvers } from "./utils.ts";
 
 export class Mutex<T> {
