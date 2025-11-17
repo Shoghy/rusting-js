@@ -84,7 +84,7 @@ type ArmMethods<S extends object, Class> = {
 
 type ArmType<Value> = { [isArm]: Value };
 
-export function Enum<S extends object>(schema: SetEnumThis<S>) {
+export function Enum<const S extends object>(schema: SetEnumThis<S>) {
   type Arms = GetArms<S>;
   class NewEnum extends EnumClass<Arms> {
     isValidType(type: keyof Arms): boolean {
@@ -111,7 +111,7 @@ export function Enum<S extends object>(schema: SetEnumThis<S>) {
     };
   }
 
-  Object.setPrototypeOf(NewEnum.prototype, methods);
+  Object.assign(NewEnum.prototype, methods);
 
   return NewEnum as typeof NewEnum & ArmMethods<S, NewEnum & EnumMethods<S>>;
 }
