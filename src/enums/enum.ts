@@ -60,7 +60,10 @@ export abstract class EnumClass<Schema extends object> {
 
 type SetEnumThis<S extends object> = {
   [K in keyof S]: S[K] extends (this: S, ...args: infer Args) => infer Return
-    ? (this: EnumMethods<S> & EnumClass<GetArms<S>>, ...args: Args) => Return
+    ? (
+        this: Omit<EnumMethods<S>, keyof GetArms<S>> & EnumClass<GetArms<S>>,
+        ...args: Args
+      ) => Return
     : S[K];
 };
 
@@ -137,5 +140,5 @@ export function Enum<const S extends BaseSchema>(schema: SetEnumThis<S>) {
   Object.assign(NewEnum.prototype, methods);
 
   return NewEnum as typeof NewEnum &
-    ArmMethods<Schema, Class & EnumMethods<Schema>>;
+    ArmMethods<Schema, Class & Omit<EnumMethods<Schema>, keyof Arms>>;
 }
