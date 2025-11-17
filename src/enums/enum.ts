@@ -82,15 +82,38 @@ type ArmMethods<S extends object, Class> = {
   [K in keyof S]: S[K] extends ArmType<infer T> ? (value: T) => Class : never;
 };
 
+const isArm = Symbol();
 type ArmType<Value> = { [isArm]: Value };
+export function Arm<Value = void>(): ArmType<Value> {
+  return isArm as unknown as ArmType<Value>;
+}
 
-export function Enum<const S extends object>(schema: SetEnumThis<S>) {
-  type Arms = GetArms<S>;
+const isClass = Symbol();
+type ClassType<Class> = { [isClass]: Class };
+type GetClass<T> = T extends ClassType<infer Z> ? Z : never;
+export function Class<TClass>() {
+  return undefined as unknown as ClassType<TClass>;
+}
+
+interface BaseSchema {
+  _classType?: ClassType<unknown>;
+  [key: string | symbol | number]: unknown;
+}
+
+export function Enum<const S extends BaseSchema>(schema: SetEnumThis<S>) {
+  type Schema = Omit<S, "_classType">;
+  type Arms = GetArms<Schema>;
+
   class NewEnum extends EnumClass<Arms> {
     isValidType(type: keyof Arms): boolean {
       return enumKeys.includes(type);
     }
   }
+
+  type Class =
+    GetClass<S["_classType"]> extends never
+      ? NewEnum
+      : GetClass<S["_classType"]>;
 
   const enumKeys: (keyof Arms)[] = [];
   const methods: Record<string | number | symbol, unknown> = {};
@@ -113,10 +136,6 @@ export function Enum<const S extends object>(schema: SetEnumThis<S>) {
 
   Object.assign(NewEnum.prototype, methods);
 
-  return NewEnum as typeof NewEnum & ArmMethods<S, NewEnum & EnumMethods<S>>;
-}
-
-const isArm = Symbol();
-export function Arm<Value = void>(): ArmType<Value> {
-  return isArm as unknown as ArmType<Value>;
+  return NewEnum as typeof NewEnum &
+    ArmMethods<Schema, Class & EnumMethods<Schema>>;
 }
