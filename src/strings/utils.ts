@@ -95,7 +95,7 @@ export function utf8ToString(array: Uint8Array) {
 }
 
 export function utf8CharWidth(b: number): 0 | 1 | 2 | 3 | 4 {
-  if (b < 0 && isNaN(b)) {
+  if (b < 0 || isNaN(b) || b > 255) {
     return 0;
   }
 
