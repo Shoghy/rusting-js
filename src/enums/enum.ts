@@ -6,14 +6,16 @@ export abstract class EnumClass<Schema extends object> {
   #value: Schema[keyof Schema];
 
   protected constructor(type: keyof Schema, value: Schema[keyof Schema]) {
-    if (!this.isValidType(type)) {
+    if (!this.isValidTypeValue(type, value)) {
       panic("Invalid type");
     }
     this.#type = type;
     this.#value = value;
   }
 
-  abstract isValidType(type: keyof Schema): boolean;
+  isValidTypeValue(_type: keyof Schema, _value: Schema[keyof Schema]) {
+    return true;
+  }
 
   ifIs<T extends keyof Schema>(type: T, func: (value: Schema[T]) => void) {
     if (type !== this.#type) return;
@@ -49,7 +51,7 @@ export abstract class EnumClass<Schema extends object> {
   }
 
   changeTo<T extends keyof Schema>(type: T, value: Schema[T]) {
-    if (!this.isValidType(type)) return false;
+    if (!this.isValidTypeValue(type, value)) return false;
 
     this.#type = type;
     this.#value = value;
@@ -81,6 +83,8 @@ type GetArms<S extends object> = {
     : never;
 };
 
+export type GetEnumKeys<T> = T extends EnumClass<infer S> ? S : never;
+
 type ArmMethods<S extends object, Class> = {
   [K in keyof S]: S[K] extends ArmType<infer T> ? (value: T) => Class : never;
 };
@@ -108,7 +112,10 @@ export function Enum<const S extends BaseSchema>(schema: SetEnumThis<S>) {
   type Arms = GetArms<Schema>;
 
   class NewEnum extends EnumClass<Arms> {
-    isValidType(type: keyof Arms): boolean {
+    override isValidTypeValue(
+      type: keyof Arms,
+      _value: Arms[keyof Arms],
+    ): boolean {
       return enumKeys.includes(type);
     }
   }

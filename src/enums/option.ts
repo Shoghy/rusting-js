@@ -7,7 +7,7 @@ import { Err, Ok, type Result } from "./result.ts";
 
 @StaticImplements<TryStatic<unknown, Option<unknown>>>()
 export class Option<T> extends EnumClass<{ Some: T; None: void }> {
-  isValidType(type: "None" | "Some"): boolean {
+  override isValidTypeValue(type: "None" | "Some", _value: T | void): boolean {
     switch (type) {
       case "None":
       case "Some":

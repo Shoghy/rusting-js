@@ -7,7 +7,7 @@ import { ControlFlow } from "./control_flow.ts";
 
 @StaticImplements<TryStatic<unknown, Result<unknown, unknown>>>()
 export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
-  isValidType(type: "Ok" | "Err"): boolean {
+  override isValidTypeValue(type: "Ok" | "Err", _value: T | E): boolean {
     switch (type) {
       case "Ok":
       case "Err":
