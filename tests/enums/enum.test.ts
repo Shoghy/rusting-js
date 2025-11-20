@@ -1,9 +1,9 @@
 import { describe, test, expect } from "bun:test";
-import { Arm, Class, Enum, type GetEnumKeys } from "../../src/enums/enum.ts";
+import { Arm, Enum, type GetEnumKeys } from "../../src/enums/enum.ts";
 import { panic, unreachable } from "../../src/panic.ts";
 
 class Unknown extends Enum({
-  __classType__: Class<Unknown>(),
+  __classType__: Arm<Unknown>(),
   string: Arm<string>(),
   number: Arm<number>(),
   bigint: Arm<bigint>(),

@@ -132,15 +132,9 @@ export function Arm<Value = void>(): ArmType<Value> {
 
 const ClassKey = "__classType__";
 type ClassKey = typeof ClassKey;
-const isClass = Symbol();
-type ClassType<Class> = { [isClass]: Class };
-type GetClass<T> = T extends ClassType<infer Z> ? Z : never;
-export function Class<TClass>() {
-  return undefined as unknown as ClassType<TClass>;
-}
 
 interface BaseSchema {
-  [ClassKey]?: ClassType<unknown>;
+  [ClassKey]?: ArmType<unknown>;
   /**
    * Optional validation hook used to restrict which `(type, value)` pairs
    * are allowed when constructing or mutating an enum instance.
@@ -238,7 +232,7 @@ interface BaseSchema {
  * class CustomClass extends Enum({
  *   // This is so you don't have to do `CustomClass.A() as CustomClass`
  *   // Each time you instantiate the class
- *   __classType__: Class<CustomClass>(),
+ *   __classType__: Arm<CustomClass>(),
  *   A: Arm(),
  *   B: Arm<number>(),
  * }) {
@@ -246,9 +240,15 @@ interface BaseSchema {
  * }
  *
  */
-export function Enum<const S extends BaseSchema>(schema: SetEnumThis<S>) {
+export function Enum<const S extends BaseSchema>({
+  ...schema
+}: SetEnumThis<S>) {
   type Schema = Omit<S, ClassKey>;
   type Arms = GetArms<Schema>;
+
+  if (ClassKey in schema) {
+    delete schema[ClassKey];
+  }
 
   class NewEnum extends EnumClass<Arms> {
     override isValidTypeValue(
@@ -259,8 +259,7 @@ export function Enum<const S extends BaseSchema>(schema: SetEnumThis<S>) {
     }
   }
 
-  type Class =
-    GetClass<S[ClassKey]> extends never ? NewEnum : GetClass<S[ClassKey]>;
+  type Class = S[ClassKey] extends ArmType<infer C> ? C : NewEnum;
 
   const schemaKeys = Object.getOwnPropertyNames(schema) as Array<keyof Schema>;
   schemaKeys.push(
