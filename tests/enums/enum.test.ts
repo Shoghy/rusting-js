@@ -3,7 +3,7 @@ import { Arm, Class, Enum, type GetEnumKeys } from "../../src/enums/enum.ts";
 import { panic, unreachable } from "../../src/panic.ts";
 
 class Unknown extends Enum({
-  _classType: Class<Unknown>(),
+  __classType__: Class<Unknown>(),
   string: Arm<string>(),
   number: Arm<number>(),
   bigint: Arm<bigint>(),

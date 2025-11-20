@@ -95,6 +95,8 @@ export function Arm<Value = void>(): ArmType<Value> {
   return isArm as unknown as ArmType<Value>;
 }
 
+const ClassKey = "__classType__";
+type ClassKey = typeof ClassKey;
 const isClass = Symbol();
 type ClassType<Class> = { [isClass]: Class };
 type GetClass<T> = T extends ClassType<infer Z> ? Z : never;
@@ -103,12 +105,12 @@ export function Class<TClass>() {
 }
 
 interface BaseSchema {
-  _classType?: ClassType<unknown>;
+  [ClassKey]?: ClassType<unknown>;
   [key: string | symbol | number]: unknown;
 }
 
 export function Enum<const S extends BaseSchema>(schema: SetEnumThis<S>) {
-  type Schema = Omit<S, "_classType">;
+  type Schema = Omit<S, ClassKey>;
   type Arms = GetArms<Schema>;
 
   class NewEnum extends EnumClass<Arms> {
@@ -121,12 +123,10 @@ export function Enum<const S extends BaseSchema>(schema: SetEnumThis<S>) {
   }
 
   type Class =
-    GetClass<S["_classType"]> extends never
-      ? NewEnum
-      : GetClass<S["_classType"]>;
+    GetClass<S[ClassKey]> extends never ? NewEnum : GetClass<S[ClassKey]>;
 
   const enumKeys: (keyof Arms)[] = [];
-  const methods: Record<string | number | symbol, unknown> = {};
+  const methods: Record<string, unknown> = {};
   for (const key in schema) {
     const value = schema[key];
     if (typeof value === "function") {
