@@ -5,6 +5,8 @@ import { EnumClass } from "./enum.ts";
 import { ControlFlow } from "./control_flow.ts";
 import { Err, Ok, type Result } from "./result.ts";
 
+type FlattenOption<T> = T extends Option<infer V> ? FlattenOption<V> : T;
+
 @StaticImplements<TryStatic<unknown, Option<unknown>>>()
 export class Option<T> extends EnumClass<{ Some: T; None: void }> {
   override isValidTypeValue(type: "None" | "Some", _value: T | void): boolean {
@@ -629,6 +631,18 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    */
   ifNone(func: () => void): void {
     this.ifIs("None", func);
+  }
+
+  flatten(): Option<FlattenOption<T>> {
+    return this.match({
+      Some(opt) {
+        if (!(opt instanceof Option)) {
+          return Some(opt);
+        }
+        return opt.flatten();
+      },
+      None: () => None(),
+    });
   }
 }
 
