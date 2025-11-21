@@ -5,7 +5,7 @@ import { catchUnwind } from "../catch.ts";
 /**
  * @author https://stackoverflow.com/a/18729931
  */
-export function stringToUtf8(str: string) {
+export function jsStringToUtf8(str: string) {
   const utf8: number[] = [];
   for (let i = 0; i < str.length; i++) {
     let charCode = str.charCodeAt(i);
@@ -37,13 +37,21 @@ export function stringToUtf8(str: string) {
     }
   }
 
-  return utf8;
+  return new Uint8Array(utf8);
 }
+
+export const stringToUtf8 =
+  typeof TextEncoder !== "undefined"
+    ? (() => {
+        const encoder = new TextEncoder();
+        return encoder.encode.bind(encoder) as (str: string) => Uint8Array;
+      })()
+    : jsStringToUtf8;
 
 /**
  * @author https://stackoverflow.com/a/42453251
  */
-export function utf8ToString(array: Uint8Array) {
+export function jsUtf8ToString(array: Uint8Array) {
   let c: number, char2: number, char3: number, char4: number;
   let out = "";
   const len = array.length;
@@ -93,6 +101,14 @@ export function utf8ToString(array: Uint8Array) {
   }
   return out;
 }
+
+export const utf8ToString =
+  typeof TextDecoder !== "undefined"
+    ? (() => {
+        const decoder = new TextDecoder();
+        return decoder.decode.bind(decoder) as (array: Uint8Array) => string;
+      })()
+    : jsUtf8ToString;
 
 export function utf8CharWidth(b: number): 0 | 1 | 2 | 3 | 4 {
   if (b < 0 || isNaN(b) || b > 255) {
