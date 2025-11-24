@@ -13,7 +13,7 @@ function mapTryFold<T, B, Acc, R>(
   return (acc: Acc, elt: T) => g(acc, f(elt));
 }
 
-export class Map<Orig, Mapped> extends RIterator<Mapped> {
+export class IterMap<Orig, Mapped> extends RIterator<Mapped> {
   #iter: RIterator<Orig>;
   #func: (arg: Orig) => Mapped;
 

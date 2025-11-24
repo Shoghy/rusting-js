@@ -1,10 +1,7 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable @typescript-eslint/consistent-type-imports */
 import { None, type Option, Some } from "../enums/option.ts";
 import { Err, Ok, type Result } from "../enums/result.ts";
 import { unimplemented } from "../panic.ts";
 import { ControlFlow } from "../enums/control_flow.ts";
-import type { TryInstance, TryStatic } from "./try_trait.ts";
 
 export abstract class RIterator<T> implements Iterable<T> {
   *[Symbol.iterator]() {
@@ -43,30 +40,28 @@ export abstract class RIterator<T> implements Iterable<T> {
     return this.next();
   }
 
-  stepBy(step: number): import("../iterators/step_by").StepBy<T> {
+  stepBy(step: number): StepBy<T> {
     return new StepBy(this, step);
   }
 
-  chain(other: RIterator<T>): import("../iterators/chain").Chain<T> {
+  chain(other: RIterator<T>): Chain<T> {
     return new Chain(this, other);
   }
 
-  zip<U>(other: RIterator<U>): import("../iterators/zip").Zip<T, U> {
+  zip<U>(other: RIterator<U>): Zip<T, U> {
     return new Zip(this, other);
   }
 
-  intersperse(separator: T): import("../iterators/intersperse").Intersperse<T> {
+  intersperse(separator: T): Intersperse<T> {
     return new Intersperse(this, () => separator);
   }
 
-  intersperseWith(
-    separator: () => T,
-  ): import("../iterators/intersperse").Intersperse<T> {
+  intersperseWith(separator: () => T): Intersperse<T> {
     return new Intersperse(this, separator);
   }
 
-  map<B>(f: (value: T) => B): import("../iterators/map").Map<T, B> {
-    return new Map(this, f);
+  map<B>(f: (value: T) => B) {
+    return new IterMap(this, f);
   }
 
   forEach(f: (value: T) => unknown): void {
@@ -262,13 +257,9 @@ export interface FromIterator<T, R> {
   fromIter(iter: RIterator<T>): R;
 }
 
-const StepBy = require("../iterators/step_by.ts")
-  .StepBy as typeof import("../iterators/step_by.ts").StepBy;
-const Chain = require("../iterators/chain.ts")
-  .Chain as typeof import("../iterators/chain").Chain;
-const Zip = require("../iterators/zip.ts")
-  .Zip as typeof import("../iterators/zip.ts").Zip;
-const Map = require("../iterators/map.ts")
-  .Map as typeof import("../iterators/map.ts").Map;
-const Intersperse = require("../iterators/intersperse.ts")
-  .Intersperse as typeof import("../iterators/intersperse.ts").Intersperse;
+import { StepBy } from "../iterators/step_by.ts";
+import { Chain } from "../iterators/chain.ts";
+import { Zip } from "../iterators/zip.ts";
+import { IterMap } from "../iterators/iter_map.ts";
+import { Intersperse } from "../iterators/intersperse.ts";
+import type { TryInstance, TryStatic } from "./try_trait.ts";
