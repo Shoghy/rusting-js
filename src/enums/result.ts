@@ -236,6 +236,13 @@ export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
     });
   }
 
+  isErrOr(func: (ok: T) => boolean): boolean {
+    return this.match({
+      Ok: (ok) => func(ok),
+      Err: () => true,
+    });
+  }
+
   /**
    * If `Result` is `Err` returns false, otherwise execute
    * the `fun` parameter and return its returned value.
@@ -257,6 +264,13 @@ export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
     return this.match({
       Ok: (t) => func(t),
       Err: () => false,
+    });
+  }
+
+  isOkOr(func: (err: E) => boolean): boolean {
+    return this.match({
+      Ok: () => true,
+      Err: (err) => func(err),
     });
   }
 
