@@ -47,6 +47,12 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
   /**
    * If `value` is `null`, `undefined` or `NaN`
    * it returns a `None`, otherwise returns a `Some`
+   * ```ts
+   * expect(Option.fromValue(null).isNone()).toBe(true);
+   * expect(Option.fromValue(undefined).isNone()).toBe(true);
+   * expect(Option.fromValue(NaN).isNone()).toBe(true);
+   * expect(Option.fromValue("aiueo").isNone()).toBe(false);
+   * ```
    */
   static fromValue<T>(value: T): Option<Exclude<T, null | undefined>> {
     if (
@@ -61,12 +67,13 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * It returns true if `Option` is `Some`
-   * @example
+   * ```ts
    * const some = Some(0);
    * expect(some.isSome()).toBe(true);
    *
    * const none = None();
    * expect(none.isSome()).toBe(false);
+   * ```
    */
   isSome(): boolean {
     return this.is("Some");
@@ -74,12 +81,13 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * It returns true if `Option` is `None`
-   * @example
+   * ```ts
    * const some = Some(0);
    * expect(some.isNone()).toBe(false);
    *
    * const none = None();
    * expect(none.isNone()).toBe(true);
+   * ```
    */
   isNone(): boolean {
     return this.is("None");
@@ -94,7 +102,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * Execute the `func` parameter if `Option` is `Some`
-   * @example
+   * ```ts
    * const some = Some([1, 2, 3, 4]);
    * some.inspect((value) => {
    *   expect(value).toEqual([1, 2, 3, 4]);
@@ -104,6 +112,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * none.inspect(() => {
    *   unreachable();
    * });
+   * ```
    */
   inspect(func: (value: T) => unknown): this {
     this.ifSome(func);
@@ -112,14 +121,14 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * Returns `this` if it is `Some`, otherwise returns optb
-   * @example
+   * ```ts
    * let val1 = Some("lorem");
    * let val2 = None<string>();
    * expect(val1.or(val2).unwrap()).toBe("lorem");
    *
    * val1 = None();
    * val2 = Some("6.02214076 * 10^23");
-   * expect(val1.or(val2).unwrap()).toBe("6.02214076 * 10^23
+   * expect(val1.or(val2).unwrap()).toBe("6.02214076 * 10^23");
    *
    * val1 = Some("あなた");
    * val2 = Some("かわいい");
@@ -128,6 +137,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * val1 = None();
    * val2 = None();
    * expect(val1.or(val2).isNone()).toBeTrue();
+   * ```
    */
   or(optb: Option<T>): Option<T> {
     if (this.isSome()) {
@@ -138,7 +148,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * Returns `this` if is `Some`, otherwise execute the `func` parameter and return its returned value.
-   * @example
+   * ```ts
    * const none = None<number[]>();
    * const result1 = none.orElse(() => {
    *   return Some([4, 20]);
@@ -150,6 +160,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    *   return Some(13);
    * });
    * expect(result2.unwrap()).toBe(69);
+   * ```
    */
   orElse(func: () => Option<T>): Option<T> {
     if (this.isSome()) {
@@ -160,7 +171,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * Returns `Some` if just one of `this` and `optb` is `Some`, otherwise returns `None`
-   * @example
+   * ```ts
    * let val1 = Some(1);
    * let val2 = None<number>();
    * expect(val1.xor(val2).unwrap()).toBe(1);
@@ -176,6 +187,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * val1 = None();
    * val2 = None();
    * expect(val1.xor(val2).isNone()).toBeTrue();
+   * ```
    */
   xor(optb: Option<T>): Option<T> {
     if (this.isSome()) {
@@ -192,7 +204,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * Returns `optb` parameter if both `this` and `optb` are `Some`, otherwise returns `None`
-   * @example
+   * ```ts
    * let val1 = Some("Español");
    * let val2 = None<string>();
    * expect(val1.and(val2).isNone()).toBeTrue();
@@ -208,6 +220,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * val1 = None();
    * val2 = None();
    * expect(val1.and(val2).isNone()).toBeTrue();
+   * ```
    */
   and<U>(optb: Option<U>): Option<U> {
     if (this.isSome() && optb.isSome()) {
@@ -218,7 +231,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * If `Option` is `Some`, execute the `f` parameter and return its returned value, otherwise return `None`
-   * @example
+   * ```ts
    * const none = None<number>();
    * const result1 = none.andThen((value) => {
    *   return Some(value * value);
@@ -230,6 +243,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    *   return Some(value * value);
    * });
    * expect(result.unwrap()).toBe(25);
+   * ```
    */
   andThen<U>(f: (value: T) => Option<U>): Option<U> {
     return this.match({
@@ -242,7 +256,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * Returns the `value` contained in `Some`.
    * If `Option` is `None` panics.
    * @throws {Error}
-   * @example
+   * ```ts
    * const none = None();
    * const msg = "This should panic";
    * expect(() => none.expect(msg)).toThrowError(msg);
@@ -250,6 +264,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * const some = Some(1);
    * const val = some.expect("This should not panic");
    * expect(val).toBe(1);
+   * ```
    */
   expect(msg: string): T {
     return this.match({
@@ -260,7 +275,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * If `Option` is `None` insert the `value` parameter in `Option`, then return the value. If `Option` is `Some` it just return its value.
-   * @example
+   * ```ts
    * const option1 = None<number>();
    * const result1 = option1.getOrInsert(3.1415);;
    * expect(result1).toBe(3.1415);
@@ -270,6 +285,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * const result2 = option2.getOrInsert(19);
    * expect(result2).toBe(42);
    * expect(option2.unwrap()).toBe(42);
+   * ```
    */
   getOrInsert(value: T): T {
     this.ifNone(() => {
@@ -280,7 +296,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * If `Option` is `None` execute the `func` parameter and insert its returned value in `Option` then return the inserted value. If `Option` is `Some` it just return its value.
-   * @example
+   * ```ts
    * const text1 = "Hello World!";
    * const option1 = None<string>();
    * const result1 = option1.getOrInsertWith(() => text1);
@@ -292,6 +308,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * const result2 = option2.getOrInsertWith(() => "^w^");
    * expect(result2).toBe(text2);
    * expect(option2.unwrap()).toBe(text2);
+   * ```
    */
   getOrInsertWith(func: () => T): T {
     this.ifNone(() => {
@@ -302,20 +319,20 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * Insert the `value` parameter in `Option` and return it.
-   * @example
+   * ```ts
    * const coolSong = "https://open.spotify.com/track/4S3dFI8Sx3UsKOUnoYFCg2";
    *
    * const option1 = None<string>();
    * const result1 = option1.insert(coolSong);
    * expect(result1).toBe(coolSong);
-   * expect(option1).not.toEqual(None());
-   * expect(option1).toEqual(Some(coolSong));
+   * expect(option1.isSome()).toBe(true);
+   * expect(option1.unwrap()).toBe(coolSong);
    *
    * const option2 = Some(1);
    * const result2 = option2.insert(2);
    * expect(result2).toBe(2);
-   * expect(option2).not.toEqual(Some(1));
-   * expect(option2).toEqual(Some(2));
+   * expect(option2.unwrap()).toBe(2);
+   * ```
    */
   insert(value: T): T {
     this.changeTo("Some", value);
@@ -324,7 +341,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * If `Option` is `None` returns `false`, if it is `Some` execute the `f` parameter and return its returned value.
-   * @example
+   * ```ts
    * const rTrue = () => true;
    * const rFalse = () => false;
    *
@@ -337,6 +354,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * expect(some.isSomeAnd(rFalse)).toBe(false);
    * expect(some.isSomeAnd((value) => value == 1)).toBe(true);
    * expect(some.isSomeAnd((value) => value == 2)).toBe(false);
+   * ```
    */
   isSomeAnd(f: (value: T) => boolean): boolean {
     return this.match({
@@ -347,7 +365,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * If `Option` is `Some`, remove its value and return it wrapped in an `Option`. If `Option` is `None` return `None`.
-   * @example
+   * ```ts
    * let option1 = Some(142857);
    * let option2 = option1.take();
    *
@@ -358,6 +376,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * option2 = option1.take();
    * expect(option1.isNone()).toBeTrue();
    * expect(option2.isNone()).toBeTrue();
+   * ```
    */
   take(): Option<T> {
     return this.match({
@@ -373,13 +392,14 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * Returns the `value` contained in `Some`.
    * @throws {Error}
    * If `Option` is `None` panics.
-   * @example
+   * ```ts
    * const none = None();
    * expect(() => none.unwrap()).toThrow();
    *
    * const some = Some(1);
    * const val = some.unwrap();
    * expect(val).toBe(1);
+   * ```
    */
   unwrap(): T {
     return this.match({
@@ -390,7 +410,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * If `Option` is `Some` return its value. If `Option` is `None` return the parameter `value`.
-   * @example
+   * ```ts
    * const none = None<string>();
    * const result1 = none.unwrapOr("31 minutos");
    * expect(result1).toBe("31 minutos");
@@ -398,6 +418,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * const some = Some("Mr. Trance");
    * const result2 = some.unwrapOr("Esteman");
    * expect(result2).toBe("Mr. Trance");
+   * ```
    */
   unwrapOr(value: T): T {
     return this.match({
@@ -408,7 +429,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * If `Option` is `Some` return its value. If `Option` is `None` execute the parameter `func` and return its returned value
-   * @example
+   * ```ts
    * const none = None<number>();
    * const result1 = none.unwrapOrElse(() => 0xe0218a);
    * expect(result1).toBe(0xe0218a);
@@ -416,6 +437,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * const some = Some(0);
    * const result2 = some.unwrapOrElse(() => 1);
    * expect(result2).toBe(0);
+   * ```
    */
   unwrapOrElse(func: () => T): T {
     return this.match({
@@ -426,7 +448,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * If `this` and `other` are `Some` return a `Some` that holds both parameters, otherwise returns `None`
-   * @example
+   * ```ts
    * let val1 = Some(1);
    * let val2 = None<string>();
    * expect(val1.zip(val2).isNone()).toBeTrue();
@@ -442,6 +464,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * val1 = None();
    * val2 = None();
    * expect(val1.zip(val2).isNone()).toBeTrue();
+   * ```
    */
   zip<U>(other: Option<U>): Option<[T, U]> {
     if (this.isNone() || other.isNone()) {
@@ -454,7 +477,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * If `Option` is `Some` it will call the `f` parameter
    * and return its returned value wrapped in a `Some`,
    * otherwise it will return `None`
-   * @example
+   * ```ts
    * const none = None<string>();
    * const result1 = none.map((value) => {
    *   return value.length;
@@ -466,6 +489,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    *   return value.length;
    * });
    * expect(result2.unwrap()).toBe(4);
+   * ```
    */
   map<U>(f: (value: T) => U): Option<U> {
     return this.match({
@@ -478,7 +502,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * If `Option` is `Some` it will call the `f` parameter
    * and return its returned value,
    * otherwise it will return the `def` parameter
-   * @example
+   * ```ts
    * const none = None();
    * const result1 = none.mapOr("Hola", () => {
    *   return "Hello";
@@ -490,6 +514,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    *   return value.toString(16);
    * });
    * expect(result2).toBe("164");
+   * ```
    */
   mapOr<U>(def: U, f: (value: T) => U): U {
     return this.match({
@@ -502,7 +527,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * If `Option` is `Some` it will call the `f` parameter
    * and return its returned value. If `Option` is `None` it will call
    * the `def` parameter and return its returned value.
-   * @example
+   * ```ts
    * const none = None();
    * const result1 = none.mapOrElse(
    *   () => {
@@ -524,6 +549,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    *   },
    * );
    * expect(result2).toBe("17");
+   * ```
    */
   mapOrElse<U>(def: () => U, f: (value: T) => U): U {
     return this.match({
@@ -536,7 +562,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * If `Option` is `Some` it will return its value wrapped on an `Ok`.
    * If `Option` is `None` it will return the `err` parameter wrapped
    * on an `Err`.
-   * @example
+   * ```ts
    * const text = "The value was a None";
    * const none = None();
    * const result1 = none.okOr(text);
@@ -545,6 +571,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * const some = Some(9);
    * const result2 = some.okOr(text);
    * expect(result2.unwrap()).toBe(9);
+   * ```
    */
   okOr<E>(err: E): Result<T, E> {
     return this.match({
@@ -557,7 +584,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * If `Option` is `Some` it will return its value wrapped on an `Ok`.
    * If `Option` is `None` it will call the `err` parameter and
    * return its returned value wrapped on an `Err`.
-   * @example
+   * ```ts
    * const none = None();
    * const result1 = none.okOrElse(() => 68);
    * expect(result1.unwrapErr()).toBe(68);
@@ -565,6 +592,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * const some = Some("DCLXVI");
    * const result2 = some.okOrElse(() => "DCXVI");
    * expect(result2.unwrap()).toBe("DCLXVI");
+   * ```
    */
   okOrElse<E>(err: () => E): Result<T, E> {
     return this.match({
@@ -576,7 +604,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
   /**
    * This method return the value in `Some` or `undefined` if its `None`, without
    * any previous check. AVOID USING THIS METHOD.
-   * @example
+   * ```ts
    * const none = None();
    * const result1 = none.unwrapUnchecked();
    * expect(result1).toBe(undefined);
@@ -584,6 +612,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * const some = Some("Some");
    * const result2 = some.unwrapUnchecked();
    * expect(result2).toBe("Some");
+   * ```
    */
   unwrapUnchecked(): T | undefined {
     return this.match({
@@ -594,7 +623,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * Call the `func` parameter just if `Option` is `Some`.
-   * @example
+   * ```ts
    * let value = 0;
    * const none = None();
    * none.ifSome(() => {
@@ -607,6 +636,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    *   value = v + 5;
    * });
    * expect(value).toBe(12);
+   * ```
    */
   ifSome(func: (value: T) => void): void {
     this.ifIs("Some", func);
@@ -614,7 +644,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   /**
    * Call the `func` parameter just if `Option` is `None`.
-   * @example
+   * ```ts
    * let value = "Let's get creative";
    * const none = None();
    * none.ifNone(() => {
@@ -628,6 +658,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    *   value = "DON'T TOUCH MEEEEEEEEEEEEE";
    * });
    * expect(value).toBe("Love is gravel eater god named Malcolm");
+   * ```
    */
   ifNone(func: () => void): void {
     this.ifIs("None", func);
