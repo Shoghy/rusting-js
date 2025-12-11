@@ -16,7 +16,7 @@
         "eslint-plugin-prettier": "^5.5.4",
         "globals": "^16.4.0",
         "jiti": "^2.6.1",
-        "jsdoc-example-runner": "^1.0.3",
+        "jsdoc-example-runner": "^1.0.4",
         "prettier": "^3.6.2",
         "tslib": "^2.8.1",
         "tsup": "^8.5.0",
@@ -510,7 +510,7 @@
 
     "js-yaml": ["js-yaml@4.1.0", "", { "dependencies": { "argparse": "^2.0.1" }, "bin": { "js-yaml": "bin/js-yaml.js" } }, "sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA=="],
 
-    "jsdoc-example-runner": ["jsdoc-example-runner@1.0.3", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-BhYh9sfgdXJyFBSYofTkgFYh5d6rmsW4Q7J8/XBjHfl/CjFTa/daeEcgoMEXXorZQpUC+mmxKB7M1Xpi5E0hTg=="],
+    "jsdoc-example-runner": ["jsdoc-example-runner@1.0.4", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-6bBxNMjVrvzhOHmX+evTX/s/nnXn3D37dlnhNZvzce0Qm0FIgNejxY+rxkikyUj2aYNpiEn1Qxw6CcHGZbRvDA=="],
 
     "json-buffer": ["json-buffer@3.0.1", "", {}, "sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ=="],
 
