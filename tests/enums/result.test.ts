@@ -1,4 +1,6 @@
+import path from "path";
 import { expect, test, describe } from "bun:test";
+import { runExamplesInFile } from "jsdoc-example-runner";
 import { Err, Ok, type Result } from "../../src/enums/result.ts";
 import { unreachable } from "../../src/panic.ts";
 import { None, Some } from "../../src/enums/option.ts";
@@ -562,4 +564,10 @@ describe("Testing `mapOrElse` method", () => {
 
     expect(result).toBe(str1 + str2);
   });
+});
+
+test("Examples", async () => {
+  await runExamplesInFile(
+    path.resolve(import.meta.dirname, "../../src/enums/result.ts"),
+  );
 });
