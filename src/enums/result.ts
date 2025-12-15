@@ -7,7 +7,8 @@ import { ControlFlow } from "./control_flow.ts";
 
 @StaticImplements<TryStatic<unknown, Result<unknown, unknown>>>()
 export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
-  override isValidTypeValue(type: "Ok" | "Err", _value: T | E): boolean {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  override isValidTypeValue(type: "Ok" | "Err", value: T | E): boolean {
     switch (type) {
       case "Ok":
       case "Err":

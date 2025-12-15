@@ -9,9 +9,10 @@ type FlattenOption<T> = T extends Option<infer V> ? FlattenOption<V> : T;
 
 @StaticImplements<TryStatic<unknown, Option<unknown>>>()
 export class Option<T> extends EnumClass<{ Some: T; None: void }> {
-  override isValidTypeValue(type: "None" | "Some", _value: T | void): boolean {
+  override isValidTypeValue(type: "None" | "Some", value: T | void): boolean {
     switch (type) {
       case "None":
+        return value === undefined;
       case "Some":
         return true;
     }

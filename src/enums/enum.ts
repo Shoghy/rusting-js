@@ -32,7 +32,8 @@ export abstract class EnumClass<Schema extends object> {
    * Validates whether the provided type/value pair is allowed.
    * Override this in subclasses to enforce invariants.
    */
-  isValidTypeValue(_type: keyof Schema, _value: Schema[keyof Schema]) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isValidTypeValue(type: keyof Schema, value: Schema[keyof Schema]) {
     return true;
   }
 
@@ -200,7 +201,7 @@ interface BaseSchema {
  * - Keys mapped to functions become instance methods (with `this` properly
  *   typed as the constructed enum instance).
  * - A special `__classType__` key may contain a custom class created via
- *   {@link Class}, causing the enum to extend that class instead of the
+ *   {@link Arm}, causing the enum to extend that class instead of the
  *   automatically generated one.
  *
  * @returns
@@ -253,7 +254,8 @@ export function Enum<const S extends BaseSchema>({
   class NewEnum extends EnumClass<Arms> {
     override isValidTypeValue(
       type: keyof Arms,
-      _value: Arms[keyof Arms],
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      value: Arms[keyof Arms],
     ): boolean {
       return enumKeys.includes(type);
     }
