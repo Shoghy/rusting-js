@@ -28,22 +28,16 @@
   },
   "devDependencies": {
     "@anatine/esbuild-decorators": "^0.2.19",
-    "@eslint/js": "^9.39.4",
+    "@biomejs/biome": "^2.4.16",
     "@swc/core": "^1.15.41",
     "@types/bun": "latest",
     "esbuild": "^0.25.12",
-    "eslint": "^9.39.4",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-prettier": "^5.5.6",
     "globals": "^16.5.0",
     "jiti": "^2.7.0",
     "jsdoc-example-runner": "^1.0.5",
-    "prettier": "^3.8.4",
     "tslib": "^2.8.1",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.61.0"
+    "typescript": "^5.9.3"
   },
   "exports": {
     "./package.json": "./package.json",

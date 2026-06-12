@@ -1,0 +1,84 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": ["**/*.{ts}"]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "tab",
+    "indentWidth": 2,
+    "lineEnding": "lf"
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "a11y": "off",
+      "recommended": true,
+      "suspicious": {
+        "noExplicitAny": "error",
+        "noDoubleEquals": "error",
+        "noEmptyBlockStatements": "error",
+        "noVar": "error",
+        "noDeprecatedImports": "warn",
+        "noEmptyInterface": "warn"
+      },
+      "complexity": {
+        "noUselessCatch": "error",
+        "useLiteralKeys": "warn",
+        "noImplicitCoercions": "error",
+        "noUselessTernary": "warn"
+      },
+      "style": {
+        "useConst": "error",
+        "useImportType": "warn",
+        "useBlockStatements": "error",
+        "noDefaultExport": "error",
+        "noNonNullAssertion": "off",
+        "useSelfClosingElements": "warn",
+        "useTemplate": "warn",
+        "useNodejsImportProtocol": "off"
+      },
+      "nursery": {
+        "noShadow": "warn",
+        "useExplicitReturnType": {
+          "level": "warn",
+          "options": { "allowExpressions": true }
+        },
+        "noUnnecessaryConditions": "error",
+        "noFloatingPromises": "warn"
+      },
+      "correctness": {
+        "useImportExtensions": "warn",
+        "noUnusedVariables": "warn",
+        "useExhaustiveDependencies": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "trailingCommas": "all",
+      "semicolons": "always",
+      "arrowParentheses": "always",
+      "bracketSpacing": true
+    }
+  },
+  "json": {
+    "formatter": {
+      "indentStyle": "space",
+      "indentWidth": 2
+    }
+  }
+}
