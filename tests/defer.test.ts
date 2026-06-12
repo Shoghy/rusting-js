@@ -84,7 +84,7 @@ test("Async defer", async (done) => {
 });
 
 test("Sync throwing errors", (done) => {
-  function tester() {
+  function tester(): void {
     using _ = defer(() => {
       done();
     });
@@ -100,7 +100,7 @@ test("Sync throwing errors", (done) => {
 });
 
 test("Async throwing errors", async (done) => {
-  async function tester() {
+  async function tester(): Promise<void> {
     await using _ = defer(async () => {
       done();
     });

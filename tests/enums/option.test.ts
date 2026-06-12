@@ -1,6 +1,6 @@
-import path from "path";
-import { expect, test, describe } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { runExamplesInFile } from "jsdoc-example-runner";
+import path from "path";
 import { None, Some } from "../../src/enums/option.ts";
 import { unreachable } from "../../src/panic.ts";
 
@@ -222,9 +222,9 @@ describe("Testing `andThen` method", () => {
 describe("Testing `getOrInsert` method", () => {
   test("`None` should insert the value", () => {
     const option = None<number>();
-    const result = option.getOrInsert(3.1415);
-    expect(result).toBe(3.1415);
-    expect(option.unwrap()).toBe(3.1415);
+    const result = option.getOrInsert(Math.PI);
+    expect(result).toBe(Math.PI);
+    expect(option.unwrap()).toBe(Math.PI);
   });
 
   test("`Some` should not insert the value", () => {
@@ -272,8 +272,8 @@ describe("Testing `insert` method", () => {
 });
 
 describe("Testing `isSomeAnd` method", () => {
-  const rTrue = () => true;
-  const rFalse = () => false;
+  const rTrue = (): boolean => true;
+  const rFalse = (): boolean => false;
 
   test("`None` should always return false", () => {
     const none = None();

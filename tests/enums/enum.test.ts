@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { Arm, Enum, type GetEnumKeys } from "../../src/enums/enum.ts";
 import { panic, unreachable } from "../../src/panic.ts";
 
@@ -14,8 +14,7 @@ class Unknown extends Enum({
   function: Arm<(...args: unknown[]) => unknown>(),
 }) {
   static From(value: unknown): Unknown {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error
     return Unknown[typeof value](value);
   }
 
@@ -60,21 +59,22 @@ class Unknown extends Enum({
 describe("Unknown Enum", () => {
   test("creates correct variant from constructors", () => {
     const u = Unknown.string("hello");
-    expect(u.is("string")).toBe(true);
+    expect(u.is("string")).toBeTrue();
 
     const n = Unknown.number(42);
-    expect(n.is("number")).toBe(true);
+    expect(n.is("number")).toBeTrue();
   });
 
   test("Unknown.From creates correct variant", () => {
-    expect(Unknown.From("abc").is("string")).toBe(true);
-    expect(Unknown.From(123).is("number")).toBe(true);
-    expect(Unknown.From(10n).is("bigint")).toBe(true);
-    expect(Unknown.From(true).is("boolean")).toBe(true);
-    expect(Unknown.From(Symbol()).is("symbol")).toBe(true);
-    expect(Unknown.From(undefined).is("undefined")).toBe(true);
-    expect(Unknown.From({}).is("object")).toBe(true);
-    expect(Unknown.From(() => {}).is("function")).toBe(true);
+    expect(Unknown.From("abc").is("string")).toBeTrue();
+    expect(Unknown.From(123).is("number")).toBeTrue();
+    expect(Unknown.From(10n).is("bigint")).toBeTrue();
+    expect(Unknown.From(true).is("boolean")).toBeTrue();
+    expect(Unknown.From(Symbol()).is("symbol")).toBeTrue();
+    expect(Unknown.From(undefined).is("undefined")).toBeTrue();
+    expect(Unknown.From({}).is("object")).toBeTrue();
+    expect(Unknown.From(null).is("object")).toBeTrue();
+    expect(Unknown.From(() => {}).is("function")).toBeTrue();
   });
 
   test("match executes correct arm", () => {
@@ -130,7 +130,7 @@ describe("Unknown Enum", () => {
       expect(v).toBe(99);
     });
 
-    expect(called).toBe(true);
+    expect(called).toBeTrue();
 
     u.ifIs("string", () => {
       unreachable();
@@ -141,12 +141,12 @@ describe("Unknown Enum", () => {
     const u = Unknown.string("abc");
 
     const changed = u.changeTo("number", 55);
-    expect(changed).toBe(true);
-    expect(u.is("number")).toBe(true);
+    expect(changed).toBeTrue();
+    expect(u.is("number")).toBeTrue();
 
     const changedAgain = u.changeTo("symbol", Symbol("x"));
-    expect(changedAgain).toBe(true);
-    expect(u.is("symbol")).toBe(true);
+    expect(changedAgain).toBeTrue();
+    expect(u.is("symbol")).toBeTrue();
   });
 
   test("changeTo returns false for invalid type", () => {
@@ -155,8 +155,9 @@ describe("Unknown Enum", () => {
     // @ts-expect-error invalid type
     const result = u.changeTo("NotARealVariant", 123);
 
-    expect(result).toBe(false);
-    expect(u.is("string")).toBe(true);
+    expect(result).toBeFalse();
+    expect(u.is("string")).toBeTrue();
+    expect(u.get("string")).toBe("abc");
   });
 
   test("Unknown own methods are still accesibles", () => {
@@ -168,14 +169,14 @@ describe("Unknown Enum", () => {
   });
 
   test("Unknown.From handles null", () => {
-    expect(Unknown.From(null).is("object")).toBe(true);
+    expect(Unknown.From(null).is("object")).toBeTrue();
   });
 
   test("changeTo mutates instance", () => {
     const u = Unknown.number(1);
     const ref = u;
     u.changeTo("boolean", true);
-    expect(ref.is("boolean")).toBe(true);
+    expect(ref.is("boolean")).toBeTrue();
   });
 
   test("Type and arm mismatch", () => {

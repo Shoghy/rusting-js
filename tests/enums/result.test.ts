@@ -1,9 +1,9 @@
-import path from "path";
-import { expect, test, describe } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { runExamplesInFile } from "jsdoc-example-runner";
+import path from "path";
+import { None, Some } from "../../src/enums/option.ts";
 import { Err, Ok, type Result } from "../../src/enums/result.ts";
 import { unreachable } from "../../src/panic.ts";
-import { None, Some } from "../../src/enums/option.ts";
 import { randomInt, randomString } from "../random.ts";
 
 describe("Testing `isOk` method", () => {
@@ -123,7 +123,7 @@ describe("Testing `andThen` method", () => {
   test("`Ok` should run the `func` parameter and return its value", () => {
     const ok = Ok("Hello");
     const result = ok.andThen((value) => {
-      return Ok(value + " World");
+      return Ok(`${value} World`);
     });
     expect(result).toEqual(Ok("Hello World"));
   });
@@ -175,8 +175,8 @@ describe("Testing `expectErr` method", () => {
 });
 
 describe("Testing `isErrAnd` method", () => {
-  const rTrue = () => true;
-  const rFalse = () => false;
+  const rTrue = (): boolean => true;
+  const rFalse = (): boolean => false;
 
   test("`Ok` should always return false", () => {
     const ok = Ok({ hola: "mundo" });
@@ -205,8 +205,8 @@ describe("Testing `isErrAnd` method", () => {
 });
 
 describe("Testing `isOkAnd` method", () => {
-  const rTrue = () => true;
-  const rFalse = () => false;
+  const rTrue = (): boolean => true;
+  const rFalse = (): boolean => false;
 
   test("`Err` should always return false", () => {
     const err = Err("Copy + Paste");
@@ -253,6 +253,7 @@ describe("Testing `map` method", () => {
 
   test("`Err` should not execute the `func` parameter", (done) => {
     const err = Err(randomInt(1, 100));
+    // biome-ignore lint/suspicious/useIterableCallbackReturn: not an array
     err.map(() => {
       done("`map` method was executed");
     });
@@ -262,6 +263,7 @@ describe("Testing `map` method", () => {
   test("`Err` should return its value wrapped in a `Err`", () => {
     const str = randomString(11);
     const err = Err(str);
+    // biome-ignore lint/suspicious/useIterableCallbackReturn: not an array
     const result = err.map(() => {});
 
     expect(result).toEqual(Err(str));

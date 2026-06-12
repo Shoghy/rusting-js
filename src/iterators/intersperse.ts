@@ -8,7 +8,7 @@ function intersperseFold<T, I extends RIterator<T>, B>(
   separator: () => T,
   started: boolean,
   nextItem: Option<T>,
-) {
+): B {
   let accum = init;
 
   let first: Option<T>;
@@ -61,7 +61,7 @@ export class Intersperse<T> extends RIterator<T> {
     return Some(this.#separator());
   }
 
-  fold<B>(init: B, f: (accum: B, value: T) => B) {
+  fold<B>(init: B, f: (accum: B, value: T) => B): B {
     return intersperseFold(
       this.#iter,
       init,

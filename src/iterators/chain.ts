@@ -1,7 +1,7 @@
-import { RIterator } from "../traits/iterator.ts";
 import { None, type Option, Some } from "../enums/option.ts";
-import type { TryInstance, TryStatic } from "../traits/try_trait.ts";
 import { Err, type Result } from "../enums/result.ts";
+import { RIterator } from "../traits/iterator.ts";
+import type { TryInstance, TryStatic } from "../traits/try_trait.ts";
 
 export class Chain<T> extends RIterator<T> {
   #a: Option<RIterator<T>>;
@@ -47,8 +47,7 @@ export class Chain<T> extends RIterator<T> {
     return aCount + bCount;
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+  // @ts-expect-error
   tryFold<B, R extends TryInstance<B, R>>(
     type: TryStatic<B, R>,
     init: B,

@@ -1,5 +1,6 @@
 import { Err, Ok, type Result } from "../enums/result.ts";
 import { Iter } from "../iterators/iter.ts";
+import type { IterMap } from "../iterators/iter_map.ts";
 import { utf8CharWidth, utf8ToUnicode } from "./utils.ts";
 
 export enum CharFromError {
@@ -8,7 +9,7 @@ export enum CharFromError {
   InvalidUtf8,
 }
 
-function* splitString(str: string) {
+function* splitString(str: string): Generator<string, void, unknown> {
   for (const c of str) {
     yield c;
   }
@@ -21,12 +22,14 @@ export class Char {
     this.#unicode = unicode;
   }
 
-  asNumber() {
+  asNumber(): number {
     return this.#unicode;
   }
 
   static fromUtf8(bytes: Uint8Array): Result<Char, CharFromError> {
-    if (bytes.length === 0) return Err(CharFromError.EmptyValue);
+    if (bytes.length === 0) {
+      return Err(CharFromError.EmptyValue);
+    }
 
     const first = bytes[0];
     const length = utf8CharWidth(first);
@@ -41,7 +44,9 @@ export class Char {
   }
 
   static fromCharStr(charStr: string): Result<Char, CharFromError> {
-    if (charStr.length === 0) return Err(CharFromError.EmptyValue);
+    if (charStr.length === 0) {
+      return Err(CharFromError.EmptyValue);
+    }
     let first = true;
 
     let char: string;
@@ -57,7 +62,7 @@ export class Char {
     return Ok(new Char(char!.codePointAt(0)!));
   }
 
-  static fromStr(str: string) {
+  static fromStr(str: string): IterMap<string, Char> {
     return new Iter(splitString(str)).map((c) => new Char(c.codePointAt(0)!));
   }
 
@@ -65,7 +70,7 @@ export class Char {
     return String.fromCodePoint(this.#unicode);
   }
 
-  valueOf() {
+  valueOf(): number {
     return this.#unicode;
   }
 }

@@ -32,16 +32,21 @@ export abstract class EnumClass<Schema extends object> {
    * Validates whether the provided type/value pair is allowed.
    * Override this in subclasses to enforce invariants.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  isValidTypeValue(type: keyof Schema, value: Schema[keyof Schema]) {
+  // biome-ignore lint/correctness/noUnusedFunctionParameters: on extend avoid a weird variable name
+  isValidTypeValue(type: keyof Schema, value: Schema[keyof Schema]): boolean {
     return true;
   }
 
   /**
    * Calls the provided function only if the current type matches `type`.
    */
-  ifIs<T extends keyof Schema>(type: T, func: (value: Schema[T]) => void) {
-    if (type !== this.#type) return;
+  ifIs<T extends keyof Schema>(
+    type: T,
+    func: (value: Schema[T]) => void,
+  ): void {
+    if (type !== this.#type) {
+      return;
+    }
     func(this.#value as Schema[T]);
   }
 
@@ -78,7 +83,7 @@ export abstract class EnumClass<Schema extends object> {
   /**
    * Checks whether the current variant matches the given type.
    */
-  is(type: keyof Schema) {
+  is(type: keyof Schema): boolean {
     return type === this.#type;
   }
 
@@ -86,8 +91,10 @@ export abstract class EnumClass<Schema extends object> {
    * Attempts to change the current variant and its associated value.
    * @returns `true` if the change is valid and applied; otherwise `false`.
    */
-  changeTo<T extends keyof Schema>(type: T, value: Schema[T]) {
-    if (!this.isValidTypeValue(type, value)) return false;
+  changeTo<T extends keyof Schema>(type: T, value: Schema[T]): boolean {
+    if (!this.isValidTypeValue(type, value)) {
+      return false;
+    }
 
     this.#type = type;
     this.#value = value;
@@ -241,6 +248,8 @@ interface BaseSchema {
  * }
  *
  */
+
+// biome-ignore lint/nursery/useExplicitReturnType: i don't think this is possible
 export function Enum<const S extends BaseSchema>({
   ...schema
 }: SetEnumThis<S>) {
@@ -254,7 +263,7 @@ export function Enum<const S extends BaseSchema>({
   class NewEnum extends EnumClass<Arms> {
     override isValidTypeValue(
       type: keyof Arms,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // biome-ignore lint/correctness/noUnusedFunctionParameters: on extend avoid a weird variable name
       value: Arms[keyof Arms],
     ): boolean {
       return enumKeys.includes(type);
@@ -275,13 +284,15 @@ export function Enum<const S extends BaseSchema>({
       methods[key] = value;
       continue;
     }
-    if (value !== isArm) continue;
-    // @ts-ignore
+    if (value !== isArm) {
+      continue;
+    }
+    // @ts-expect-error
     enumKeys.push(key);
 
-    // @ts-ignore
+    // @ts-expect-error
     NewEnum[key] = function (enumValue) {
-      // @ts-ignore
+      // @ts-expect-error
       return new this(key, enumValue);
     };
   }

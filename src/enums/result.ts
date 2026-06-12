@@ -1,14 +1,15 @@
 import { panic } from "../panic.ts";
 import type { TryStatic } from "../traits/try_trait.ts";
 import { StaticImplements } from "../utils.ts";
-import { None, type Option, Some } from "./option.ts";
-import { EnumClass } from "./enum.ts";
 import { ControlFlow } from "./control_flow.ts";
+import { EnumClass } from "./enum.ts";
+import { None, type Option, Some } from "./option.ts";
 
 @StaticImplements<TryStatic<unknown, Result<unknown, unknown>>>()
 export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // biome-ignore lint/correctness/noUnusedFunctionParameters: on extend avoid a weird variable name
   override isValidTypeValue(type: "Ok" | "Err", value: T | E): boolean {
+    // biome-ignore lint/nursery/noUnnecessaryConditions: for ts is unreachable code, but this is a validation
     switch (type) {
       case "Ok":
       case "Err":
@@ -18,7 +19,7 @@ export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
     return false;
   }
 
-  static fromOutput<T, E>(output: T): Result<T, E> {
+  static fromOutput<ST, SE>(output: ST): Result<ST, SE> {
     return Ok(output);
   }
 
@@ -32,17 +33,17 @@ export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
   /**
    * Creates a `Ok` type `Result`
    */
-  static Ok<E>(): Result<void, E>;
-  static Ok<T, E>(value: T): Result<T, E>;
-  static Ok<T, E>(value?: T): Result<T, E> {
-    return new Result<T, E>("Ok", value as T);
+  static Ok<SE>(): Result<void, SE>;
+  static Ok<ST, SE>(value: ST): Result<ST, SE>;
+  static Ok<ST, SE>(value?: ST): Result<ST, SE> {
+    return new Result<ST, SE>("Ok", value as ST);
   }
 
   /**
    * Creates a `Err` type `Result`
    */
-  static Err<T, E>(value: E): Result<T, E> {
-    return new Result<T, E>("Err", value);
+  static Err<ST, SE>(value: SE): Result<ST, SE> {
+    return new Result<ST, SE>("Err", value);
   }
 
   /**

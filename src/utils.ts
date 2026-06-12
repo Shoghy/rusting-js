@@ -1,4 +1,5 @@
 import { catchUnwindAsync } from "./catch.ts";
+import type { Result } from "./enums/result.ts";
 
 export function StaticImplements<T>() {
   return <U extends T>(_: U) => {};
@@ -30,7 +31,9 @@ export function promiseWithResolvers<T, E = Error>(): PromiseWithResolvers<
   return { promise, resolve, reject };
 }
 
-export function safeFetch(...params: Parameters<typeof fetch>) {
+export function safeFetch(
+  ...params: Parameters<typeof fetch>
+): Promise<Result<Response, Error>> {
   return catchUnwindAsync(() => fetch(...params));
 }
 
@@ -104,8 +107,12 @@ export function mapLoop<T, R>(
     const result = func(funcs, val, index, mapped.length);
     index += 1;
 
-    if (result === Stop) break;
-    if (result === Omit) continue;
+    if (result === Stop) {
+      break;
+    }
+    if (result === Omit) {
+      continue;
+    }
     if (Stop in result) {
       mapped.push(result[Stop]);
       break;

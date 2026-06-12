@@ -1,7 +1,7 @@
 import { catchUnwind } from "./catch.ts";
-import { type Result } from "./enums/result.ts";
+import type { Result } from "./enums/result.ts";
 import { panic } from "./panic.ts";
-import { promiseWithResolvers, type PromiseWithResolvers } from "./utils.ts";
+import { type PromiseWithResolvers, promiseWithResolvers } from "./utils.ts";
 
 export class Mutex<T> {
   #value: T;
@@ -26,7 +26,7 @@ export class Mutex<T> {
    * Unlocks the Mutex, without needing the lockers.
    * ## This function can be error prone. Its use is not recommended
    */
-  forcedUnlock() {
+  forcedUnlock(): void {
     const keys = Object.getOwnPropertySymbols(this.#unlockers);
     for (const key of keys) {
       this.#unlockers[key]();
@@ -40,7 +40,7 @@ export class Mutex<T> {
     const promise = promiseWithResolvers<void, void>();
     this.#locker = promise;
 
-    const resolvePromise = () => {
+    const resolvePromise = (): void => {
       this.#lockersCount -= 1;
       delete this.#unlockers[unlockerKey];
       promise.resolve();
@@ -70,7 +70,7 @@ export class Mutex<T> {
 }
 
 export class MutexGuard<T> {
-  [Symbol.dispose]() {
+  [Symbol.dispose](): void {
     this.tryUnlock();
   }
 
@@ -87,11 +87,11 @@ export class MutexGuard<T> {
     this.#set(val);
   }
 
-  get unlock() {
+  get unlock(): () => void {
     return this.#unlock;
   }
 
-  get hasLock() {
+  get hasLock(): boolean {
     return this.#hasLock;
   }
 

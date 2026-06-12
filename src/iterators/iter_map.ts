@@ -1,6 +1,6 @@
-import { type Option } from "../enums/option.ts";
+import type { Option } from "../enums/option.ts";
 import { RIterator } from "../traits/iterator.ts";
-import { type TryInstance, type TryStatic } from "../traits/try_trait.ts";
+import type { TryInstance, TryStatic } from "../traits/try_trait.ts";
 
 function mapFold<T, B, Acc>(f: (arg1: T) => B, g: (arg1: Acc, arg2: B) => Acc) {
   return (acc: Acc, elt: T) => g(acc, f(elt));
@@ -27,8 +27,7 @@ export class IterMap<Orig, Mapped> extends RIterator<Mapped> {
     return this.#iter.next().map(this.#func);
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore
+  //@ts-expect-error
   tryFold<Acc, R extends TryInstance<Acc, R>>(
     type: TryStatic<Acc, R>,
     init: Acc,
@@ -37,7 +36,7 @@ export class IterMap<Orig, Mapped> extends RIterator<Mapped> {
     return this.#iter.tryFold(type, init, mapTryFold(this.#func, g));
   }
 
-  fold<Acc>(init: Acc, g: (accum: Acc, item: Mapped) => Acc) {
+  fold<Acc>(init: Acc, g: (accum: Acc, item: Mapped) => Acc): Acc {
     return this.#iter.fold(init, mapFold(this.#func, g));
   }
 }

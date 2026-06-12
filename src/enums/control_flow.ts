@@ -2,12 +2,13 @@ import { panic } from "../panic.ts";
 import type { TryStatic } from "../traits/try_trait.ts";
 import { StaticImplements } from "../utils.ts";
 import { EnumClass } from "./enum.ts";
-import { Some, None, type Option } from "./option.ts";
+import { None, type Option, Some } from "./option.ts";
 
 @StaticImplements<TryStatic<unknown, ControlFlow<unknown, unknown>>>()
 export class ControlFlow<B, C> extends EnumClass<{ Break: B; Continue: C }> {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // biome-ignore lint/correctness/noUnusedFunctionParameters: on extend avoid a weird variable name
   override isValidTypeValue(type: "Break" | "Continue", value: B | C): boolean {
+    // biome-ignore lint/nursery/noUnnecessaryConditions: for ts is unreachable code, but this is a validation
     switch (type) {
       case "Break":
       case "Continue":
@@ -16,7 +17,7 @@ export class ControlFlow<B, C> extends EnumClass<{ Break: B; Continue: C }> {
     return false;
   }
 
-  static fromOutput<B, C>(output: C): ControlFlow<B, C> {
+  static fromOutput<SB, SC>(output: SC): ControlFlow<SB, SC> {
     return ControlFlow.Continue(output);
   }
 
@@ -27,12 +28,12 @@ export class ControlFlow<B, C> extends EnumClass<{ Break: B; Continue: C }> {
     });
   }
 
-  static Continue<B, C>(value: C): ControlFlow<B, C> {
-    return new ControlFlow<B, C>("Continue", value);
+  static Continue<SB, SC>(value: SC): ControlFlow<SB, SC> {
+    return new ControlFlow<SB, SC>("Continue", value);
   }
 
-  static Break<B, C>(value: B): ControlFlow<B, C> {
-    return new ControlFlow<B, C>("Break", value);
+  static Break<SB, SC>(value: SB): ControlFlow<SB, SC> {
+    return new ControlFlow<SB, SC>("Break", value);
   }
 
   isContinue(): boolean {

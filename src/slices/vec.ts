@@ -1,4 +1,4 @@
-import { None, Some, type Option } from "../enums/option.ts";
+import { None, type Option, Some } from "../enums/option.ts";
 import { Iter } from "../iterators/iter.ts";
 import { panic } from "../panic.ts";
 
@@ -20,7 +20,7 @@ type StrRange =
   | `..=${number}`
   | `${number}..=${number}`;
 
-function getVecIndex<T>(vec: VecClass<T>, index: number) {
+function getVecIndex<T>(vec: VecClass<T>, index: number): T {
   if (vec[ArrSymbol].length <= index) {
     panic("Accessing `index` out of the array");
   }
@@ -28,7 +28,11 @@ function getVecIndex<T>(vec: VecClass<T>, index: number) {
   return vec[ArrSymbol][index];
 }
 
-function* createIterator<T>(vec: VecClass<T>, start: number, end: number) {
+function* createIterator<T>(
+  vec: VecClass<T>,
+  start: number,
+  end: number,
+): Generator<T, void, unknown> {
   for (let i = start; i < end; ++i) {
     yield vec[ArrSymbol][i];
   }
@@ -70,7 +74,7 @@ function getVecRange<T>(vec: VecClass<T>, range: StrRange): Iter<T> {
 }
 
 const VecProxyHandler: ProxyHandler<VecClass<unknown>> = {
-  get(target, p, receiver) {
+  get(target, p, receiver): unknown {
     if (typeof p === "symbol") {
       return Reflect.get(target, p, receiver);
     }
@@ -86,7 +90,7 @@ const VecProxyHandler: ProxyHandler<VecClass<unknown>> = {
     return Reflect.get(target, p, receiver);
   },
 
-  set(target, p, newValue, receiver) {
+  set(target, p, newValue, receiver): boolean {
     if (typeof p === "symbol") {
       return Reflect.set(target, p, newValue, receiver);
     }
@@ -113,6 +117,7 @@ class VecClass<T> {
 
   [key: number]: T;
 
+  // biome-ignore lint/nursery/useExplicitReturnType: i dont really know
   get [Symbol.iterator]() {
     return this[ArrSymbol][Symbol.iterator];
   }
@@ -121,11 +126,11 @@ class VecClass<T> {
     this[ArrSymbol] = values;
   }
 
-  get length() {
+  get length(): number {
     return this[ArrSymbol].length;
   }
 
-  sort(f: (a: T, b: T) => Ordering) {
+  sort(f: (a: T, b: T) => Ordering): void {
     this[ArrSymbol].sort(f);
   }
 
@@ -136,11 +141,11 @@ class VecClass<T> {
     return Some(this[ArrSymbol][index]);
   }
 
-  iter() {
+  iter(): Iter<T> {
     return new Iter(createIterator(this, 0, this[ArrSymbol].length));
   }
 
-  push(value: T) {
+  push(value: T): void {
     this[ArrSymbol].push(value);
   }
 }
@@ -150,4 +155,6 @@ export const Vec = new Proxy(VecClass, {
     const instance = Reflect.construct(target, argArray, newTarget);
     return new Proxy(instance, VecProxyHandler);
   },
-}) as new <T>(...values: T[]) => VecClass<T> & VecRangeKeys<T>;
+}) as new <T>(
+  ...values: T[]
+) => VecClass<T> & VecRangeKeys<T>;

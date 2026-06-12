@@ -1,13 +1,14 @@
-import { type Option } from "../enums/option.ts";
+import type { Option } from "../enums/option.ts";
 import { panic } from "../panic.ts";
-import type { TryInstance, TryStatic } from "../traits/try_trait.ts";
 import { RIterator } from "../traits/iterator.ts";
+import type { TryInstance, TryStatic } from "../traits/try_trait.ts";
 import { Iter } from "./iter.ts";
 
 function* nth<T>(
   iter: RIterator<T>,
   stepMinusOne: number,
 ): Generator<T, void, unknown> {
+  // biome-ignore lint/nursery/noUnnecessaryConditions: the loop handles iternaly its own break
   while (true) {
     const val = iter.nth(stepMinusOne);
     if (val.isNone()) {
@@ -117,13 +118,12 @@ export class StepBy<T> extends RIterator<T> {
     return this.specNth(n);
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+  // @ts-expect-error
   tryFold<B, R extends TryInstance<B, R>>(
     type: TryStatic<B, R>,
     init: B,
     f: (accum: B, item: T) => R,
-  ) {
+  ): R {
     return this.specTryFold(type, init, f);
   }
 

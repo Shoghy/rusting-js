@@ -5,7 +5,7 @@ import { promiseWithResolvers } from "./utils.ts";
 export function capturePromise<T, E = Error>(
   promise: PromiseLike<T>,
   func: (value: Result<T, E>) => unknown,
-) {
+): void {
   promise.then(
     (value) => func(Ok(value)),
     (error) => func(Err(error)),
@@ -26,7 +26,7 @@ export function capturePromise<T, E = Error>(
 export function deferrableFunc<ArgsType extends Array<unknown>, ReturnType>(
   func: (promise: Promise<ReturnType>, ...args: ArgsType) => ReturnType,
 ) {
-  return function (...args: ArgsType): ReturnType {
+  return (...args: ArgsType): ReturnType => {
     const promise = promiseWithResolvers<ReturnType, unknown>();
 
     try {
@@ -56,6 +56,7 @@ export function deferrableGenerator<
 
     try {
       const value = func(promise.promise, ...args);
+      // biome-ignore lint/nursery/noUnnecessaryConditions: the loop handles iternaly its own break
       while (true) {
         const item = value.next();
         if (item.done ?? false) {
@@ -87,6 +88,7 @@ export function deferrableAsyncGenerator<
 
     try {
       const value = func(promise.promise, ...args);
+      // biome-ignore lint/nursery/noUnnecessaryConditions: the loop handles iternaly its own break
       while (true) {
         const item = await value.next();
         if (item.done ?? false) {
@@ -130,11 +132,11 @@ export interface DeferObject {
  */
 export function defer(func: () => unknown): DeferObject {
   return {
-    [Symbol.dispose]() {
+    [Symbol.dispose](): void {
       func();
     },
 
-    async [Symbol.asyncDispose]() {
+    async [Symbol.asyncDispose](): Promise<void> {
       await func();
     },
   };

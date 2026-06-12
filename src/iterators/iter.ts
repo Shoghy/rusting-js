@@ -1,13 +1,15 @@
 import { None, type Option, Some } from "../enums/option.ts";
 import { RIterator } from "../traits/iterator.ts";
 
-function* sliceGenerator<T>(arr: ArrayLike<T>) {
+function* sliceGenerator<T>(arr: ArrayLike<T>): Generator<T, void, unknown> {
   for (let i = 0; i < arr.length; ++i) {
     yield arr[i];
   }
 }
 
-function* iterableGenerator<T>(jsIter: Iterable<T>) {
+function* iterableGenerator<T>(
+  jsIter: Iterable<T>,
+): Generator<T, void, unknown> {
   for (const value of jsIter) {
     yield value;
   }
@@ -22,11 +24,11 @@ export class Iter<T> extends RIterator<T> {
     this.#iterator = iterator;
   }
 
-  static fromSlice<T>(arr: ArrayLike<T>) {
+  static fromSlice<ST>(arr: ArrayLike<ST>): Iter<ST> {
     return new Iter(sliceGenerator(arr));
   }
 
-  static fromIterable<T>(jsIter: Iterable<T>) {
+  static fromIterable<ST>(jsIter: Iterable<ST>): Iter<ST> {
     return new Iter(iterableGenerator(jsIter));
   }
 

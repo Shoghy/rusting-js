@@ -1,11 +1,11 @@
-import { Err, Ok, type Result } from "../enums/result.ts";
-import { None, type Option, Some } from "../enums/option.ts";
 import { catchUnwind } from "../catch.ts";
+import { None, type Option, Some } from "../enums/option.ts";
+import { Err, Ok, type Result } from "../enums/result.ts";
 
 /**
  * @author https://stackoverflow.com/a/18729931
  */
-export function jsStringToUtf8(str: string) {
+export function jsStringToUtf8(str: string): Uint8Array {
   const utf8: number[] = [];
   for (let i = 0; i < str.length; i++) {
     let charCode = str.charCodeAt(i);
@@ -51,7 +51,7 @@ export const stringToUtf8 =
 /**
  * @author https://stackoverflow.com/a/42453251
  */
-export function jsUtf8ToString(array: Uint8Array) {
+export function jsUtf8ToString(array: Uint8Array): string {
   let c: number, char2: number, char3: number, char4: number;
   let out = "";
   const len = array.length;
@@ -111,7 +111,8 @@ export const utf8ToString =
     : jsUtf8ToString;
 
 export function utf8CharWidth(b: number): 0 | 1 | 2 | 3 | 4 {
-  if (b < 0 || isNaN(b) || b > 255) {
+  // biome-ignore lint/suspicious/noGlobalIsNan: NaN is NaN
+  if (isNaN(b) || b < 0 || b > 255) {
     return 0;
   }
 
@@ -188,13 +189,14 @@ export function runUtf8Validation(bytes: Uint8Array): Result<void, Utf8Error> {
   let oldOffset = 0;
   const len = bytes.length;
 
-  function next() {
+  function next(): number {
     index += 1;
 
     if (index >= len) {
       throw None();
     } else if (bytes[index] < 0) {
       throw Some(1);
+      // biome-ignore lint/suspicious/noGlobalIsNan: NaN is NaN
     } else if (isNaN(bytes[index])) {
       throw None();
     }
@@ -277,7 +279,9 @@ export function runUtf8Validation(bytes: Uint8Array): Result<void, Utf8Error> {
   return result.mapErr((error) => new Utf8Error(oldOffset, error));
 }
 
-export function* splitUtf8Chars(vec: Uint8Array) {
+export function* splitUtf8Chars(
+  vec: Uint8Array,
+): Generator<Uint8Array, void, unknown> {
   for (let i = 0; i < vec.length; ++i) {
     const firstByte = vec[i];
     const charLength = utf8CharWidth(firstByte);

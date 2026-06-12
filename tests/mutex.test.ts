@@ -1,7 +1,7 @@
-import { test, describe, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { sleep } from "bun";
-import { Mutex } from "../src/mutex.ts";
 import { Ok } from "../src/enums/result.ts";
+import { Mutex } from "../src/mutex.ts";
 import { randomInt } from "./random.ts";
 
 // ----------------- Mutex methods -----------------
@@ -16,7 +16,7 @@ describe("Testing `getLockersCount` method", () => {
     const m = new Mutex(2);
     const num = randomInt(10, 100);
     for (let i = 0; i < num; ++i) {
-      m.lock();
+      void m.lock();
     }
     expect(m.lockersCount).toBe(num);
   });
@@ -82,7 +82,7 @@ describe("Testing `forcedUnlock` method", () => {
     const num = randomInt(69, 420);
 
     for (let i = 0; i < num; ++i) {
-      m.lock();
+      void m.lock();
     }
 
     expect(m.lockersCount).toBe(num);
@@ -111,7 +111,7 @@ describe("Testing `forcedUnlock` method", () => {
 
 describe("Testing `lock` method", async () => {
   test("Testing order of execution", async () => {
-    async function notAwaitedAsync() {
+    async function notAwaitedAsync(): Promise<void> {
       const lock2 = await m.lock();
       val = 2;
       lock2.unlock();
@@ -122,7 +122,7 @@ describe("Testing `lock` method", async () => {
     const m = new Mutex("Hello World... program to work and not to feel");
     const lock1 = await m.lock();
 
-    notAwaitedAsync();
+    void notAwaitedAsync();
 
     expect(val).toBe(1);
     lock1.unlock();
@@ -139,7 +139,7 @@ test("ensures mutex preserves lock order regardless of task duration", async () 
 
   let prevNumber = 100;
 
-  async function lock(num: number) {
+  async function lock(num: number): Promise<void> {
     const l = await m.lock();
     await sleep(num);
 

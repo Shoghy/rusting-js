@@ -10,7 +10,7 @@
   },
   "formatter": {
     "enabled": true,
-    "indentStyle": "tab",
+    "indentStyle": "space",
     "indentWidth": 2,
     "lineEnding": "lf"
   },
@@ -29,10 +29,11 @@
       "suspicious": {
         "noExplicitAny": "error",
         "noDoubleEquals": "error",
-        "noEmptyBlockStatements": "error",
         "noVar": "error",
         "noDeprecatedImports": "warn",
-        "noEmptyInterface": "warn"
+        "noEmptyInterface": "warn",
+        "noConsole": "warn",
+        "noConfusingVoidType": "off"
       },
       "complexity": {
         "noUselessCatch": "error",
@@ -54,7 +55,7 @@
         "noShadow": "warn",
         "useExplicitReturnType": {
           "level": "warn",
-          "options": { "allowExpressions": true }
+          "options": { "allowExpressions": true, "allowIifes": true }
         },
         "noUnnecessaryConditions": "error",
         "noFloatingPromises": "warn"

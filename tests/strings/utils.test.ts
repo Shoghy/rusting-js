@@ -1,4 +1,4 @@
-import { test, describe, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { stringToUtf8 } from "../../src/strings/utils.ts";
 
 describe("should convert string into utf-8", () => {

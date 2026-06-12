@@ -1,13 +1,14 @@
 import { Err, Ok, type Result } from "../enums/result.ts";
 import { Iter } from "../iterators/iter.ts";
+import type { IterMap } from "../iterators/iter_map.ts";
+import { Char } from "./char.ts";
 import {
   FromUtf8Error,
   runUtf8Validation,
+  splitUtf8Chars,
   stringToUtf8,
   utf8ToString,
-  splitUtf8Chars,
 } from "./utils.ts";
-import { Char } from "./char.ts";
 
 export class RString {
   #bytes: Uint8Array;
@@ -16,7 +17,7 @@ export class RString {
     this.#bytes = new Uint8Array();
   }
 
-  static fromStr(str: string) {
+  static fromStr(str: string): RString {
     const bytes: number[] = [];
 
     bytes.push(...stringToUtf8(str));
@@ -66,19 +67,19 @@ export class RString {
     return this.#bytes.slice();
   }
 
-  clear() {
+  clear(): void {
     this.#bytes = new Uint8Array(0);
   }
 
-  isEmpty() {
+  isEmpty(): boolean {
     return this.#bytes.length === 0;
   }
 
-  capacity() {
+  capacity(): number {
     return this.#bytes.byteLength;
   }
 
-  chars() {
+  chars(): IterMap<Uint8Array<ArrayBufferLike>, Char> {
     return new Iter(splitUtf8Chars(this.#bytes)).map((bytes) =>
       Char.fromUtf8(bytes).expect("Invalid UTF-8"),
     );

@@ -1,8 +1,8 @@
 import { panic } from "../panic.ts";
 import type { TryStatic } from "../traits/try_trait.ts";
 import { StaticImplements } from "../utils.ts";
-import { EnumClass } from "./enum.ts";
 import { ControlFlow } from "./control_flow.ts";
+import { EnumClass } from "./enum.ts";
 import { Err, Ok, type Result } from "./result.ts";
 
 type FlattenOption<T> = T extends Option<infer V> ? FlattenOption<V> : T;
@@ -10,6 +10,7 @@ type FlattenOption<T> = T extends Option<infer V> ? FlattenOption<V> : T;
 @StaticImplements<TryStatic<unknown, Option<unknown>>>()
 export class Option<T> extends EnumClass<{ Some: T; None: void }> {
   override isValidTypeValue(type: "None" | "Some", value: T | void): boolean {
+    // biome-ignore lint/nursery/noUnnecessaryConditions: for ts is unreachable code, but this is a validation
     switch (type) {
       case "None":
         return value === undefined;
@@ -20,7 +21,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
     return false;
   }
 
-  static fromOutput<T>(output: T) {
+  static fromOutput<ST>(output: ST): Option<ST> {
     return Some(output);
   }
 
@@ -34,14 +35,14 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
   /**
    * Creates a `Some` type `Option`
    */
-  static Some<T>(value: T): Option<T> {
+  static Some<ST>(value: ST): Option<ST> {
     return new Option("Some", value);
   }
 
   /**
    * Creates a `None` type `Option`
    */
-  static None<T>(): Option<T> {
+  static None<ST>(): Option<ST> {
     return new Option("None");
   }
 
@@ -55,15 +56,11 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    * expect(Option.fromValue("aiueo").isNone()).toBe(false);
    * ```
    */
-  static fromValue<T>(value: T): Option<Exclude<T, null | undefined>> {
-    if (
-      value === null ||
-      value === undefined ||
-      (typeof value === "number" && isNaN(value))
-    ) {
+  static fromValue<ST>(value: ST): Option<Exclude<ST, null | undefined>> {
+    if (value === null || value === undefined || Number.isNaN(value)) {
       return None();
     }
-    return Some(value as Exclude<T, null | undefined>);
+    return Some(value as Exclude<ST, null | undefined>);
   }
 
   /**

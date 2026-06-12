@@ -1,10 +1,11 @@
+import { ControlFlow } from "../enums/control_flow.ts";
 import { None, type Option, Some } from "../enums/option.ts";
 import { Err, Ok, type Result } from "../enums/result.ts";
 import { unimplemented } from "../panic.ts";
-import { ControlFlow } from "../enums/control_flow.ts";
 
 export abstract class RIterator<T> implements Iterable<T> {
-  *[Symbol.iterator]() {
+  *[Symbol.iterator](): Generator<T, void, unknown> {
+    // biome-ignore lint/nursery/noUnnecessaryConditions: the loop handles iternaly its own break
     while (true) {
       const val = this.next();
       if (val.isNone()) {
@@ -60,7 +61,7 @@ export abstract class RIterator<T> implements Iterable<T> {
     return new Intersperse(this, separator);
   }
 
-  map<B>(f: (value: T) => B) {
+  map<B>(f: (value: T) => B): IterMap<T, B> {
     return new IterMap(this, f);
   }
 
@@ -116,13 +117,13 @@ export abstract class RIterator<T> implements Iterable<T> {
     unimplemented(`Implement this method. ${initialState} ${f}`);
   }
 
-  flatMap<U>(f: () => U) {
+  flatMap<U>(f: () => U): never {
     unimplemented(
       `I am not sure of how to implement this, or if it can be implemented. ${f}`,
     );
   }
 
-  flatten() {
+  flatten(): never {
     unimplemented(
       "I am not sure of how to implement this, or if it can be implemented",
     );
@@ -159,6 +160,7 @@ export abstract class RIterator<T> implements Iterable<T> {
   ): R {
     let accum = init;
 
+    // biome-ignore lint/nursery/noUnnecessaryConditions: the loop handles iternaly its own break
     while (true) {
       const val = this.next();
       if (val.isNone()) {
@@ -176,13 +178,14 @@ export abstract class RIterator<T> implements Iterable<T> {
     return type.fromOutput(accum) as R;
   }
 
-  tryForeach() {
+  tryForeach(): never {
     unimplemented();
   }
 
   fold<B>(init: B, f: (accum: B, item: T) => B): B {
     let accum = init;
 
+    // biome-ignore lint/nursery/noUnnecessaryConditions: the loop handles iternaly its own break
     while (true) {
       const val = this.next();
       if (val.isNone()) {
@@ -202,7 +205,7 @@ export abstract class RIterator<T> implements Iterable<T> {
     });
   }
 
-  tryReduce() {
+  tryReduce(): never {
     unimplemented();
   }
 
@@ -216,39 +219,39 @@ export abstract class RIterator<T> implements Iterable<T> {
     }).isContinue();
   }
 
-  any() {
+  any(): never {
     unimplemented();
   }
 
-  find() {
+  find(): never {
     unimplemented();
   }
 
-  findMap() {
+  findMap(): never {
     unimplemented();
   }
 
-  tryFind() {
+  tryFind(): never {
     unimplemented();
   }
 
-  position() {
+  position(): never {
     unimplemented();
   }
 
-  maxBy() {
+  maxBy(): never {
     unimplemented();
   }
 
-  minBy() {
+  minBy(): never {
     unimplemented();
   }
 
-  rev() {
+  rev(): never {
     unimplemented();
   }
 
-  cycle() {
+  cycle(): never {
     unimplemented();
   }
 }
@@ -257,9 +260,9 @@ export interface FromIterator<T, R> {
   fromIter(iter: RIterator<T>): R;
 }
 
-import { StepBy } from "../iterators/step_by.ts";
 import { Chain } from "../iterators/chain.ts";
-import { Zip } from "../iterators/zip.ts";
-import { IterMap } from "../iterators/iter_map.ts";
 import { Intersperse } from "../iterators/intersperse.ts";
+import { IterMap } from "../iterators/iter_map.ts";
+import { StepBy } from "../iterators/step_by.ts";
+import { Zip } from "../iterators/zip.ts";
 import type { TryInstance, TryStatic } from "./try_trait.ts";

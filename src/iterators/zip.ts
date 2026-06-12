@@ -35,6 +35,7 @@ export class Zip<A, B> extends RIterator<[A, B]> {
   protected specFold<Acc>(init: Acc, f: (acc: Acc, item: [A, B]) => Acc): Acc {
     let accum = init;
 
+    // biome-ignore lint/nursery/noUnnecessaryConditions: the loop handles iternaly its own break
     while (true) {
       const val = this.next();
       if (val.isNone()) {
