@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { panic } from "../panic.ts";
 
+const typeSymbol = Symbol("type");
+const valueSymbol = Symbol("type");
+
+type MatchArms<S extends object, T> = {
+  [K in keyof S]: (value: S[K]) => T;
+};
+
 /**
  * A generic abstract base class for building type–value–tagged enums.
  *
@@ -12,8 +19,8 @@ import { panic } from "../panic.ts";
  * values represent the associated data type of each variant.
  */
 export abstract class EnumClass<Schema extends object> {
-  #type: keyof Schema;
-  #value: Schema[keyof Schema];
+  [typeSymbol]: keyof Schema;
+  [valueSymbol]: Schema[keyof Schema];
 
   /**
    * Constructs a new enum instance.
@@ -24,8 +31,8 @@ export abstract class EnumClass<Schema extends object> {
     if (!this.isValidTypeValue(type, value)) {
       panic("Invalid type");
     }
-    this.#type = type;
-    this.#value = value;
+    this[typeSymbol] = type;
+    this[valueSymbol] = value;
   }
 
   /**
@@ -44,33 +51,27 @@ export abstract class EnumClass<Schema extends object> {
     type: T,
     func: (value: Schema[T]) => void,
   ): void {
-    if (type !== this.#type) {
+    if (type !== this[typeSymbol]) {
       return;
     }
-    func(this.#value as Schema[T]);
+    func(this[valueSymbol] as Schema[T]);
   }
 
   /**
    * Pattern-matches against all possible variants.
    */
-  match<T>(arms: { [K in keyof Schema]: (value: Schema[K]) => T }): T;
+  match<T>(arms: MatchArms<Schema, T>): T;
   /**
    * Pattern-matches against variants, with an optional default branch.
    */
-  match<T>(
-    arms: { [K in keyof Schema]?: (value: Schema[K]) => T },
-    def: () => T,
-  ): T;
-  match<T>(
-    arms: { [K in keyof Schema]?: (value: Schema[K]) => T },
-    def?: () => T,
-  ): T {
-    if (this.#type in arms) {
-      const arm = arms[this.#type];
+  match<T>(arms: Partial<MatchArms<Schema, T>>, def: () => T): T;
+  match<T>(arms: Partial<MatchArms<Schema, T>>, def?: () => T): T {
+    if (this[typeSymbol] in arms) {
+      const arm = arms[this[typeSymbol]];
       if (typeof arm !== "function") {
-        panic(`${String(this.#type)} in match is not a function`);
+        panic(`${String(this[typeSymbol])} in match is not a function`);
       }
-      return arm(this.#value);
+      return arm(this[valueSymbol]);
     }
 
     if (typeof def !== "function") {
@@ -84,7 +85,7 @@ export abstract class EnumClass<Schema extends object> {
    * Checks whether the current variant matches the given type.
    */
   is(type: keyof Schema): boolean {
-    return type === this.#type;
+    return type === this[typeSymbol];
   }
 
   /**
@@ -96,8 +97,8 @@ export abstract class EnumClass<Schema extends object> {
       return false;
     }
 
-    this.#type = type;
-    this.#value = value;
+    this[typeSymbol] = type;
+    this[valueSymbol] = value;
 
     return true;
   }
