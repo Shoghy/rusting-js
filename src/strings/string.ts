@@ -30,12 +30,12 @@ export class RString {
 
   static fromUtf8(bytes: Uint8Array): Result<RString, FromUtf8Error> {
     return runUtf8Validation(bytes).match({
-      Err: (e) => Err(new FromUtf8Error(bytes, e)),
+      Err: (e) => Err<RString, FromUtf8Error>(new FromUtf8Error(bytes, e)),
       Ok: () => {
         const self = new RString();
         self.#bytes = new Uint8Array(bytes);
 
-        return Ok(self);
+        return Ok<RString, FromUtf8Error>(self);
       },
     });
   }

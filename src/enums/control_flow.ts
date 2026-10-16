@@ -23,8 +23,9 @@ export class ControlFlow<B, C> extends EnumClass<{ Break: B; Continue: C }> {
 
   branch(): ControlFlow<ControlFlow<B, C>, C> {
     return this.match({
-      Continue: (c) => ControlFlow.Continue(c),
-      Break: (b) => ControlFlow.Break(ControlFlow.Break(b)),
+      Continue: (c) => ControlFlow.Continue<ControlFlow<B, C>, C>(c),
+      Break: (b) =>
+        ControlFlow.Break<ControlFlow<B, C>, C>(ControlFlow.Break(b)),
     });
   }
 
@@ -60,29 +61,29 @@ export class ControlFlow<B, C> extends EnumClass<{ Break: B; Continue: C }> {
 
   breakValue(): Option<B> {
     return this.match({
-      Continue: () => None(),
+      Continue: () => None<B>(),
       Break: (b) => Some(b),
     });
   }
 
   mapBreak<T>(f: (b: B) => T): ControlFlow<T, C> {
     return this.match({
-      Continue: (c) => ControlFlow.Continue(c),
-      Break: (b) => ControlFlow.Break(f(b)),
+      Continue: (c) => ControlFlow.Continue<T, C>(c),
+      Break: (b) => ControlFlow.Break<T, C>(f(b)),
     });
   }
 
   continueValue(): Option<C> {
     return this.match({
       Continue: (c) => Some(c),
-      Break: () => None(),
+      Break: () => None<C>(),
     });
   }
 
   mapContinue<T>(f: (b: C) => T): ControlFlow<B, T> {
     return this.match({
-      Continue: (c) => ControlFlow.Continue(f(c)),
-      Break: (b) => ControlFlow.Break(b),
+      Continue: (c) => ControlFlow.Continue<B, T>(f(c)),
+      Break: (b) => ControlFlow.Break<B, T>(b),
     });
   }
 }

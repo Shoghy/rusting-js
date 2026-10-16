@@ -27,8 +27,8 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
 
   branch(): ControlFlow<Option<T>, T> {
     return this.match({
-      Some: (v) => ControlFlow.Continue(v),
-      None: () => ControlFlow.Break(None()),
+      Some: (v) => ControlFlow.Continue<Option<T>, T>(v),
+      None: () => ControlFlow.Break<Option<T>, T>(None()),
     });
   }
 
@@ -246,7 +246,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
   andThen<U>(f: (value: T) => Option<U>): Option<U> {
     return this.match({
       Some: (x) => f(x),
-      None: () => None(),
+      None: () => None<U>(),
     });
   }
 
@@ -382,7 +382,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
         this.changeTo("None", undefined);
         return Some(x);
       },
-      None: () => None(),
+      None: () => None<T>(),
     });
   }
 
@@ -492,7 +492,7 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
   map<U>(f: (value: T) => U): Option<U> {
     return this.match({
       Some: (x) => Some(f(x)),
-      None: () => None(),
+      None: () => None<U>(),
     });
   }
 
@@ -573,8 +573,8 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    */
   okOr<E>(err: E): Result<T, E> {
     return this.match({
-      Some: (x) => Ok(x),
-      None: () => Err(err),
+      Some: (x) => Ok<T, E>(x),
+      None: () => Err<T, E>(err),
     });
   }
 
@@ -594,8 +594,8 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
    */
   okOrElse<E>(err: () => E): Result<T, E> {
     return this.match({
-      Some: (x) => Ok(x),
-      None: () => Err(err()),
+      Some: (x) => Ok<T, E>(x),
+      None: () => Err<T, E>(err()),
     });
   }
 
@@ -666,11 +666,11 @@ export class Option<T> extends EnumClass<{ Some: T; None: void }> {
     return this.match({
       Some(opt) {
         if (!(opt instanceof Option)) {
-          return Some(opt);
+          return Some(opt as FlattenOption<T>);
         }
         return opt.flatten();
       },
-      None: () => None(),
+      None: () => None<FlattenOption<T>>(),
     });
   }
 }

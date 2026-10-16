@@ -25,8 +25,8 @@ export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
 
   branch(): ControlFlow<Result<T, E>, T> {
     return this.match({
-      Ok: (v) => ControlFlow.Continue(v),
-      Err: (e) => ControlFlow.Break(Err(e)),
+      Ok: (v) => ControlFlow.Continue<Result<T, E>, T>(v),
+      Err: (e) => ControlFlow.Break<Result<T, E>, T>(Err(e)),
     });
   }
 
@@ -135,7 +135,7 @@ export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
   and<U>(res: Result<U, E>): Result<U, E> {
     return this.match({
       Ok: () => res,
-      Err: (e) => Err(e),
+      Err: (e) => Err<U, E>(e),
     });
   }
 
@@ -159,7 +159,7 @@ export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
   andThen<U>(func: (value: T) => Result<U, E>): Result<U, E> {
     return this.match({
       Ok: (t) => func(t),
-      Err: (e) => Err(e),
+      Err: (e) => Err<U, E>(e),
     });
   }
 
@@ -178,7 +178,7 @@ export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
    */
   err(): Option<E> {
     return this.match({
-      Ok: () => None(),
+      Ok: () => None<E>(),
       Err: (x) => Some(x),
     });
   }
@@ -305,8 +305,8 @@ export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
    */
   map<U>(func: (ok: T) => U): Result<U, E> {
     return this.match({
-      Ok: (t) => Ok(func(t)),
-      Err: (e) => Err(e),
+      Ok: (t) => Ok<U, E>(func(t)),
+      Err: (e) => Err<U, E>(e),
     });
   }
 
@@ -326,8 +326,8 @@ export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
    */
   mapErr<F>(func: (err: E) => F): Result<T, F> {
     return this.match({
-      Ok: (t) => Ok(t),
-      Err: (e) => Err(func(e)),
+      Ok: (t) => Ok<T, F>(t),
+      Err: (e) => Err<T, F>(func(e)),
     });
   }
 
@@ -393,7 +393,7 @@ export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
   ok(): Option<T> {
     return this.match({
       Ok: (t) => Some(t),
-      Err: () => None(),
+      Err: () => None<T>(),
     });
   }
 
@@ -420,7 +420,7 @@ export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
    */
   or<F>(res: Result<T, F>): Result<T, F> {
     return this.match({
-      Ok: (v) => Ok(v),
+      Ok: (v) => Ok<T, F>(v),
       Err: () => res,
     });
   }
@@ -441,7 +441,7 @@ export class Result<T, E> extends EnumClass<{ Ok: T; Err: E }> {
    */
   orElse<F>(op: (err: E) => Result<T, F>): Result<T, F> {
     return this.match({
-      Ok: (t) => Ok(t),
+      Ok: (t) => Ok<T, F>(t),
       Err: (e) => op(e),
     });
   }

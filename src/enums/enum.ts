@@ -60,17 +60,27 @@ export abstract class EnumClass<Schema extends object> {
   /**
    * Pattern-matches against all possible variants.
    */
-  match<T>(arms: MatchArms<Schema, T>): T;
+  match<T extends MatchArms<Schema, unknown>>(
+    arms: T,
+  ): ReturnType<T[keyof Schema]>;
   /**
    * Pattern-matches against variants, with an optional default branch.
    */
-  match<T>(arms: Partial<MatchArms<Schema, T>>, def: () => T): T;
-  match<T>(arms: Partial<MatchArms<Schema, T>>, def?: () => T): T {
+  match<T extends Partial<MatchArms<Schema, unknown>>, Def>(
+    arms: T,
+    def: () => Def,
+  ): ReturnType<Exclude<T[keyof T], undefined>> | Def;
+  match<T extends Partial<MatchArms<Schema, unknown>>, Def>(
+    arms: T,
+    def?: () => Def,
+  ): ReturnType<Exclude<T[keyof T], undefined>> | Def {
     if (this[typeSymbol] in arms) {
       const arm = arms[this[typeSymbol]];
       if (typeof arm !== "function") {
         panic(`${String(this[typeSymbol])} in match is not a function`);
       }
+
+      // @ts-expect-error
       return arm(this[valueSymbol]);
     }
 

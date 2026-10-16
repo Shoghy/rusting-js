@@ -201,7 +201,7 @@ export abstract class RIterator<T> implements Iterable<T> {
     const first = this.next();
     return first.match({
       Some: (value) => Some(this.fold(value, f)),
-      None: () => None(),
+      None: () => None<T>(),
     });
   }
 
